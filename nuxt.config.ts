@@ -10,6 +10,20 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: "",
   },
+  app: {
+    head: {
+      charset: "UTF-8",
+      title: "cylip|notes",
+      viewport: "width=device-width, initial-scale=1",
+      meta: [
+        {
+          hid: "description",
+          name: "description",
+          content: "Snap, Write, Remember",
+        },
+      ],
+    },
+  },
   experimental: { typedPages: true },
   future: { compatibilityVersion: 4 },
   hub: { database: true },

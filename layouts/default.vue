@@ -1,7 +1,3 @@
-<script setup lang="ts">
-useSeoMeta({ title: "Cylip Notes", description: "Snap, Write, Remember" });
-</script>
-
 <template>
   <div
     class="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-white"
