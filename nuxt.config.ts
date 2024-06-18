@@ -15,6 +15,6 @@ export default defineNuxtConfig({
   hub: { database: true },
   typescript: {
     strict: true,
-    typeCheck: true,
+    typeCheck: process.env.NODE_ENV === "development",
   },
 });
