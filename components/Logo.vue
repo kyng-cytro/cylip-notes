@@ -2,7 +2,7 @@
   <div class="relative">
     <NuxtLink
       to="/"
-      class="scroll-m-20 font-mono text-2xl font-bold tracking-tight"
+      class="scroll-m-20 p-2 font-mono text-2xl font-bold tracking-tight"
       @click="$emit('logo-click')"
     >
       <span>cylip</span>

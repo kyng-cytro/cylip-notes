@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-screen flex-col justify-between bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+    class="flex min-h-screen flex-col justify-between bg-background text-foreground"
   >
     <LandingHeader />
     <main class="py-8">
