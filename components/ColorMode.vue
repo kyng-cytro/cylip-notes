@@ -30,4 +30,10 @@ const colorMode = useColorMode();
       </DropdownMenuContent>
     </DropdownMenu>
   </ClientOnly>
+  <!-- <ServerPlaceholder> -->
+  <!--   <Button variant="ghost"> -->
+  <!--     <Moon class="h-[1.2rem] w-[1.2rem]" /> -->
+  <!--     <span class="sr-only">Toggle theme</span> -->
+  <!--   </Button> -->
+  <!-- </ServerPlaceholder> -->
 </template>

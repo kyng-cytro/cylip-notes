@@ -4,5 +4,45 @@ definePageMeta({
 });
 </script>
 <template>
-  <div>Page</div>
+  <div class="-mt-16">
+    <div class="flex items-center justify-center overflow-auto">
+      <div class="relative isolate px-6 py-14 lg:px-8">
+        <div class="max-w-2xl">
+          <!-- Badge -->
+          <div class="hidden sm:mb-8 sm:flex sm:justify-center">
+            <Badge
+              class="leading-1 cursor-pointer space-x-2 rounded-full px-3 py-1 text-sm"
+              variant="secondary"
+              ><span class="font-normal"
+                >Now Featuring AI-Enhanced Insights and Search</span
+              >
+              <NuxtLink class="font-semibold text-blue-400" to="/dashboard"
+                >Try It Now <span aria-hidden="true">→</span></NuxtLink
+              >
+            </Badge>
+          </div>
+          <!-- Hero Text -->
+          <div class="text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">
+              Your Notes, Now<br />
+              Smarter Than Ever
+            </h1>
+            <p class="mt-6 text-lg leading-8 text-muted-foreground">
+              <span class="font-semibold">Snap</span> Your Ideas,
+              <span class="font-semibold">Note</span> Them Down, and Always
+              <span class="font-semibold">Remember</span>.
+            </p>
+
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+              <Button class="font-semibold" size="lg">Get Started</Button>
+              <Button class="space-x-1 font-semibold" variant="link" size="lg"
+                ><span>Learn More</span>
+                <span aria-hidden="true">→</span></Button
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

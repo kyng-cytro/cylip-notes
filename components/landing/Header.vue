@@ -7,7 +7,7 @@ const closeMobileMenu = () => {
 };
 </script>
 <template>
-  <header class="sticky top-0 z-50 w-full py-3">
+  <header class="sticky top-0 z-50 w-full py-2">
     <nav
       class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8"
     >
@@ -23,7 +23,7 @@ const closeMobileMenu = () => {
       <!-- Actions -->
       <div class="hidden items-center gap-x-2 lg:flex">
         <ColorMode />
-        <Button>Sign In</Button>
+        <Button class="font-semibold">Sign In</Button>
       </div>
 
       <!-- Mobile menu -->

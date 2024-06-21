@@ -19,7 +19,7 @@ export default defineNuxtConfig({
         {
           hid: "description",
           name: "description",
-          content: "Snap, Write, Remember",
+          content: "Snap, Note, Remember",
         },
       ],
     },
