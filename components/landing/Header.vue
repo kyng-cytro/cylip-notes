@@ -22,11 +22,13 @@ const closeMobileMenu = () => {
 
       <!-- Actions -->
       <div class="hidden items-center gap-x-2 lg:flex">
+        <ColorMode />
         <Button>Sign In</Button>
       </div>
 
       <!-- Mobile menu -->
       <div class="flex lg:hidden">
+        <ColorMode />
         <Button
           class="px-2"
           variant="ghost"
@@ -41,7 +43,7 @@ const closeMobileMenu = () => {
     </nav>
     <Transition name="shutter">
       <div
-        class="absolute flex h-[88.4vh] w-full flex-col gap-y-3 bg-white px-6 dark:bg-slate-900 lg:hidden"
+        class="absolute flex h-[88.4vh] w-full flex-col gap-y-3 bg-background px-6 lg:hidden"
         v-if="mobileMenuOpen"
       >
         <NuxtLink
