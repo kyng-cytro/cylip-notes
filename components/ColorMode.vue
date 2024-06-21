@@ -29,11 +29,11 @@ const colorMode = useColorMode();
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <template #fallback>
+      <Button variant="ghost">
+        <Skeleton class="h-[1.2rem] w-[1.2rem]" />
+        <span class="sr-only">Toggle theme</span>
+      </Button>
+    </template>
   </ClientOnly>
-  <!-- <ServerPlaceholder> -->
-  <!--   <Button variant="ghost"> -->
-  <!--     <Moon class="h-[1.2rem] w-[1.2rem]" /> -->
-  <!--     <span class="sr-only">Toggle theme</span> -->
-  <!--   </Button> -->
-  <!-- </ServerPlaceholder> -->
 </template>
