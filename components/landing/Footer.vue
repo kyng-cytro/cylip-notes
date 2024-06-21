@@ -9,7 +9,7 @@
         <div class="order-1 flex items-center gap-x-2 md:order-2">
           <NuxtLink
             class="p-2"
-            to="https://x.com/Cytro"
+            to="http://github.com/kyng-cytro"
             target="_blank"
             external
           >
@@ -47,7 +47,7 @@
           </NuxtLink>
           <NuxtLink
             class="p-2"
-            to="http://github.com/kyng-cytro"
+            to="https://x.com/Cytro"
             target="_blank"
             external
           >
