@@ -32,7 +32,6 @@ const closeMobileMenu = () => {
       <div class="flex lg:hidden">
         <ColorMode />
         <Button
-          to="/dashboard"
           class="px-2"
           variant="ghost"
           @click="mobileMenuOpen = !mobileMenuOpen"
