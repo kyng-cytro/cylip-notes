@@ -1,5 +1,4 @@
 import { verifyRequestOrigin } from "lucia";
-
 import type { Session, User } from "lucia";
 
 export default defineEventHandler(async (event) => {
@@ -14,14 +13,13 @@ export default defineEventHandler(async (event) => {
       return event.node.res.writeHead(403).end();
     }
   }
-
+  const lucia = initializeLucia();
   const sessionId = getCookie(event, lucia.sessionCookieName) ?? null;
   if (!sessionId) {
     event.context.session = null;
     event.context.user = null;
     return;
   }
-
   const { session, user } = await lucia.validateSession(sessionId);
   if (session && session.fresh) {
     appendResponseHeader(
