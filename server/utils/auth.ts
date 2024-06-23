@@ -1,8 +1,11 @@
 import { Lucia } from "lucia";
 import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
-import { sessionTable, userTable } from "@/server/database/schema";
 
-const adapter = new DrizzleSQLiteAdapter(useDrizzle(), sessionTable, userTable);
+const adapter = new DrizzleSQLiteAdapter(
+  useDrizzle(),
+  tables.sessionTable,
+  tables.userTable,
+);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
