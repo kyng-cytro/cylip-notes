@@ -7,7 +7,7 @@ const closeMobileMenu = () => {
 };
 </script>
 <template>
-  <header class="sticky top-0 z-50 w-full py-2">
+  <header class="sticky top-0 z-50 mt-2 w-full backdrop-blur-md">
     <nav
       class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8"
     >
