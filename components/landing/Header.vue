@@ -25,13 +25,14 @@ const closeMobileMenu = () => {
       <!-- Actions -->
       <div class="hidden items-center gap-x-2 lg:flex">
         <ColorMode />
-        <Button class="font-semibold">Sign In</Button>
+        <Button to="/dashboard" class="font-semibold">Sign In</Button>
       </div>
 
       <!-- Mobile menu -->
       <div class="flex lg:hidden">
         <ColorMode />
         <Button
+          to="/dashboard"
           class="px-2"
           variant="ghost"
           @click="mobileMenuOpen = !mobileMenuOpen"
@@ -64,6 +65,7 @@ const closeMobileMenu = () => {
         >
         <hr />
         <Button
+          to="/dashboard"
           class="border-2 border-primary font-semibold dark:border-secondary"
           variant="outline"
           size="lg"

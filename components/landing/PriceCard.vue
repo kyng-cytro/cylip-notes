@@ -30,6 +30,7 @@ defineProps<{
     <CardContent>
       <Button
         class="w-full font-semibold"
+        :to="button.to"
         :variant="button.variant"
         size="lg"
         >{{ button.text }}</Button

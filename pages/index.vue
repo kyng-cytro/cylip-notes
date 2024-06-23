@@ -34,7 +34,9 @@ definePageMeta({
             </p>
 
             <div class="mt-10 flex items-center justify-center gap-x-6">
-              <Button class="font-semibold" size="lg">Get Started</Button>
+              <Button to="/dashboard" class="font-semibold" size="lg"
+                >Get Started</Button
+              >
               <Button class="space-x-1 font-semibold" variant="link" size="lg"
                 ><span>Learn More</span>
                 <span aria-hidden="true">→</span></Button
