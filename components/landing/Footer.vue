@@ -1,5 +1,5 @@
 <template>
-  <footer class="bottom-0 w-full bg-muted text-muted-foreground">
+  <footer class="w-full bg-muted text-muted-foreground">
     <h2 id="footer-heading" class="sr-only">Footer</h2>
     <div class="mx-auto max-w-7xl">
       <div class="flex flex-col justify-between gap-2 p-4 md:flex-row md:px-6">
