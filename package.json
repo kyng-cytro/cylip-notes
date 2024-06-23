@@ -11,12 +11,14 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@nuxthub/core": "latest",
     "@nuxtjs/tailwindcss": "^6.12.0",
     "@radix-icons/vue": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.2",
+    "lucia": "^3.2.0",
     "lucide-vue-next": "^0.395.0",
     "nuxt": "^3.12.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
