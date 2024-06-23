@@ -24,7 +24,7 @@ definePageMeta({
           <!-- Hero Text -->
           <div class="text-center">
             <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">
-              Your Notes, Now<br />
+              Your Notes, But<br />
               Smarter Than Ever
             </h1>
             <p class="mt-6 text-lg leading-8 text-muted-foreground">
