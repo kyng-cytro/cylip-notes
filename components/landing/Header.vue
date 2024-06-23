@@ -17,7 +17,6 @@ const closeMobileMenu = () => {
       <!-- Navigation -->
       <div class="hidden lg:flex lg:gap-x-12">
         <NuxtLink class="font-semibold" to="/pricing">Pricing</NuxtLink>
-        <NuxtLink class="font-semibold" to="/help">Help</NuxtLink>
       </div>
 
       <!-- Actions -->
@@ -59,13 +58,6 @@ const closeMobileMenu = () => {
           to="/pricing"
           @click="closeMobileMenu"
           >Pricing</NuxtLink
-        >
-        <NuxtLink
-          class="flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors hover:text-foreground/80"
-          active-class="bg-muted"
-          to="/help"
-          @click="closeMobileMenu"
-          >Help</NuxtLink
         >
         <hr />
         <Button
