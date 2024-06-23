@@ -7,7 +7,10 @@ const closeMobileMenu = () => {
 };
 </script>
 <template>
-  <header class="sticky top-0 z-50 mt-2 w-full backdrop-blur-md">
+  <header
+    class="sticky top-0 z-50 w-full backdrop-blur-md"
+    :class="{ pattern: !mobileMenuOpen, 'bg-background': mobileMenuOpen }"
+  >
     <nav
       class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8"
     >
@@ -42,7 +45,7 @@ const closeMobileMenu = () => {
     </nav>
     <Transition name="shutter">
       <div
-        class="absolute flex h-[88.4vh] w-full flex-col gap-y-3 bg-background px-6 lg:hidden"
+        class="absolute flex h-[91vh] w-full flex-col gap-y-3 bg-background px-6 lg:hidden"
         v-if="mobileMenuOpen"
       >
         <NuxtLink
