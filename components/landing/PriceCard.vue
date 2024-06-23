@@ -36,7 +36,7 @@ defineProps<{
       >
     </CardContent>
     <CardFooter
-      class="flex flex-col items-start justify-between gap-y-3 lg:h-52"
+      class="flex flex-col items-start justify-between gap-y-6 lg:h-52"
     >
       <ul role="list" class="mt-3 space-y-3 text-sm leading-6 lg:mt-6">
         <li class="flex gap-x-3" :key="perk" v-for="perk in perks">
