@@ -4,7 +4,7 @@ definePageMeta({
 });
 </script>
 <template>
-  <div class="-mt-16">
+  <div class="sm:-mt-16">
     <div class="flex items-center justify-center">
       <div class="relative isolate px-6 py-14 lg:px-8">
         <div class="max-w-2xl">
