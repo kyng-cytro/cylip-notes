@@ -63,6 +63,7 @@ const closeMobileMenu = () => {
         <Button
           class="border-2 border-primary font-semibold dark:border-secondary"
           variant="outline"
+          size="lg"
           >Sign In</Button
         >
       </div>
