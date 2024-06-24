@@ -15,6 +15,7 @@
     "@nuxthub/core": "latest",
     "@nuxtjs/tailwindcss": "^6.12.0",
     "@radix-icons/vue": "^1.0.0",
+    "arctic": "^1.9.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.2",
@@ -27,7 +28,8 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@nuxtjs/color-mode": "^3.4.1",
