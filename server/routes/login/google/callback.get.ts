@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
   ) {
     throw createError({
       status: 400,
+      message: "Authentication failed. Please try again.",
     });
   }
   try {
@@ -88,14 +89,16 @@ export default defineEventHandler(async (event) => {
     );
     return sendRedirect(event, "/dashboard");
   } catch (e) {
-    console.error(e);
+    console.error({ e });
     if (e instanceof OAuth2RequestError) {
       throw createError({
         status: 400,
+        message: "Authentication failed. Please try again.",
       });
     }
     throw createError({
       status: 500,
+      message: "Internal server error. Please try again later.",
     });
   }
 });

@@ -12,7 +12,7 @@ export const generateVerificationToken = async (userId: string) => {
     await db.insert(tables.emailVerificationTokenTable).values({
       id,
       userId,
-      expiresAt: createDate(new TimeSpan(2, "h")).getMilliseconds(),
+      expiresAt: createDate(new TimeSpan(2, "h")).getTime(),
     });
     return id;
   } catch (e) {
