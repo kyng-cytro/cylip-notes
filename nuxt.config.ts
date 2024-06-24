@@ -1,6 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  experimental: { typedPages: true },
+  future: { compatibilityVersion: 4 },
+  hub: { database: true, cache: true },
   modules: [
     "shadcn-nuxt",
     "@nuxthub/core",
@@ -9,6 +12,10 @@ export default defineNuxtConfig({
   ],
   colorMode: {
     classSuffix: "",
+  },
+  typescript: {
+    strict: true,
+    typeCheck: process.env.NODE_ENV === "development",
   },
   app: {
     head: {
@@ -24,11 +31,13 @@ export default defineNuxtConfig({
       ],
     },
   },
-  experimental: { typedPages: true },
-  future: { compatibilityVersion: 4 },
-  hub: { database: true, cache: true },
-  typescript: {
-    strict: true,
-    typeCheck: process.env.NODE_ENV === "development",
+  runtimeConfig: {
+    public: {
+      baseUrl: "",
+    },
+    google: {
+      clientId: "",
+      clientSecret: "",
+    },
   },
 });
