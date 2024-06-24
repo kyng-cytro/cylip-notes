@@ -48,7 +48,7 @@ definePageMeta({
             ]"
             :button="{
               text: 'Upgrade to Pro',
-              to: '/upgrade',
+              to: '/dashboard/upgrade',
               variant: 'default',
             }"
             description="More tokens,  more productivity."
@@ -63,7 +63,7 @@ definePageMeta({
             :extras="['No pro subscription required (we\'re not that clingy)']"
             :button="{
               text: 'Buy Tokens',
-              to: '/buy-tokens',
+              to: '/dashboard/buy-tokens',
               variant: 'outline',
             }"
             description="Need more tokens? We got you."
