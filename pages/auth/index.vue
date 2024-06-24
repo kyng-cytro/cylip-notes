@@ -1,3 +1,3 @@
 <template>
-  <div>Hello</div>
+  <div>Hello From Auth</div>
 </template>
