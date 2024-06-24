@@ -14,7 +14,7 @@ export const useUser = () => {
       method: "POST",
       body: { email: opts.email },
     });
-    await navigateTo("/check-email");
+    await navigateTo("/login/check-email");
   }
   async function logout() {
     await $fetch("/api/logout", {
