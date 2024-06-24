@@ -26,7 +26,7 @@ export default defineNuxtConfig({
   },
   experimental: { typedPages: true },
   future: { compatibilityVersion: 4 },
-  hub: { database: true },
+  hub: { database: true, cache: true },
   typescript: {
     strict: true,
     typeCheck: process.env.NODE_ENV === "development",
