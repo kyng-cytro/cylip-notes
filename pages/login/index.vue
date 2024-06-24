@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
 import { magicLinkLoginSchema } from "@/schemas/user";
-
 definePageMeta({
   layout: "auth",
 });
 
 const loading = ref(false);
-
+const { signIn } = useUser();
 const formSchema = toTypedSchema(magicLinkLoginSchema);
 
-const onSubmit = (values: Record<string, any>) => {
-  console.log("submit", values);
+const onSubmit = async (values: Record<string, any>) => {
+  loading.value = true;
+  try {
+    await signIn({ type: "magic-link", email: values.email });
+  } catch (e) {
+    console.log(e);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -57,7 +63,13 @@ const onSubmit = (values: Record<string, any>) => {
               </span>
             </div>
           </div>
-          <Button variant="outline" type="button"> Sign In with Google </Button>
+          <Button
+            variant="outline"
+            type="button"
+            @click="signIn({ type: 'google' })"
+          >
+            Sign In with Google
+          </Button>
         </Form>
         <div class="mt-4">
           <p class="px-8 text-center text-sm text-muted-foreground">
