@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     const users = await useDrizzle().select().from(tables.userTable);
     return { users };
   } catch (e: any) {
-    console.log(e);
+    console.error({ e });
     return { error: e.message };
   }
 });
