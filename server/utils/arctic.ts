@@ -8,5 +8,5 @@ const {
 export const google = new Google(
   googleEnv.clientId,
   googleEnv.clientSecret,
-  new URL("login/google/callback", baseUrl).href,
+  `${baseUrl}/login/google/callback`,
 );
