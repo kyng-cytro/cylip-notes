@@ -1,4 +1,5 @@
 import { Lucia } from "lucia";
+import type { User } from "./drizzle";
 import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
 
 export function initializeLucia() {
@@ -13,12 +14,21 @@ export function initializeLucia() {
         secure: !import.meta.dev,
       },
     },
+    getUserAttributes: (attributes) => {
+      return {
+        id: attributes.id,
+        name: attributes.name,
+        email: attributes.email,
+        googleId: attributes.googleId,
+        picture: attributes.picture,
+      };
+    },
   });
 }
 
-// IMPORTANT!
 declare module "lucia" {
   interface Register {
     Lucia: ReturnType<typeof initializeLucia>;
+    DatabaseUserAttributes: User;
   }
 }

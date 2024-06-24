@@ -26,24 +26,16 @@ export const usersRelations = relations(userTable, ({ many }) => ({
   emailVerificationTokens: many(emailVerificationTokenTable),
 }));
 
-export const sessionTable = sqliteTable(
-  "session",
-  {
-    id: text("id").notNull().primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => userTable.id, {
-        onUpdate: "cascade",
-        onDelete: "cascade",
-      }),
-    expiresAt: integer("expires_at").notNull(),
-  },
-  (session) => {
-    return {
-      userIdx: uniqueIndex("session_user_idx").on(session.userId),
-    };
-  },
-);
+export const sessionTable = sqliteTable("session", {
+  id: text("id").notNull().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, {
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    }),
+  expiresAt: integer("expires_at").notNull(),
+});
 
 export const sessionsRelations = relations(sessionTable, ({ one }) => ({
   user: one(userTable, {
