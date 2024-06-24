@@ -33,11 +33,11 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      baseUrl: "",
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
     },
     google: {
-      clientId: "",
-      clientSecret: "",
+      clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
+      clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
     },
   },
 });
