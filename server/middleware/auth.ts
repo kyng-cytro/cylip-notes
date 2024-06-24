@@ -2,7 +2,7 @@ import { verifyRequestOrigin } from "lucia";
 import type { Session, User } from "lucia";
 
 export default defineEventHandler(async (event) => {
-  if (event.method !== "GET") {
+  if (event.method !== "GET" && !import.meta.dev) {
     if (!event.path.includes("_hub")) {
       const originHeader = getHeader(event, "Origin") ?? null;
       const hostHeader = getHeader(event, "Host") ?? null;
