@@ -1,10 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import {
-  sqliteTable,
-  text,
-  integer,
-  uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 export const userTable = sqliteTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -12,6 +7,11 @@ export const userTable = sqliteTable("user", {
   email: text("email").notNull().unique(),
   googleId: text("google_id").unique(),
   picture: text("picture"),
+  tokens: integer("tokens").notNull().default(100),
+  joinedVia: text("joined_via", { enum: ["email", "google"] }).notNull(),
+  accountType: text("account_type", { enum: ["free", "premium"] })
+    .notNull()
+    .default("free"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),

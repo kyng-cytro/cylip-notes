@@ -1,11 +1,9 @@
 import { generateId } from "lucia";
+import { generateName } from "@/lib/name-generator";
 import { magicLinkLoginSchema } from "@/schemas/user";
 
 export default defineEventHandler(async (event) => {
-  const { email, name } = await readValidatedBody(
-    event,
-    magicLinkLoginSchema.parse,
-  );
+  const { email } = await readValidatedBody(event, magicLinkLoginSchema.parse);
   const db = useDrizzle();
   try {
     const user = await db
@@ -14,10 +12,12 @@ export default defineEventHandler(async (event) => {
       .where(eq(tables.userTable.email, email));
     if (!user.length || !user[0]) {
       const id = generateId(15);
+      const name = generateName(id);
       await db.insert(tables.userTable).values({
         id,
         email,
-        name: name ?? email,
+        name,
+        joinedVia: "email",
       });
       sendMagicLink(id, email);
       return event.node.res.writeHead(200).end();

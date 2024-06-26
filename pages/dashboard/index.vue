@@ -1,3 +1,10 @@
+<script setup lang="ts">
+const { user } = useUser();
+</script>
+
 <template>
-  <div>Dashboard</div>
+  <div>
+    <p>Dashboard</p>
+    <p v-if="user">Currently Logged in as {{ user.name }}</p>
+  </div>
 </template>
