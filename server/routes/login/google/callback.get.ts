@@ -78,6 +78,7 @@ export default defineEventHandler(async (event) => {
       email: googleUser.email,
       name: googleUser.name,
       picture: googleUser.picture,
+      joinedVia: "google",
     });
 
     // Create a session and redirect to dashboard
