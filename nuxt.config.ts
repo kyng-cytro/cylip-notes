@@ -34,10 +34,17 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+      novu: {
+        applicationIdentifier:
+          process.env.NUXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER,
+      },
     },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
+    },
+    novu: {
+      apiKey: process.env.NUXT_NOVU_API_KEY,
     },
   },
 });
