@@ -72,15 +72,23 @@ export default defineEventHandler(async (event) => {
     const userId = generateId(15);
 
     // Insert the user into the database
-    await db.insert(tables.userTable).values({
-      id: userId,
-      googleId: googleUser.sub,
-      email: googleUser.email,
-      name: googleUser.name,
-      picture: googleUser.picture,
-      joinedVia: "google",
-    });
-
+    const user = await db
+      .insert(tables.userTable)
+      .values({
+        id: userId,
+        googleId: googleUser.sub,
+        email: googleUser.email,
+        name: googleUser.name,
+        picture: googleUser.picture,
+        joinedVia: "google",
+      })
+      .returning();
+    if (!user.length || !user[0]) {
+      throw createError({
+        status: 500,
+      });
+    }
+    await registerSubscriber(user[0]);
     // Create a session and redirect to dashboard
     const session = await lucia.createSession(userId, {});
     appendHeader(
