@@ -6,6 +6,5 @@ const { user } = useUser();
   <div>
     <p>Dashboard</p>
     <p v-if="user">Currently Logged in as {{ user.name }}</p>
-    <NotificationCenter />
   </div>
 </template>
