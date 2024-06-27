@@ -3,7 +3,6 @@ import { Resend } from "resend";
 
 const {
   resend: { apiKey },
-  public: { baseUrl },
 } = useRuntimeConfig();
 
 const resend = new Resend(apiKey);
@@ -22,7 +21,7 @@ export const sendEmail = async ({
   category?: "welcome" | "sign-in";
 }) => {
   const { error } = await resend.emails.send({
-    from: `cylip|notes <no-reply@${baseUrl}>`,
+    from: "cylip|notes <no-reply@cylip-notes.cytro.com.ng>",
     to,
     subject,
     html,
