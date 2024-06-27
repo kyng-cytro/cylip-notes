@@ -5,6 +5,7 @@ import {
   Body,
   Html,
   Head,
+  Link,
   Preview,
   Heading,
   Container,
@@ -23,9 +24,6 @@ const paragraph = {
   fontSize: "16px",
   lineHeight: "26px",
 };
-const btnContainer = {
-  textAlign: "center",
-};
 const hr = {
   borderColor: "#cccccc",
   margin: "20px 0",
@@ -41,7 +39,7 @@ const footer = {
     <Preview> Log in with this magic link. </Preview>
     <Body :style="main">
       <Container :style="container">
-        <Section :style="btnContainer">
+        <Section :style="{ textAlign: 'center' }">
           <Heading as="h2" :style="{ textAlign: 'center' }"
             >Cylip Notes</Heading
           >
@@ -51,7 +49,7 @@ const footer = {
           This link will only be valid for the next 5 minutes. If you didn't try
           to login, you can safely ignore this email.
         </Text>
-        <Section :style="btnContainer">
+        <Section>
           <Link :href="url"> Click here to sign in </Link>
         </Section>
         <Text :style="paragraph">
