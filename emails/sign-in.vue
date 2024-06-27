@@ -5,6 +5,7 @@ import {
   Body,
   Html,
   Head,
+  Preview,
   Heading,
   Container,
   Section,
@@ -25,17 +26,6 @@ const paragraph = {
 const btnContainer = {
   textAlign: "center",
 };
-const button = {
-  backgroundColor: "rgb(15, 23, 42)",
-  color: "rgb(248, 250, 252)",
-  borderRadius: "6px",
-  fontSize: "14px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  textAlign: "center",
-  display: "block",
-  padding: "12px",
-};
 const hr = {
   borderColor: "#cccccc",
   margin: "20px 0",
@@ -52,7 +42,7 @@ const footer = {
     <Body :style="main">
       <Container :style="container">
         <Section :style="btnContainer">
-          <Heading as="h3" :style="{ textAlign: 'center' }"
+          <Heading as="h2" :style="{ textAlign: 'center' }"
             >Cylip Notes</Heading
           >
         </Section>
@@ -62,7 +52,7 @@ const footer = {
           to login, you can safely ignore this email.
         </Text>
         <Section :style="btnContainer">
-          <Button :style="button" :href="url"> Login to Cylip Notes </Button>
+          <Link :href="url"> Click here to sign in </Link>
         </Section>
         <Text :style="paragraph">
           Best,
