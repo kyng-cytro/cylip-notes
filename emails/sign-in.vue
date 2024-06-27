@@ -40,7 +40,7 @@ const footer = {
     <Body :style="main">
       <Container :style="container">
         <Section :style="{ textAlign: 'center' }">
-          <Heading as="h2" :style="{ textAlign: 'center' }"
+          <Heading as="h1" :style="{ textAlign: 'center' }"
             >Cylip Notes</Heading
           >
         </Section>
