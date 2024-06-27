@@ -5,7 +5,7 @@ export const sendMagicLink = async (user: User) => {
   const token = await generateVerificationToken(user.id);
   if (!token) return;
   const url = `${baseUrl}/verify-token/${token}`;
-  // if (import.meta.dev) return console.log({ url });
+  if (import.meta.dev) return console.log({ url });
   const { html, text, subject } = await renderSignInEmail({
     url,
     name: user.name,
