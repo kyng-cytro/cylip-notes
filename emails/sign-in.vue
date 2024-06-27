@@ -1,15 +1,77 @@
 <script setup lang="ts">
-import tailwindConfig from "./tailwind";
-import { Tailwind, Heading, Button } from "@vue-email/components";
 defineProps<{ url: string; name: string }>();
+import {
+  Text,
+  Body,
+  Html,
+  Head,
+  Heading,
+  Container,
+  Section,
+} from "@vue-email/components";
+const main = {
+  backgroundColor: "#ffffff",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+};
+const container = {
+  margin: "0 auto",
+  padding: "20px 0 48px",
+};
+const paragraph = {
+  fontSize: "16px",
+  lineHeight: "26px",
+};
+const btnContainer = {
+  textAlign: "center",
+};
+const button = {
+  backgroundColor: "rgb(15, 23, 42)",
+  color: "rgb(248, 250, 252)",
+  borderRadius: "6px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  textDecoration: "none",
+  textAlign: "center",
+  display: "block",
+  padding: "12px",
+};
+const hr = {
+  borderColor: "#cccccc",
+  margin: "20px 0",
+};
+const footer = {
+  color: "#8898aa",
+  fontSize: "12px",
+};
 </script>
 <template>
-  <Tailwind :config="tailwindConfig">
-    <Heading as="h2">Hi {{ name }},</Heading>
-    <p>
-      Someone (hopefully you) tried to log in to your cylip-notes account. You
-      can complete your login by clicking the link below.
-    </p>
-    <Button :href="url">Click Here</Button>
-  </Tailwind>
+  <Html>
+    <Head />
+    <Preview> Log in with this magic link. </Preview>
+    <Body :style="main">
+      <Container :style="container">
+        <Section :style="btnContainer">
+          <Heading as="h3" :style="{ textAlign: 'center' }"
+            >Cylip Notes</Heading
+          >
+        </Section>
+        <Text :style="paragraph">Hi {{ name }},</Text>
+        <Text :style="paragraph">
+          This link will only be valid for the next 5 minutes. If you didn't try
+          to login, you can safely ignore this email.
+        </Text>
+        <Section :style="btnContainer">
+          <Button :style="button" :href="url"> Login to Cylip Notes </Button>
+        </Section>
+        <Text :style="paragraph">
+          Best,
+          <br />
+          The Cylip Note team
+        </Text>
+        <Hr :style="hr" />
+        <Text :style="footer"> © 2024 Cytro. All rights reserved. </Text>
+      </Container>
+    </Body>
+  </Html>
 </template>
