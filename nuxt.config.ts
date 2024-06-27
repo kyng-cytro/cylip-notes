@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import vue from "@vitejs/plugin-vue";
 export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: { typedPages: true },
@@ -16,6 +17,10 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: process.env.NODE_ENV === "development",
+  },
+  nitro: {
+    // @ts-ignore
+    rollupConfig: { plugins: [vue()] },
   },
   app: {
     head: {
@@ -38,6 +43,9 @@ export default defineNuxtConfig({
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
+    },
+    resend: {
+      apiKey: process.env.NUXT_RESEND_API_KEY,
     },
   },
 });
