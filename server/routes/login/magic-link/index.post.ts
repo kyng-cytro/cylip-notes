@@ -13,22 +13,25 @@ export default defineEventHandler(async (event) => {
     if (!user.length || !user[0]) {
       const id = generateId(15);
       const name = generateName(id);
-      await db.insert(tables.userTable).values({
-        id,
-        email,
-        name,
-        joinedVia: "email",
-      });
+      const user = await db
+        .insert(tables.userTable)
+        .values({
+          id,
+          email,
+          name,
+          joinedVia: "email",
+        })
+        .returning();
       if (!user.length || !user[0]) {
         throw createError({
           status: 400,
           message: "Something went wrong",
         });
       }
-      sendMagicLink(user[0]);
+      await sendMagicLink(user[0]);
       return event.node.res.writeHead(200).end();
     }
-    sendMagicLink(user[0]);
+    await sendMagicLink(user[0]);
     return event.node.res.writeHead(200).end();
   } catch (e) {
     console.error({ e });
