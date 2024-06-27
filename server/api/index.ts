@@ -1,3 +1,5 @@
 export default defineEventHandler(async () => {
-  return { status: "ok" };
+  const { html } = await renderSignInEmail({ name: "John", url: "test" });
+  console.log(html);
+  return { status: "ok", html };
 });
