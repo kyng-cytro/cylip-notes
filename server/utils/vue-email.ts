@@ -1,16 +1,15 @@
+import type { Component } from "vue";
 import { render } from "@vue-email/render";
-//@ts-ignore
-import welcomeTempate from "~/emails/welcome.vue";
-//@ts-ignore
-import signInTemplate from "~/emails/sign-in.vue";
+import welcomeTempate from "@/emails/welcome.vue";
+import signInTemplate from "@/emails/sign-in.vue";
 
-const getHTML = (template: any, data: any) => {
+const getHTML = (template: Component, data: any) => {
   return render(template, data, {
     pretty: true,
   });
 };
 
-const getText = (template: any, data: any) => {
+const getText = (template: Component, data: any) => {
   return render(template, data, {
     plainText: true,
   });
