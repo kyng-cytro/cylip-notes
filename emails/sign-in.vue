@@ -13,8 +13,6 @@ import {
 } from "@vue-email/components";
 const main = {
   backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 const container = {
   margin: "0 auto",
@@ -50,7 +48,7 @@ const footer = {
           to login, you can safely ignore this email.
         </Text>
         <Section>
-          <Link :href="url"> Click here to sign in </Link>
+          <Link :style="paragraph" :href="url"> Click here to sign in </Link>
         </Section>
         <Text :style="paragraph">
           Best,
