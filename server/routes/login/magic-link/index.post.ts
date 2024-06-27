@@ -19,10 +19,16 @@ export default defineEventHandler(async (event) => {
         name,
         joinedVia: "email",
       });
-      sendMagicLink(id, email);
+      if (!user.length || !user[0]) {
+        throw createError({
+          status: 400,
+          message: "Something went wrong",
+        });
+      }
+      sendMagicLink(user[0]);
       return event.node.res.writeHead(200).end();
     }
-    sendMagicLink(user[0].id, email);
+    sendMagicLink(user[0]);
     return event.node.res.writeHead(200).end();
   } catch (e) {
     console.error({ e });

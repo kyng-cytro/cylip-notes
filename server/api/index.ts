@@ -1,3 +1,3 @@
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   return { status: "ok" };
 });
