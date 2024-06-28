@@ -8,6 +8,7 @@
       <span>cylip</span>
       <span>|</span>
       <span class="text-slate-400 dark:text-slate-600">notes</span>
+      <span class="sr-only">cylip|notes</span>
     </NuxtLink>
     <span class="absolute -right-5 -top-3 text-xs font-semibold tracking-tight"
       >[BETA]</span

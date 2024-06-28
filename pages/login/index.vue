@@ -45,6 +45,7 @@ const onSubmit = async (values: Record<string, any>) => {
                   <FormControl>
                     <Input
                       type="email"
+                      autocomplete="email"
                       placeholder="hello@example.com"
                       v-bind="componentField"
                     />
