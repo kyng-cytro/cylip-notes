@@ -1,10 +1,24 @@
 <script setup lang="ts">
-const { user } = useUser();
+definePageMeta({
+  layout: "dashboard",
+});
 </script>
 
 <template>
-  <div>
-    <p>Dashboard</p>
-    <p v-if="user">Currently Logged in as {{ user.name }}</p>
-  </div>
+  <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <div class="flex items-center">
+      <h1 class="text-lg font-semibold md:text-2xl">Notes</h1>
+    </div>
+    <div
+      class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
+    >
+      <div class="flex flex-col items-center gap-1 text-center">
+        <h3 class="text-2xl font-bold tracking-tight">No notes yet</h3>
+        <p class="text-sm text-muted-foreground">
+          Create your first note to get started
+        </p>
+        <Button class="mt-4"> Create Note </Button>
+      </div>
+    </div>
+  </main>
 </template>

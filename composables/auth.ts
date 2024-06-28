@@ -3,6 +3,7 @@ import type { User } from "lucia";
 export const useUser = () => {
   const user = useState<User | null>("user", () => null);
   const loggedIn = user.value?.id ? true : false;
+  const isPremium = user.value?.accountType === "premium" ? true : false;
 
   async function signIn(
     opts: { type: "google" } | { type: "magic-link"; email: string },
@@ -23,5 +24,5 @@ export const useUser = () => {
     await navigateTo("/login");
   }
 
-  return { loggedIn, user, logout, signIn };
+  return { loggedIn, isPremium, user, logout, signIn };
 };

@@ -21,6 +21,7 @@ export function initializeLucia() {
         email: attributes.email,
         googleId: attributes.googleId,
         picture: attributes.picture,
+        accountType: attributes.accountType,
       };
     },
   });
