@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home } from "lucide-vue-next";
+import { Notebook } from "lucide-vue-next";
 
 const { isPremium } = useUser();
 </script>
@@ -12,8 +12,8 @@ const { isPremium } = useUser();
       <div class="flex-1">
         <nav class="grid items-start px-2 text-sm font-medium lg:px-4">
           <DashboardSideBarItem
-            :icon="Home"
-            title="Dashboard"
+            :icon="Notebook"
+            title="Notes"
             to="/dashboard"
           />
         </nav>
