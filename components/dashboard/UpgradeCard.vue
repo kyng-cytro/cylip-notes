@@ -3,7 +3,8 @@
     <CardHeader>
       <CardTitle>Upgrade to Pro</CardTitle>
       <CardDescription>
-        Unlock all features and get unlimited access to our support team.
+        Stop being a brokie, Give us your money to upgrade to Pro and join the
+        cool kids on cylip notes.
       </CardDescription>
     </CardHeader>
     <CardContent>

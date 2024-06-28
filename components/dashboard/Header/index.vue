@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home, Menu } from "lucide-vue-next";
+import { Notebook, Menu } from "lucide-vue-next";
 
 const { isPremium } = useUser();
 </script>
@@ -18,7 +18,7 @@ const { isPremium } = useUser();
       <SheetContent side="left" class="flex flex-col">
         <nav class="grid gap-3 font-medium">
           <DashboardLogo class="mb-3 items-center text-xl font-semibold" />
-          <DashboardHeaderItem :icon="Home" title="Dashboard" to="/dashboard" />
+          <DashboardHeaderItem :icon="Notebook" title="Notes" to="/dashboard" />
         </nav>
         <!-- Upgrade to Pro -->
         <div class="mt-auto" v-if="!isPremium">

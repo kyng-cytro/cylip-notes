@@ -40,6 +40,8 @@ const closeMobileMenu = () => {
             <X v-if="mobileMenuOpen" />
             <Menu v-else />
           </Transition>
+
+          <span class="sr-only">Toggle menu</span>
         </Button>
       </div>
     </nav>
