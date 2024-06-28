@@ -21,6 +21,7 @@ export const useUser = () => {
     await $fetch("/api/logout", {
       method: "POST",
     });
+    user.value = null;
     await navigateTo("/login");
   }
 
