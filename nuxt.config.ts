@@ -1,7 +1,7 @@
 import vue from "@vitejs/plugin-vue";
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  experimental: { typedPages: true },
+  experimental: { typedPages: true, viewTransition: true },
   future: { compatibilityVersion: 4 },
   hub: { database: true, cache: true },
   modules: [
@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     "@nuxthub/core",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
-    "@nuxt/image"
+    "@nuxt/image",
   ],
   colorMode: {
     classSuffix: "",
@@ -49,3 +49,4 @@ export default defineNuxtConfig({
     },
   },
 });
+
