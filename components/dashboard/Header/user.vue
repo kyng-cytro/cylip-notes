@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { CircleUser } from "lucide-vue-next";
+const { logout } = useUser();
 </script>
 <template>
   <ClientOnly>
@@ -16,7 +17,7 @@ import { CircleUser } from "lucide-vue-next";
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Logout</DropdownMenuItem>
+        <DropdownMenuItem @click="logout">Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
     <template #fallback>
