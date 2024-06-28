@@ -46,20 +46,16 @@ export default defineEventHandler(async (event) => {
     const lucia = initializeLucia();
 
     // Query for existing user
-    const existingUser = await db
-      .select()
-      .from(tables.userTable)
-      .where(
-        or(
-          eq(tables.userTable.email, googleUser.email),
-          eq(tables.userTable.googleId, googleUser.sub),
-        ),
-      )
-      .limit(1);
+    const existingUser = await db.query.userTable.findFirst({
+      where: or(
+        eq(tables.userTable.email, googleUser.email),
+        eq(tables.userTable.googleId, googleUser.sub),
+      ),
+    });
 
     // If user exists, create a session and redirect to dashboard
-    if (existingUser.length > 0 && existingUser[0]) {
-      const session = await lucia.createSession(existingUser[0].id, {});
+    if (existingUser) {
+      const session = await lucia.createSession(existingUser.id, {});
       appendHeader(
         event,
         "Set-Cookie",
