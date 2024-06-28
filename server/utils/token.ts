@@ -23,12 +23,10 @@ export const generateVerificationToken = async (userId: string) => {
 export const validateVerificationToken = async (token: string) => {
   const db = useDrizzle();
   try {
-    const storedTokens = await db
-      .select()
-      .from(tables.emailVerificationTokenTable)
-      .where(eq(tables.emailVerificationTokenTable.id, token));
-    if (!storedTokens.length || !storedTokens[0]) return null;
-    const storedToken = storedTokens[0];
+    const storedToken = await db.query.emailVerificationTokenTable.findFirst({
+      where: eq(tables.emailVerificationTokenTable.id, token),
+    });
+    if (!storedToken) return null;
     if (!isWithinExpirationDate(new Date(storedToken.expiresAt))) {
       return null;
     }
