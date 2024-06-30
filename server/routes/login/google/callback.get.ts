@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     // Query for existing user
     const existingUser = await db.query.userTable.findFirst({
       where: or(
-        eq(tables.userTable.email, googleUser.email),
+        eq(tables.userTable.email, googleUser.email.toLowerCase()),
         eq(tables.userTable.googleId, googleUser.sub),
       ),
     });
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     await db.insert(tables.userTable).values({
       id: userId,
       googleId: googleUser.sub,
-      email: googleUser.email,
+      email: googleUser.email.toLowerCase(),
       name: googleUser.name,
       picture: googleUser.picture,
       joinedVia: "google",
