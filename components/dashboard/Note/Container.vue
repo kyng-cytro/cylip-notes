@@ -64,7 +64,7 @@ const notes = ref([
 
 <template>
   <VueDraggableNext
-    class="flex flex-wrap gap-4"
+    class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
     v-bind="dragOptions"
     v-model="notes"
     @start="drag = true"
