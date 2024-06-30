@@ -39,6 +39,7 @@
     "unique-names-generator": "^4.7.1",
     "vee-validate": "^4.13.1",
     "vue": "^3.4.29",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.3.3",
     "zod": "^3.23.8"
   },
