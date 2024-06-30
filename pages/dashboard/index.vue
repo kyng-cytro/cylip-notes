@@ -17,8 +17,8 @@ const layout = ref("grid");
         @click="layout = layout === 'grid' ? 'stretch' : 'grid'"
       >
         <Transition name="fade" mode="out-in">
-          <LayoutGrid v-if="layout === 'grid'" />
-          <StretchHorizontal v-else />
+          <StretchHorizontal v-if="layout === 'grid'" />
+          <LayoutGrid v-else />
         </Transition>
         <span class="sr-only">Toggle layout</span>
       </Button>
