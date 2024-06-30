@@ -23,15 +23,12 @@ const layout = ref("grid");
         <span class="sr-only">Toggle layout</span>
       </Button>
     </div>
-    <div
-      class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
-    >
-      <DashboardEmptyPage
-        title="No notes yet"
-        subtitle="Create your first note to get started"
-        :button="{ text: 'Create Note', to: '/dashboard/create-note' }"
-      />
-    </div>
+    <DashboardNoteContainer />
+    <!-- <DashboardEmptyPage -->
+    <!--   title="No notes yet" -->
+    <!--   subtitle="Create your first note to get started" -->
+    <!--   :button="{ text: 'Create Note', to: '/dashboard/create-note' }" -->
+    <!-- /> -->
   </main>
 </template>
 
