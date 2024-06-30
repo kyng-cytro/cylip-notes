@@ -26,13 +26,11 @@ const layout = ref("grid");
     <div
       class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
     >
-      <div class="flex flex-col items-center gap-1 text-center">
-        <h3 class="text-2xl font-bold tracking-tight">No notes yet</h3>
-        <p class="text-sm text-muted-foreground">
-          Create your first note to get started
-        </p>
-        <Button class="mt-4"> Create Note </Button>
-      </div>
+      <DashboardEmptyPage
+        title="No notes yet"
+        subtitle="Create your first note to get started"
+        :button="{ text: 'Create Note', to: '/dashboard/create-note' }"
+      />
     </div>
   </main>
 </template>
