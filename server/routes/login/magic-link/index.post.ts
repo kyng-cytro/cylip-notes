@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     if (!newUser) {
       throw createError({
         status: 400,
-        message: "Something went wrong",
+        message: "Could not create user",
       });
     }
     await sendMagicLink(newUser);
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     console.error({ e });
     throw createError({
       status: 400,
-      message: "Something went wrong",
+      message: "Something went wrong, please try again",
     });
   }
 });
