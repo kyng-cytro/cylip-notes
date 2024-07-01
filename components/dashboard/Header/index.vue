@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { Menu } from "lucide-vue-next";
 const { isPremium } = useUser();
+const mobileMenuOpen = ref(false);
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false;
+};
 </script>
 <template>
   <header
     class="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6"
   >
     <!-- Mobile menu -->
-    <Sheet>
+    <Sheet v-model:open="mobileMenuOpen">
       <SheetTrigger as-child>
         <Button variant="outline" size="icon" class="shrink-0 lg:hidden">
           <Menu class="h-5 w-5" />
@@ -16,8 +21,12 @@ const { isPremium } = useUser();
       </SheetTrigger>
       <SheetContent side="left" class="flex flex-col">
         <nav class="grid gap-y-3 font-medium">
-          <DashboardLogo class="mb-3 items-center text-xl font-semibold" />
+          <DashboardLogo
+            @click="closeMobileMenu"
+            class="mb-3 items-center text-xl font-semibold"
+          />
           <DashboardHeaderItem
+            @click="closeMobileMenu"
             v-for="route in routes"
             :key="route.path"
             :icon="route.icon"
