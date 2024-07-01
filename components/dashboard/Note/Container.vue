@@ -65,28 +65,21 @@ const notes = ref([
   },
 ]);
 
-const power = ref(10);
-
 const { vibrate, isSupported } = useVibrate();
 
 const dragStart = () => {
-  if (isSupported.value) vibrate(power.value);
+  if (isSupported.value) vibrate(1);
   drag.value = true;
-};
-
-const dragEnd = () => {
-  drag.value = false;
 };
 </script>
 
 <template>
-  <Input type="number" v-model="power" class="max-w-xs" />
   <VueDraggableNext
     class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
     v-bind="dragOptions"
     v-model="notes"
     @start="dragStart"
-    @end="dragEnd"
+    @end="drag = false"
   >
     <TransitionGroup :name="!drag ? 'flip-list' : undefined">
       <DashboardNote :note="note" v-for="note in notes" :key="note.id" />
