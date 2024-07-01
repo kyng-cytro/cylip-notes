@@ -65,20 +65,22 @@ const notes = ref([
   },
 ]);
 
+const power = ref(10);
+
 const { vibrate, isSupported } = useVibrate();
 
 const dragStart = () => {
-  if (isSupported) vibrate(100);
+  if (isSupported.value) vibrate(power.value);
   drag.value = true;
 };
 
 const dragEnd = () => {
-  if (isSupported) vibrate(100);
   drag.value = false;
 };
 </script>
 
 <template>
+  <Input type="number" v-model="power" class="max-w-xs" />
   <VueDraggableNext
     class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
     v-bind="dragOptions"
