@@ -1,20 +1,21 @@
 <script setup lang="ts">
+import { toast } from "vue-sonner";
 import { toTypedSchema } from "@vee-validate/zod";
 import { magicLinkLoginSchema } from "@/schemas/user";
 definePageMeta({
   layout: "auth",
 });
 
-const loading = ref(false);
 const { signIn } = useUser();
+const loading = ref(false);
 const formSchema = toTypedSchema(magicLinkLoginSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
   loading.value = true;
   try {
     await signIn({ type: "magic-link", email: values.email });
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    toast.error("Something went wrong", { description: e.data.message });
   } finally {
     loading.value = false;
   }

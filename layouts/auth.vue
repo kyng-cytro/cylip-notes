@@ -1,4 +1,5 @@
 <template>
+  <Toaster />
   <NuxtLoadingIndicator />
   <div
     class="pattern flex h-full min-h-screen flex-col justify-center bg-background text-foreground"
