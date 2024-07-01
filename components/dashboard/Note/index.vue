@@ -8,7 +8,10 @@ defineProps<{
 }>();
 </script>
 <template>
-  <Card class="w-full cursor-pointer">
+  <Card
+    class="w-full cursor-pointer ring-blue-500 focus:outline-none focus:ring-2"
+    tabindex="0"
+  >
     <CardHeader>
       <CardTitle>{{ note.title }}</CardTitle>
       <CardDescription>{{ note.content }}</CardDescription>
