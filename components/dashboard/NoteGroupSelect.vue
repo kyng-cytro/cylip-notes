@@ -12,19 +12,12 @@ const selected = ref("all-notes");
         <SelectItem value="all-notes"> All Notes </SelectItem>
       </SelectGroup>
       <SelectGroup>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button variant="ghost" class="w-full" size="xs">
-                <Plus class="h-5 w-5" />
-                <span class="sr-only">Create new group</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Create new group</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <TooltipWrapper tooltip="Create a new group">
+          <Button variant="ghost" class="w-full" size="xs">
+            <Plus class="h-5 w-5" />
+            <span class="sr-only">Create new group</span>
+          </Button>
+        </TooltipWrapper>
       </SelectGroup>
     </SelectContent>
   </Select>
