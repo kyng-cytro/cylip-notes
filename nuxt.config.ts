@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   hub: { database: true, cache: true },
   modules: [
     "shadcn-nuxt",
+    "@vueuse/nuxt",
     "@nuxthub/core",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
@@ -49,4 +50,3 @@ export default defineNuxtConfig({
     },
   },
 });
-
