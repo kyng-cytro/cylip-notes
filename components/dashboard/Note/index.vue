@@ -39,9 +39,6 @@ defineProps<{
           <Archive class="h-4 w-4" />
         </Button>
       </TooltipWrapper>
-      <Badge variant="secondary">
-        <span>All Notes</span>
-      </Badge>
       <TooltipWrapper tooltip="Change color">
         <Button variant="ghost" size="icon">
           <Palette class="h-4 w-4" />
