@@ -68,7 +68,7 @@ const notes = ref([
 const { vibrate, isSupported } = useVibrate();
 
 const dragStart = () => {
-  if (isSupported.value) vibrate(1);
+  vibrate(1);
   drag.value = true;
 };
 </script>
@@ -81,6 +81,7 @@ const dragStart = () => {
     @start="dragStart"
     @end="drag = false"
   >
+    test
     <TransitionGroup :name="!drag ? 'flip-list' : undefined">
       <DashboardNote :note="note" v-for="note in notes" :key="note.id" />
     </TransitionGroup>
