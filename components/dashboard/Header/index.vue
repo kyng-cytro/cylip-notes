@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Notebook, Menu } from "lucide-vue-next";
-
+import { Menu } from "lucide-vue-next";
 const { isPremium } = useUser();
 </script>
 <template>
@@ -16,9 +15,15 @@ const { isPremium } = useUser();
         </Button>
       </SheetTrigger>
       <SheetContent side="left" class="flex flex-col">
-        <nav class="grid gap-3 font-medium">
+        <nav class="grid gap-y-3 font-medium">
           <DashboardLogo class="mb-3 items-center text-xl font-semibold" />
-          <DashboardHeaderItem :icon="Notebook" title="Notes" to="/dashboard" />
+          <DashboardHeaderItem
+            v-for="route in routes"
+            :key="route.path"
+            :icon="route.icon"
+            :title="route.name"
+            :to="route.path"
+          />
         </nav>
         <!-- Upgrade to Pro -->
         <div class="mt-auto" v-if="!isPremium">

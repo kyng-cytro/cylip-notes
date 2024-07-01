@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Notebook } from "lucide-vue-next";
-
 const { isPremium } = useUser();
 </script>
 <template>
@@ -10,11 +8,13 @@ const { isPremium } = useUser();
         <DashboardLogo class="items-center text-lg font-semibold" />
       </div>
       <div class="flex-1">
-        <nav class="grid items-start px-2 text-sm font-medium lg:px-4">
+        <nav class="grid items-start gap-y-2 px-2 text-sm font-medium lg:px-4">
           <DashboardSideBarItem
-            :icon="Notebook"
-            title="Notes"
-            to="/dashboard"
+            v-for="route in routes"
+            :key="route.path"
+            :icon="route.icon"
+            :title="route.name"
+            :to="route.path"
           />
         </nav>
       </div>
