@@ -5,7 +5,11 @@ const drag = ref(false);
 
 const dragOptions = {
   animation: 200,
+  delay: 150,
+  delayOnTouchOnly: true,
   ghostClass: "ghost",
+  chosenClass: "chosen",
+  dragClass: "dragging",
 };
 
 const notes = ref([
@@ -87,5 +91,13 @@ const notes = ref([
 
 .ghost {
   @apply bg-muted opacity-50;
+}
+
+.chosen {
+  @apply ring-2 ring-blue-500;
+}
+
+.dragging {
+  @apply border-2 border-blue-500 ring-0;
 }
 </style>
