@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@vueuse/nuxt",
     "@nuxthub/core",
+    "nuxt-pages-plus",
     "@nuxtjs/color-mode",
     "@nuxtjs/tailwindcss",
     "@pinia-plugin-persistedstate/nuxt",

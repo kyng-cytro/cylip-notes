@@ -8,7 +8,7 @@
     <DashboardSideBar />
     <div class="flex flex-col">
       <DashboardHeader />
-      <NuxtPage />
+      <PlusModalNuxtPage />
     </div>
   </div>
 </template>
