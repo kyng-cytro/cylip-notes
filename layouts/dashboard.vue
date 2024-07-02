@@ -8,7 +8,9 @@
     <DashboardSideBar />
     <div class="flex flex-col">
       <DashboardHeader />
-      <PlusModalNuxtPage />
+      <PlusModalNuxtPage v-slot="{ route }">
+        <NuxtPage :route="route" />
+      </PlusModalNuxtPage>
     </div>
   </div>
 </template>

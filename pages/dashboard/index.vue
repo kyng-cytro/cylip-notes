@@ -108,7 +108,7 @@ const otherNotes = computed(() => {
 
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
-  "scrollbar-thin": layout.value === "grid",
+  "scrollbar-none": layout.value === "grid",
   "w-full max-w-xl mx-auto scrollbar-none": layout.value === "list",
 }));
 </script>
