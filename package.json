@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@nuxtjs/color-mode": "^3.4.1",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vueuse/nuxt": "^10.11.0",
     "drizzle-kit": "^0.22.7",

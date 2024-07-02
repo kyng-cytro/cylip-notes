@@ -105,6 +105,12 @@ const pinnedNotes = computed(() => {
 const otherNotes = computed(() => {
   return notes.value.filter((note) => !note.pinned);
 });
+
+const { layout } = storeToRefs(useLayoutStore());
+const layoutStyles = computed(() => ({
+  "scrollbar-thin": layout.value === "grid",
+  "w-full max-w-xl mx-auto scrollbar-none": layout.value === "list",
+}));
 </script>
 
 <template>
@@ -120,7 +126,8 @@ const otherNotes = computed(() => {
       </div>
     </div>
     <div
-      class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto p-1 scrollbar-thin"
+      class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto overflow-x-hidden p-1"
+      :class="layoutStyles"
       v-if="notes.length"
     >
       <p

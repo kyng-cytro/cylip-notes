@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Plus } from "lucide-vue-next";
-const selected = ref("all-notes");
+const { group } = storeToRefs(useLayoutStore());
 </script>
 <template>
-  <Select id="group-select" v-model="selected">
+  <Select id="group-select" v-model="group">
     <SelectTrigger class="w-[150px] font-semibold">
       <SelectValue placeholder="Select a group" />
     </SelectTrigger>

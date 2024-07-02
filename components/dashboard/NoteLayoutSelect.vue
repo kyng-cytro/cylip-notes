@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { LayoutGrid, StretchHorizontal } from "lucide-vue-next";
-const layout = ref("grid");
+const layoutStore = useLayoutStore();
+const { layout } = storeToRefs(layoutStore);
 </script>
 <template>
-  <Button
-    variant="ghost"
-    size="icon"
-    @click="layout = layout === 'grid' ? 'stretch' : 'grid'"
-  >
+  <Button variant="ghost" size="icon" @click="layoutStore.toggleLayout">
     <Transition name="fade" mode="out-in">
       <StretchHorizontal v-if="layout === 'grid'" />
       <LayoutGrid v-else />

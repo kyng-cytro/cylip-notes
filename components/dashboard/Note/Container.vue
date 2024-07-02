@@ -10,8 +10,6 @@ const notes = defineModel<
   }[]
 >("notes", { default: [] });
 
-const drag = ref(false);
-
 const dragOptions = {
   animation: 200,
   delay: 150,
@@ -20,6 +18,16 @@ const dragOptions = {
   chosenClass: "chosen",
   dragClass: "dragging",
 };
+
+const { layout } = storeToRefs(useLayoutStore());
+
+const drag = ref(false);
+
+const layoutStyles = computed(() => ({
+  "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5":
+    layout.value === "grid",
+  "grid-cols-1": layout.value === "list",
+}));
 
 const { vibrate, isSupported } = useVibrate();
 
@@ -31,7 +39,8 @@ const dragStart = () => {
 
 <template>
   <VueDraggableNext
-    class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+    class="grid gap-4"
+    :class="layoutStyles"
     v-bind="dragOptions"
     v-model="notes"
     @start="dragStart"

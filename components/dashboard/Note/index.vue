@@ -16,6 +16,11 @@ defineProps<{
     pinned?: boolean;
   };
 }>();
+const { layout } = storeToRefs(useLayoutStore());
+const layoutStyles = computed(() => ({
+  "justify-between": layout.value === "grid",
+  "justify-start gap-6": layout.value === "list",
+}));
 </script>
 <template>
   <Card
@@ -44,7 +49,8 @@ defineProps<{
       <Skeleton class="h-32 w-full" />
     </CardContent>
     <CardFooter
-      class="invisible flex items-center justify-between pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
+      class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
+      :class="layoutStyles"
     >
       <TooltipWrapper tooltip="Remind me later">
         <Button variant="ghost" size="icon">
