@@ -73,7 +73,7 @@ const notes = ref([
     id: 13,
     title: "Note 13",
     content: "Sample note",
-    pinned: false,
+    pinned: true,
   },
   {
     id: 14,
@@ -120,7 +120,7 @@ const otherNotes = computed(() => {
       </div>
     </div>
     <div
-      class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto scrollbar-thin"
+      class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto p-1 scrollbar-thin"
       v-if="notes.length"
     >
       <p
