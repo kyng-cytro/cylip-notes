@@ -7,7 +7,6 @@ definePageMeta({
   <div class="-mt-16">
     <div class="flex items-center justify-center">
       <div class="relative isolate w-full max-w-6xl px-6 py-14 lg:px-8">
-        <!-- Text -->
         <div class="text-center">
           <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
             Pricing Is Simple, As<br />
@@ -19,7 +18,6 @@ definePageMeta({
             <span class="font-semibold">Tokens</span> as you go.
           </p>
         </div>
-        <!-- Pricing Table -->
         <div
           class="mt-10 flex flex-col items-center gap-y-6 sm:justify-center sm:gap-x-6 lg:flex-row"
         >

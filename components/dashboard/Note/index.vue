@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import {
   Plus,
+  Pin,
+  PinOff,
+  Share2,
   BellRing,
   Archive,
-  Palette,
   EllipsisVertical,
 } from "lucide-vue-next";
 defineProps<{
@@ -11,6 +13,7 @@ defineProps<{
     id: number;
     title: string;
     content: string;
+    pinned?: boolean;
   };
 }>();
 </script>
@@ -20,8 +23,22 @@ defineProps<{
     tabindex="0"
   >
     <CardHeader>
-      <CardTitle>{{ note.title }}</CardTitle>
-      <CardDescription>{{ note.content }}</CardDescription>
+      <div class="flex items-center justify-between">
+        <div class="space-y-1.5">
+          <CardTitle>{{ note.title }}</CardTitle>
+          <CardDescription>{{ note.content }}</CardDescription>
+        </div>
+        <div
+          class="invisible flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible"
+        >
+          <TooltipWrapper tooltip="Pin note">
+            <Button variant="ghost" size="icon">
+              <PinOff class="h-5 w-5 rotate-45" v-if="note.pinned" />
+              <Pin class="h-5 w-5 rotate-45" v-else />
+            </Button>
+          </TooltipWrapper>
+        </div>
+      </div>
     </CardHeader>
     <CardContent class="pb-2.5">
       <Skeleton class="h-32 w-full" />
@@ -39,9 +56,9 @@ defineProps<{
           <Archive class="h-4 w-4" />
         </Button>
       </TooltipWrapper>
-      <TooltipWrapper tooltip="Change color">
+      <TooltipWrapper tooltip="Share">
         <Button variant="ghost" size="icon">
-          <Palette class="h-4 w-4" />
+          <Share2 class="h-4 w-4" />
         </Button>
       </TooltipWrapper>
       <ClientOnly>

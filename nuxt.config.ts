@@ -5,12 +5,13 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 4 },
   hub: { database: true, cache: true },
   modules: [
+    "@nuxt/image",
+    "@pinia/nuxt",
     "shadcn-nuxt",
     "@vueuse/nuxt",
     "@nuxthub/core",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
-    "@nuxt/image",
   ],
   colorMode: {
     classSuffix: "",

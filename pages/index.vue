@@ -8,7 +8,6 @@ definePageMeta({
     <div class="flex items-center justify-center">
       <div class="relative isolate px-6 py-14 lg:px-8">
         <div class="max-w-2xl">
-          <!-- Badge -->
           <div class="hidden sm:mb-8 sm:flex sm:justify-center">
             <Badge
               class="leading-1 cursor-pointer space-x-2 rounded-full px-3 py-1 text-sm"
@@ -21,7 +20,6 @@ definePageMeta({
               >
             </Badge>
           </div>
-          <!-- Hero Text -->
           <div class="text-center">
             <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">
               Your Notes, But<br />
@@ -32,7 +30,6 @@ definePageMeta({
               <span class="font-semibold">Note</span> Them Down, and Always
               <span class="font-semibold">Remember</span>.
             </p>
-
             <div class="mt-10 flex items-center justify-center gap-x-6">
               <Button to="/dashboard" class="font-semibold" size="lg"
                 >Get Started</Button

@@ -11,7 +11,6 @@ const closeMobileMenu = () => {
   <header
     class="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6"
   >
-    <!-- Mobile menu -->
     <Sheet v-model:open="mobileMenuOpen">
       <SheetTrigger as-child>
         <Button variant="outline" size="icon" class="shrink-0 lg:hidden">
@@ -34,17 +33,14 @@ const closeMobileMenu = () => {
             :to="route.path"
           />
         </nav>
-        <!-- Upgrade to Pro -->
         <div class="mt-auto" v-if="!isPremium">
           <DashboardUpgradeCard />
         </div>
       </SheetContent>
     </Sheet>
-    <!-- Search Input -->
     <div class="w-full flex-1">
       <DashboardHeaderSearch />
     </div>
-    <!-- User menu -->
     <div class="flex items-center gap-1">
       <ColorMode />
       <DashboardHeaderUser />

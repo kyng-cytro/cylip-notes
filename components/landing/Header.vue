@@ -14,21 +14,14 @@ const closeMobileMenu = () => {
     <nav
       class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8"
     >
-      <!-- Logo -->
       <Logo @logo-click="closeMobileMenu" />
-
-      <!-- Navigation -->
       <div class="hidden lg:flex lg:gap-x-12">
         <NuxtLink class="font-semibold" to="/pricing">Pricing</NuxtLink>
       </div>
-
-      <!-- Actions -->
       <div class="hidden items-center gap-x-2 lg:flex">
         <ColorMode />
         <Button to="/dashboard" class="font-semibold">Sign In</Button>
       </div>
-
-      <!-- Mobile menu -->
       <div class="flex lg:hidden">
         <ColorMode />
         <Button
