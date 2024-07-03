@@ -1,5 +1,5 @@
 <template>
-  <Toaster />
+  <Toaster class="pointer-events-auto" />
   <NuxtLoadingIndicator />
   <NuxtRouteAnnouncer />
   <div

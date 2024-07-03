@@ -23,6 +23,8 @@ const layoutStyles = computed(() => ({
   "justify-start gap-6": layout.value === "list",
 }));
 
+const query = ref("");
+
 const openModal = () => {
   useModalRouter().push(`/dashboard/notes/${note.id}`);
 };
@@ -55,6 +57,7 @@ const openModal = () => {
       <Skeleton class="h-32 w-full" />
     </CardContent>
     <CardFooter
+      @click.stop
       class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
       :class="layoutStyles"
     >
@@ -95,21 +98,27 @@ const openModal = () => {
             <DropdownMenuSub>
               <DropdownMenuSubTrigger> Assign Group </DropdownMenuSubTrigger>
               <DropdownMenuSubContent class="p-0">
-                <Command>
-                  <CommandInput placeholder="Filter group..." auto-focus />
+                <Command v-model:searchTerm="query">
+                  <CommandInput
+                    id="group-filter"
+                    placeholder="Filter group..."
+                    auto-focus
+                  />
                   <CommandList>
                     <CommandEmpty
-                      class="flex flex-col items-center justify-center gap-2"
+                      class="flex flex-col items-center justify-center gap-2 p-4"
                     >
-                      <span>No group with that name.</span>
-                      <TooltipWrapper tooltip="Create a group with this name">
-                        <Button variant="ghost" size="xs">
-                          <Plus class="h-5 w-5" />
-                          <span class="sr-only"
-                            >Create a group with this name</span
-                          >
-                        </Button>
-                      </TooltipWrapper>
+                      <span>No group with the name "{{ query }}".</span>
+                      <DashboardCreateGroup v-model:value="query">
+                        <template #trigger>
+                          <Button variant="ghost" size="xs">
+                            <Plus class="h-5 w-5" />
+                            <span class="sr-only"
+                              >Create a group with this name</span
+                            >
+                          </Button>
+                        </template>
+                      </DashboardCreateGroup>
                     </CommandEmpty>
                     <CommandGroup>
                       <CommandItem value="all-notes">All Notes</CommandItem>

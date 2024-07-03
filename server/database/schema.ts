@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
 
 export const userTable = sqliteTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -23,6 +23,7 @@ export const userTable = sqliteTable("user", {
 
 export const usersRelations = relations(userTable, ({ many }) => ({
   session: many(sessionTable),
+  noteGroups: many(noteGroupTable),
   emailVerificationTokens: many(emailVerificationTokenTable),
 }));
 
@@ -67,3 +68,35 @@ export const emailVerificationTokensRelations = relations(
     }),
   }),
 );
+
+export const noteGroupTable = sqliteTable(
+  "note_groups",
+  {
+    id: text("id").notNull().primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onUpdate: "cascade",
+        onDelete: "cascade",
+      }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(CURRENT_TIMESTAMP)`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(CURRENT_TIMESTAMP)`)
+      .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+  },
+  (t) => ({
+    unq: unique().on(t.slug, t.userId),
+  }),
+);
+
+export const noteGroupsRelations = relations(noteGroupTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [noteGroupTable.userId],
+    references: [userTable.id],
+  }),
+}));
