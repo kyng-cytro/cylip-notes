@@ -88,6 +88,20 @@ const layoutStyles = computed(() => ({
         :button="{ text: 'Create Note', to: '/dashboard/create-note' }"
       />
     </template>
-    <PlusModalPage name="modal" />
+    <Transition name="modal">
+      <PlusModalPage name="modal" />
+    </Transition>
   </main>
 </template>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+</style>
