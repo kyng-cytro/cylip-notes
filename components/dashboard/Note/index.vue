@@ -61,7 +61,7 @@ const openModal = () => {
       class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
       :class="layoutStyles"
     >
-      <TooltipWrapper tooltip="Remind me later">
+      <TooltipWrapper tooltip="Remind me">
         <Button variant="ghost" size="icon">
           <BellRing class="h-4 w-4" />
         </Button>

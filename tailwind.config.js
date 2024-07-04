@@ -1,5 +1,6 @@
 const animate = require("tailwindcss-animate");
 const scrollbar = require("tailwind-scrollbar");
+const typography = require("@tailwindcss/typography");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -90,7 +91,18 @@ module.exports = {
         "collapsible-down": "collapsible-down 0.2s ease-in-out",
         "collapsible-up": "collapsible-up 0.2s ease-in-out",
       },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            li: {
+              p: {
+                margin: 0,
+              },
+            },
+          },
+        },
+      }),
     },
   },
-  plugins: [animate, scrollbar],
+  plugins: [animate, scrollbar, typography],
 };
