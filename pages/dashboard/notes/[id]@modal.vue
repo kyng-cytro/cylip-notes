@@ -50,9 +50,13 @@ onClickOutside(modal, async () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent class="space-y-4">
-        <DashboardNoteTitleInput />
-        <TiptapEditor />
+      <CardContent>
+        <div
+          class="max-h-[83vh] space-y-4 overflow-y-auto scrollbar-none lg:max-h-[63vh]"
+        >
+          <DashboardNoteTitleInput />
+          <TiptapEditor />
+        </div>
       </CardContent>
     </Card>
   </div>

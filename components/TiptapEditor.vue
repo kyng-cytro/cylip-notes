@@ -14,8 +14,7 @@ const editor = new Editor({
   content: content.value,
   editorProps: {
     attributes: {
-      class:
-        "h-[calc(100vh-12rem)] lg:h-[calc(100vh-22rem)] max-h-[calc(100vh-12rem)] lg:max-h-[calc(100vh-22rem)] prose dark:prose-invert outline-none overflow-y-auto  overflow-y-scroll scrollbar-none",
+      class: "prose dark:prose-invert outline-none border",
     },
   },
   extensions: [
