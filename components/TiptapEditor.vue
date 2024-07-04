@@ -14,7 +14,7 @@ const editor = new Editor({
   content: content.value,
   editorProps: {
     attributes: {
-      class: "prose dark:prose-invert outline-none border",
+      class: "prose dark:prose-invert outline-none",
     },
   },
   extensions: [

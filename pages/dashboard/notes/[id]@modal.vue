@@ -51,9 +51,7 @@ onClickOutside(modal, async () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div
-          class="h-[calc(100vh-140px)] space-y-4 overflow-y-auto scrollbar-none lg:h-[calc(100vh-300px)]"
-        >
+        <div class="content space-y-4 overflow-y-auto scrollbar-none">
           <DashboardNoteTitleInput />
           <TiptapEditor />
         </div>
@@ -61,3 +59,17 @@ onClickOutside(modal, async () => {
     </Card>
   </div>
 </template>
+
+<style scoped>
+.content {
+  height: calc(100vh - 140px); /* Fallback for IE */
+  height: calc(100dvh - 140px);
+}
+
+@media (min-width: 1024px) {
+  .content {
+    height: calc(100vh - 300px); /* Fallback for IE */
+    height: calc(100dvh - 300px);
+  }
+}
+</style>
