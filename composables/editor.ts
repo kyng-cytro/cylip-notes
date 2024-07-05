@@ -13,8 +13,16 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 const lowlight = createLowlight(common);
 lowlight.register({ ts });
 
-export const useEditor = ({ placeholder }: { placeholder: string }) => {
-  const content = ref("");
+type EditorOpts = {
+  initialValue?: string;
+  placeholder?: string;
+};
+
+export const useEditor = ({
+  initialValue = "",
+  placeholder = "Note it down...",
+}: EditorOpts = {}) => {
+  const content = ref(initialValue ?? "");
   const editor = new Editor({
     content: content.value,
     editorProps: {
@@ -34,7 +42,7 @@ export const useEditor = ({ placeholder }: { placeholder: string }) => {
         lowlight,
       }),
       StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
-      Placeholder.configure({ placeholder }),
+      Placeholder.configure({ placeholder: placeholder }),
       FileHandler.configure({
         allowedMimeTypes: [
           "image/png",
@@ -51,7 +59,10 @@ export const useEditor = ({ placeholder }: { placeholder: string }) => {
       }),
     ],
     onUpdate: ({ editor }) => {
-      content.value = editor.getHTML();
+      const value = editor.getHTML();
+      if (value !== content.value) {
+        content.value = value;
+      }
     },
   });
   return { content, editor };

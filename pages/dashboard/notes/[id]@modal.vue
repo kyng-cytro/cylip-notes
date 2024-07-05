@@ -3,14 +3,13 @@ import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params;
 
-const { editor } = useEditor({ placeholder: "Note it down..." });
+const { editor } = useEditor();
 
 const modal = ref<HTMLElement>();
 useFocus(modal, { initialValue: true });
 onClickOutside(modal, async () => {
   useModalRouter().close();
 });
-
 onBeforeUnmount(() => {
   editor.destroy();
 });
