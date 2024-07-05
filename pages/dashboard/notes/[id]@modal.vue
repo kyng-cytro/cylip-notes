@@ -3,10 +3,16 @@ import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params;
 
+const { editor } = useEditor({ placeholder: "Note it down..." });
+
 const modal = ref<HTMLElement>();
 useFocus(modal, { initialValue: true });
 onClickOutside(modal, async () => {
   useModalRouter().close();
+});
+
+onBeforeUnmount(() => {
+  editor.destroy();
 });
 </script>
 <template>
@@ -14,7 +20,7 @@ onClickOutside(modal, async () => {
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
   >
     <Card
-      class="z-50 h-full w-full max-w-2xl lg:max-h-[80%]"
+      class="z-50 flex h-full w-full max-w-2xl flex-col lg:max-h-[80%]"
       ref="modal"
       tabindex="-1"
     >
@@ -50,26 +56,16 @@ onClickOutside(modal, async () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div class="content space-y-4 overflow-y-auto scrollbar-none">
-          <DashboardNoteTitleInput />
-          <TiptapEditor />
-        </div>
+      <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
+        <DashboardNoteTitleInput />
+        <TiptapEditor :editor="editor" />
       </CardContent>
+      <CardFooter class="flex justify-between border-t py-4">
+        <div class="flex items-center gap-2"></div>
+        <p class="text-sm font-medium leading-none text-muted-foreground">
+          Edited: Jun 12
+        </p>
+      </CardFooter>
     </Card>
   </div>
 </template>
-
-<style scoped>
-.content {
-  height: calc(100vh - 140px); /* Fallback for IE */
-  height: calc(100dvh - 140px);
-}
-
-@media (min-width: 1024px) {
-  .content {
-    height: calc(100vh - 300px); /* Fallback for IE */
-    height: calc(100dvh - 300px);
-  }
-}
-</style>

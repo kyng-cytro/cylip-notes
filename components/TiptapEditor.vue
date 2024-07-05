@@ -1,54 +1,6 @@
 <script setup lang="ts">
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
-import StarterKit from "@tiptap/starter-kit";
-import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
-import { Editor, EditorContent } from "@tiptap/vue-3";
-import Placeholder from "@tiptap/extension-placeholder";
-import FileHandler from "@tiptap-pro/extension-file-handler";
-
-const content = defineModel({ default: "" });
-
-const editor = new Editor({
-  content: content.value,
-  editorProps: {
-    attributes: {
-      class: "prose dark:prose-invert outline-none",
-    },
-  },
-  extensions: [
-    Link,
-    Image,
-    TaskList,
-    TaskItem.configure({
-      nested: true,
-    }),
-    StarterKit.configure({ heading: { levels: [3] } }),
-    Placeholder.configure({ placeholder: "Note it down..." }),
-    FileHandler.configure({
-      allowedMimeTypes: [
-        "image/png",
-        "image/jpeg",
-        "image/gif",
-        "image/svg+xml",
-      ],
-      onDrop: (currentEditor, files, pos) => {
-        console.log(files);
-      },
-      onPaste: (currentEditor, files, htmlContent) => {
-        console.log(files);
-      },
-    }),
-  ],
-  onUpdate: ({ editor }) => {
-    content.value = editor.getHTML();
-  },
-});
-
-onBeforeUnmount(() => {
-  editor.destroy();
-});
+import { EditorContent, type Editor } from "@tiptap/vue-3";
+defineProps<{ editor: Editor }>();
 </script>
 <template>
   <editor-content :editor="editor" />
@@ -110,5 +62,73 @@ onBeforeUnmount(() => {
 
 .tiptap ul[data-type="taskList"] ul[data-type="taskList"] {
   margin: 0;
+}
+
+pre {
+  background: var(--black);
+  border-radius: 0.5rem;
+  color: var(--white);
+  font-family: "JetBrainsMono", monospace;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+}
+
+/* Code styling */
+.hljs-comment,
+.hljs-quote {
+  color: #616161;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute,
+.hljs-tag,
+.hljs-name,
+.hljs-regexp,
+.hljs-link,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #f98181;
+}
+
+.hljs-number,
+.hljs-meta,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params {
+  color: #fbbc88;
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet {
+  color: #b9f18d;
+}
+
+.hljs-title,
+.hljs-section {
+  color: #faf594;
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #70cff8;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
 }
 </style>

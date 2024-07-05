@@ -8,7 +8,7 @@ const content = defineModel({ default: "" });
       id="title"
       type="text"
       placeholder="Title"
-      class="border-none px-0 py-4 text-xl font-semibold focus-visible:ring-0"
+      class="border-none px-0 py-4 pr-6 text-xl font-semibold focus-visible:ring-0"
       v-model="content"
     />
     <Button
