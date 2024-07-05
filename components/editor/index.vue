@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { EditorContent, type Editor } from "@tiptap/vue-3";
-defineProps<{ editor: Editor }>();
+const { editor } = defineProps<{ editor: Editor }>();
+onBeforeUnmount(() => {
+  editor.destroy();
+});
 </script>
 <template>
   <editor-content :editor="editor" />
@@ -10,6 +13,13 @@ defineProps<{ editor: Editor }>();
 /* Basic editor styles */
 .tiptap :first-child {
   margin-top: 0;
+}
+
+/* Blockquote styles */
+blockquote {
+  border-left: 3px solid var(--gray-3);
+  margin: 1.5rem 0;
+  padding-left: 1rem;
 }
 
 /* List styles */

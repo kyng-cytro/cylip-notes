@@ -4,8 +4,10 @@ import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { common, createLowlight } from "lowlight";
 import TaskList from "@tiptap/extension-task-list";
+import Underline from "@tiptap/extension-underline";
 import ts from "highlight.js/lib/languages/typescript";
 import TaskItem from "@tiptap/extension-task-item";
+import Highlight from "@tiptap/extension-highlight";
 import Placeholder from "@tiptap/extension-placeholder";
 import FileHandler from "@tiptap-pro/extension-file-handler";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -31,13 +33,18 @@ export const useEditor = ({
       },
     },
     extensions: [
-      Link,
       Image,
       TaskList,
+      Underline,
+      Highlight.configure({
+        multicolor: true,
+      }),
       TaskItem.configure({
         nested: true,
       }),
-
+      Link.configure({
+        linkOnPaste: true,
+      }),
       CodeBlockLowlight.configure({
         lowlight,
       }),
