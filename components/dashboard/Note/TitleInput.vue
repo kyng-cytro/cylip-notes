@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { EllipsisVertical } from "lucide-vue-next";
+import { EllipsisVertical, ExternalLink } from "lucide-vue-next";
 const content = defineModel({ default: "" });
+const emit = defineEmits<{
+  (e: "open-note"): void;
+  (e: "delete-note"): void;
+  (e: "share-note"): void;
+}>();
 </script>
 <template>
-  <div class="relative w-full items-center">
-    <Input
-      id="title"
-      type="text"
-      placeholder="Title"
-      class="border-none px-0 py-4 pr-6 text-xl font-semibold focus-visible:ring-0"
-      v-model="content"
-    />
-    <Button
-      variant="link"
-      class="absolute inset-y-0 end-0 flex items-center justify-center px-0 py-4"
-    >
-      <EllipsisVertical class="size-5 text-muted-foreground" />
-    </Button>
-  </div>
+  <DropdownMenu>
+    <div class="relative flex w-full items-center gap-x-2">
+      <Input
+        id="title"
+        type="text"
+        placeholder="Title"
+        class="border-none px-0 text-xl font-semibold focus-visible:ring-0"
+        v-model="content"
+      />
+      <DropdownMenuTrigger>
+        <Button variant="link" class="px-0">
+          <EllipsisVertical class="size-5 text-muted-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent class="w-[200px]">
+        <DropdownMenuGroup>
+          <DropdownMenuItem @click="$emit('open-note')"
+            >Open Note <ExternalLink class="size-4" />
+          </DropdownMenuItem>
+          <DropdownMenuItem @click="$emit('share-note')">
+            Share Note
+          </DropdownMenuItem>
+          <DropdownMenuItem>Make a Copy</DropdownMenuItem>
+          <DropdownMenuItem class="text-red-600" @click="$emit('delete-note')"
+            >Delete Note
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </div>
+  </DropdownMenu>
 </template>

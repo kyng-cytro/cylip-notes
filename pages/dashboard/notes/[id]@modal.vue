@@ -7,9 +7,13 @@ const { editor } = useEditor();
 
 const modal = ref<HTMLElement>();
 useFocus(modal, { initialValue: true });
-onClickOutside(modal, async () => {
-  useModalRouter().close();
-});
+
+const openNote = () => {
+  return navigateTo(`/dashboard/notes/${id}`, {
+    external: true,
+  });
+};
+
 onBeforeUnmount(() => {
   editor.destroy();
 });
@@ -17,11 +21,13 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+    @click="useModalRouter().close()"
   >
     <Card
       class="z-50 flex h-full w-full max-w-2xl flex-col lg:max-h-[80%]"
       ref="modal"
       tabindex="-1"
+      @click.stop
     >
       <CardHeader>
         <div class="flex items-center justify-between">
@@ -56,7 +62,7 @@ onBeforeUnmount(() => {
         </div>
       </CardHeader>
       <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
-        <DashboardNoteTitleInput />
+        <DashboardNoteTitleInput @open-note="openNote" />
         <TiptapEditor :editor="editor" />
       </CardContent>
       <CardFooter class="flex justify-between border-t py-4">
