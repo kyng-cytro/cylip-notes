@@ -5,6 +5,7 @@ const emit = defineEmits<{
   (e: "open-note"): void;
   (e: "delete-note"): void;
   (e: "share-note"): void;
+  (e: "copy-to-clipboard"): void;
 }>();
 </script>
 <template>
@@ -31,6 +32,9 @@ const emit = defineEmits<{
             Share Note
           </DropdownMenuItem>
           <DropdownMenuItem>Make a Copy</DropdownMenuItem>
+          <DropdownMenuItem @click="$emit('copy-to-clipboard')">
+            Copy to Clipboard
+          </DropdownMenuItem>
           <DropdownMenuItem class="text-red-600" @click="$emit('delete-note')"
             >Delete Note
           </DropdownMenuItem>

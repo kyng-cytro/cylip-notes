@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toast } from "vue-sonner";
+import { convertToMarkDown } from "@/lib/turndown";
 import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params;
@@ -12,6 +14,14 @@ const openNote = () => {
   return navigateTo(`/dashboard/notes/${id}`, {
     external: true,
   });
+};
+
+const copyToClipboard = () => {
+  const text = convertToMarkDown(editor.getHTML());
+  if (!text) return toast.warning("No content to copy");
+  const { copy } = useClipboard();
+  copy(text);
+  return toast.success("Copied to clipboard");
 };
 </script>
 <template>
@@ -56,7 +66,10 @@ const openNote = () => {
             </TooltipWrapper>
           </div>
         </div>
-        <DashboardNoteTitleInput @open-note="openNote" />
+        <DashboardNoteTitleInput
+          @open-note="openNote"
+          @copy-to-clipboard="copyToClipboard"
+        />
         <EditorToolbar :editor="editor" />
       </CardHeader>
       <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
