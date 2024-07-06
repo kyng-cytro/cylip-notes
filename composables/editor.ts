@@ -20,6 +20,19 @@ type EditorOpts = {
   placeholder?: string;
 };
 
+const CustomCodeBlock = CodeBlockLowlight.extend({
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        if (editor.isActive("codeBlock")) {
+          return editor.commands.insertContent("\t");
+        }
+        return false;
+      },
+    };
+  },
+});
+
 export const useEditor = ({
   initialValue = "",
   placeholder = "Note it down...",
@@ -45,7 +58,7 @@ export const useEditor = ({
       Link.configure({
         linkOnPaste: true,
       }),
-      CodeBlockLowlight.configure({
+      CustomCodeBlock.configure({
         lowlight,
       }),
       StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
