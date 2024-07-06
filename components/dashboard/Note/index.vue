@@ -45,7 +45,7 @@ const openModal = () => {
           class="invisible flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible"
         >
           <TooltipWrapper tooltip="Pin note">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" @click.stop>
               <PinOff class="h-5 w-5 rotate-45" v-if="note.pinned" />
               <Pin class="h-5 w-5 rotate-45" v-else />
             </Button>
