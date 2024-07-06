@@ -17,6 +17,7 @@ const openNote = () => {
 <template>
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+    @click="useModalRouter().close()"
   >
     <Card
       class="z-50 flex h-full w-full max-w-2xl flex-col lg:max-h-[80%]"
@@ -59,7 +60,7 @@ const openNote = () => {
         <EditorToolbar :editor="editor" />
       </CardHeader>
       <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
-        <Editor :editor="editor" />
+        <Editor :editor="editor" oncontextmenu="return false;" />
       </CardContent>
       <CardFooter class="flex justify-end border-t py-2">
         <p
