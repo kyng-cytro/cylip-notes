@@ -8,16 +8,16 @@ const loading = ref(false);
 const value = defineModel("value", { default: undefined });
 const formSchema = toTypedSchema(labelCreateSchema);
 
+const { createLabel } = useNoteStore();
+
 const onSubmit = async (values: Record<string, any>) => {
   loading.value = true;
   try {
-    await $fetch("/api/labels", {
-      method: "POST",
-      body: values,
-    });
+    await createLabel(values);
     toast.success("Label created successfully", {
       description: `A new label with the name ${values.name} has been created.`,
     });
+    value.value = undefined;
     open.value = false;
   } catch (e: any) {
     toast.error("Could not create label", { description: e.data.message });

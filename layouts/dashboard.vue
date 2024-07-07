@@ -1,3 +1,13 @@
+<script setup lang="ts">
+onMounted(() => {
+  useNoteStore().initStore();
+});
+
+onBeforeUnmount(() => {
+  useNoteStore().$dispose();
+});
+</script>
+
 <template>
   <Toaster class="pointer-events-auto" />
   <NuxtLoadingIndicator />

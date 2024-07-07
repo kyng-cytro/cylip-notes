@@ -21,13 +21,17 @@ export default defineAuthenticatedEventHandler(async (event) => {
   }
   try {
     const slug = slugify(name);
-    await db.insert(tables.label).values({
-      id: generateId(15),
-      name,
-      slug,
-      userId: id,
-    });
-    return event.node.res.writeHead(200).end();
+    const label = await db
+      .insert(tables.label)
+      .values({
+        id: generateId(15),
+        name,
+        slug,
+        userId: id,
+      })
+      .returning();
+    if (!label.length || !label[0]) throw createError({ statusCode: 500 });
+    return label[0];
   } catch (e) {
     console.error({ e });
     throw createError({

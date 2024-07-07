@@ -49,9 +49,7 @@ export const useEditor = ({
       Image,
       TaskList,
       Underline,
-      Highlight.configure({
-        multicolor: true,
-      }),
+      Highlight,
       TaskItem.configure({
         nested: true,
       }),
@@ -61,8 +59,8 @@ export const useEditor = ({
       CustomCodeBlock.configure({
         lowlight,
       }),
-      StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
       Placeholder.configure({ placeholder: placeholder }),
+      StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
       FileHandler.configure({
         allowedMimeTypes: [
           "image/png",

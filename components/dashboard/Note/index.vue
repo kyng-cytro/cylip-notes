@@ -17,13 +17,15 @@ const { note } = defineProps<{
     pinned?: boolean;
   };
 }>();
+
+const query = ref("");
+
+const { labels } = storeToRefs(useNoteStore());
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
   "justify-between": layout.value === "grid",
   "justify-start gap-6": layout.value === "list",
 }));
-
-const query = ref("");
 
 const openModal = () => {
   useModalRouter().push(`/dashboard/notes/${note.id}`);
@@ -122,6 +124,13 @@ const openModal = () => {
                     </CommandEmpty>
                     <CommandGroup>
                       <CommandItem value="all-notes">All Notes</CommandItem>
+                      <CommandItem
+                        v-for="label in labels"
+                        :key="label.id"
+                        :value="label.slug"
+                      >
+                        {{ capitalize(label.name) }}
+                      </CommandItem>
                     </CommandGroup>
                   </CommandList>
                 </Command>

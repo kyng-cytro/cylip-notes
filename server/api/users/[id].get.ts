@@ -7,14 +7,22 @@ export default defineAuthenticatedEventHandler(async (event) => {
       statusMessage: "Missing or invalid id.",
     });
   }
-
+  if (id !== event.context.user!.id) {
+    throw createError({
+      statusCode: 403,
+      statusMessage:
+        "Forbidden. You do not have permission to access this resource.",
+    });
+  }
+  const db = useDrizzle();
   try {
-    const db = useDrizzle();
-
     return await db.query.user.findFirst({
       where: eq(tables.user.id, id),
       with: {
-        labels: true,
+        notes: true,
+        labels: {
+          orderBy: (labels, { desc }) => [desc(labels.createdAt)],
+        },
       },
     });
   } catch (e) {
