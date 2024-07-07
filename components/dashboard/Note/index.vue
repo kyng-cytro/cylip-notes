@@ -96,7 +96,7 @@ const openModal = () => {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger> Assign Group </DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger> Assign Label </DropdownMenuSubTrigger>
               <DropdownMenuSubContent class="p-0">
                 <Command v-model:searchTerm="query">
                   <CommandInput
@@ -108,17 +108,17 @@ const openModal = () => {
                     <CommandEmpty
                       class="flex flex-col items-center justify-center gap-2 p-4"
                     >
-                      <span>No group with the name "{{ query }}".</span>
-                      <DashboardCreateGroup v-model:value="query">
+                      <span>No label with the name "{{ query }}".</span>
+                      <DashboardCreateLabel v-model:value="query">
                         <template #trigger>
                           <Button variant="ghost" size="xs">
                             <Plus class="h-5 w-5" />
                             <span class="sr-only"
-                              >Create a group with this name</span
+                              >Create a label with this name</span
                             >
                           </Button>
                         </template>
-                      </DashboardCreateGroup>
+                      </DashboardCreateLabel>
                     </CommandEmpty>
                     <CommandGroup>
                       <CommandItem value="all-notes">All Notes</CommandItem>

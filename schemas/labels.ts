@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const groupCreateSchema = z.object({
+export const labelCreateSchema = z.object({
   name: z
     .string()
     .min(3, "Name must be at least 3 characters")

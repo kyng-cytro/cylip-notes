@@ -47,7 +47,7 @@ const layoutStyles = computed(() => ({
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 pb-0 lg:gap-6 lg:p-6 lg:pb-0">
     <div class="flex items-center justify-between">
-      <DashboardNoteGroupSelect />
+      <DashboardNoteLabelSelect />
       <div class="flex items-center gap-2">
         <DashboardNoteLayoutSelect />
         <Button variant="secondary" size="icon">

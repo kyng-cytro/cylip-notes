@@ -6,13 +6,13 @@ export const generateVerificationToken = async (userId: string) => {
   try {
     // Delete any existing tokens for this user
     await db
-      .delete(tables.emailVerificationTokenTable)
-      .where(eq(tables.emailVerificationTokenTable.userId, userId));
+      .delete(tables.emailVerificationToken)
+      .where(eq(tables.emailVerificationToken.userId, userId));
     const id = generateRandomString(64, alphabet("0-9"));
-    await db.insert(tables.emailVerificationTokenTable).values({
+    await db.insert(tables.emailVerificationToken).values({
       id,
       userId,
-      expiresAt: createDate(new TimeSpan(2, "h")).getTime(),
+      expiresAt: createDate(new TimeSpan(5, "m")).getTime(),
     });
     return id;
   } catch (e) {
@@ -23,8 +23,8 @@ export const generateVerificationToken = async (userId: string) => {
 export const validateVerificationToken = async (token: string) => {
   const db = useDrizzle();
   try {
-    const storedToken = await db.query.emailVerificationTokenTable.findFirst({
-      where: eq(tables.emailVerificationTokenTable.id, token),
+    const storedToken = await db.query.emailVerificationToken.findFirst({
+      where: eq(tables.emailVerificationToken.id, token),
     });
     if (!storedToken) return null;
     if (!isWithinExpirationDate(new Date(storedToken.expiresAt))) {
@@ -32,8 +32,8 @@ export const validateVerificationToken = async (token: string) => {
     }
     // Delete all tokens for this user
     await db
-      .delete(tables.emailVerificationTokenTable)
-      .where(eq(tables.emailVerificationTokenTable.userId, storedToken.userId));
+      .delete(tables.emailVerificationToken)
+      .where(eq(tables.emailVerificationToken.userId, storedToken.userId));
     return storedToken.userId;
   } catch (e) {
     console.error({ e });

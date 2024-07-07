@@ -46,10 +46,10 @@ export default defineEventHandler(async (event) => {
     const lucia = initializeLucia();
 
     // Query for existing user
-    const existingUser = await db.query.userTable.findFirst({
+    const existingUser = await db.query.user.findFirst({
       where: or(
-        eq(tables.userTable.email, googleUser.email.toLowerCase()),
-        eq(tables.userTable.googleId, googleUser.sub),
+        eq(tables.user.email, googleUser.email.toLowerCase()),
+        eq(tables.user.googleId, googleUser.sub),
       ),
     });
 
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
     const userId = generateId(15);
 
     // Insert the user into the database
-    await db.insert(tables.userTable).values({
+    await db.insert(tables.user).values({
       id: userId,
       googleId: googleUser.sub,
       email: googleUser.email.toLowerCase(),

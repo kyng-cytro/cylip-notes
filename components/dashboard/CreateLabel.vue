@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import { toast } from "vue-sonner";
 import { toTypedSchema } from "@vee-validate/zod";
-import { groupCreateSchema } from "@/schemas/groups";
+import { labelCreateSchema } from "@/schemas/labels";
 
 const open = ref(false);
 const loading = ref(false);
 const value = defineModel("value", { default: undefined });
-const formSchema = toTypedSchema(groupCreateSchema);
+const formSchema = toTypedSchema(labelCreateSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
   loading.value = true;
   try {
-    await $fetch("/api/note-groups", {
+    await $fetch("/api/labels", {
       method: "POST",
       body: values,
     });
-    toast.success("Group created successfully", {
-      description: `A new group with the name ${values.name} has been created.`,
+    toast.success("Label created successfully", {
+      description: `A new label with the name ${values.name} has been created.`,
     });
     open.value = false;
   } catch (e: any) {
-    toast.error("Could not create group", { description: e.data.message });
+    toast.error("Could not create label", { description: e.data.message });
   } finally {
     loading.value = false;
   }
@@ -33,9 +33,9 @@ const onSubmit = async (values: Record<string, any>) => {
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Create a new group</DialogTitle>
+        <DialogTitle>Create a new label</DialogTitle>
         <DialogDescription>
-          Create a new group to organize your notes.
+          Create a new label to organize your notes.
         </DialogDescription>
       </DialogHeader>
       <Form
@@ -64,7 +64,7 @@ const onSubmit = async (values: Record<string, any>) => {
         </FormField>
 
         <Button type="submit" class="font-semibold" :loading="loading">
-          Create Group
+          Create Label
         </Button>
       </Form>
     </DialogContent>

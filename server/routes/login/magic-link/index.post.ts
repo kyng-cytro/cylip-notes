@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
   const { email } = await readValidatedBody(event, magicLinkLoginSchema.parse);
   const db = useDrizzle();
   try {
-    const user = await db.query.userTable.findFirst({
-      where: eq(tables.userTable.email, email),
+    const user = await db.query.user.findFirst({
+      where: eq(tables.user.email, email),
     });
     if (user) {
       await sendMagicLink(user);
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const id = generateId(15);
     const name = generateName(id);
     const [newUser] = await db
-      .insert(tables.userTable)
+      .insert(tables.user)
       .values({
         id,
         email,

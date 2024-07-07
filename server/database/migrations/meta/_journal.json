@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1719211659454,
-      "tag": "0000_volatile_leader",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1719243132662,
-      "tag": "0001_cool_mephistopheles",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1719411249773,
-      "tag": "0002_cynical_eternals",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1719961778032,
-      "tag": "0003_kind_vision",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1719964347929,
-      "tag": "0004_absurd_the_leader",
+      "when": 1720343799615,
+      "tag": "0000_conscious_nextwave",
       "breakpoints": true
     }
   ]

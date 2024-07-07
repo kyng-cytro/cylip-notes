@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS `session_user_idx`;

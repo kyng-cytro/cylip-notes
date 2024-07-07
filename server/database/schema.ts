@@ -1,7 +1,7 @@
 import { sql, relations } from "drizzle-orm";
 import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
 
-export const userTable = sqliteTable("user", {
+export const user = sqliteTable("users", {
   id: text("id").notNull().primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -21,64 +21,58 @@ export const userTable = sqliteTable("user", {
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
 
-export const usersRelations = relations(userTable, ({ many }) => ({
-  session: many(sessionTable),
-  noteGroups: many(noteGroupTable),
-  emailVerificationTokens: many(emailVerificationTokenTable),
+export const usersRelations = relations(user, ({ many }) => ({
+  session: many(session),
+  labels: many(label),
+  emailVerificationTokens: many(emailVerificationToken),
 }));
 
-export const sessionTable = sqliteTable("session", {
+export const session = sqliteTable("sessions", {
   id: text("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
-    .references(() => userTable.id, {
-      onUpdate: "cascade",
+    .references(() => user.id, {
       onDelete: "cascade",
     }),
   expiresAt: integer("expires_at").notNull(),
 });
 
-export const sessionsRelations = relations(sessionTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [sessionTable.userId],
-    references: [userTable.id],
+export const sessionsRelation = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
   }),
 }));
 
-export const emailVerificationTokenTable = sqliteTable(
-  "email_verification_token",
-  {
-    id: text("id").notNull().primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => userTable.id, {
-        onUpdate: "cascade",
-        onDelete: "cascade",
-      }),
-    expiresAt: integer("expires_at").notNull(),
-  },
-);
+export const emailVerificationToken = sqliteTable("email_verification_tokens", {
+  id: text("id").notNull().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, {
+      onDelete: "cascade",
+    }),
+  expiresAt: integer("expires_at").notNull(),
+});
 
 export const emailVerificationTokensRelations = relations(
-  emailVerificationTokenTable,
+  emailVerificationToken,
   ({ one }) => ({
-    user: one(userTable, {
-      fields: [emailVerificationTokenTable.userId],
-      references: [userTable.id],
+    user: one(user, {
+      fields: [emailVerificationToken.userId],
+      references: [user.id],
     }),
   }),
 );
 
-export const noteGroupTable = sqliteTable(
-  "note_groups",
+export const label = sqliteTable(
+  "labels",
   {
     id: text("id").notNull().primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
     userId: text("user_id")
       .notNull()
-      .references(() => userTable.id, {
-        onUpdate: "cascade",
+      .references(() => user.id, {
         onDelete: "cascade",
       }),
     createdAt: integer("created_at", { mode: "timestamp" })
@@ -94,9 +88,9 @@ export const noteGroupTable = sqliteTable(
   }),
 );
 
-export const noteGroupsRelations = relations(noteGroupTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [noteGroupTable.userId],
-    references: [userTable.id],
+export const labelsRelations = relations(label, ({ one }) => ({
+  user: one(user, {
+    fields: [label.userId],
+    references: [user.id],
   }),
 }));
