@@ -13,11 +13,11 @@ onBeforeUnmount(() => {
   <NuxtLoadingIndicator />
   <NuxtRouteAnnouncer />
   <div
-    class="grid min-h-screen w-full bg-background text-foreground lg:grid-cols-[280px_1fr]"
+    class="grid min-h-screen w-full bg-background text-foreground scrollbar-track-background scrollbar-thumb-muted lg:grid-cols-[280px_1fr]"
   >
-    <DashboardSideBar />
+    <AppSideBar />
     <div class="flex flex-col">
-      <DashboardHeader />
+      <AppHeader />
       <PlusModalNuxtPage v-slot="{ route }">
         <NuxtPage :route="route" />
       </PlusModalNuxtPage>

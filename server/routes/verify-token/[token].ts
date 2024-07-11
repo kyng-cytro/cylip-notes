@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       "Set-Cookie",
       lucia.createSessionCookie(session.id).serialize(),
     );
-    return sendRedirect(event, "/dashboard");
+    return sendRedirect(event, "/app");
   } catch (e) {
     console.error({ e });
     throw createError({

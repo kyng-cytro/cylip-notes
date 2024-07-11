@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       ),
     });
 
-    // If user exists, create a session and redirect to dashboard
+    // If user exists, create a session and redirect to App
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
       appendHeader(
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
         "Set-Cookie",
         lucia.createSessionCookie(session.id).serialize(),
       );
-      return sendRedirect(event, "/dashboard");
+      return sendRedirect(event, "/app");
     }
 
     // Generate a new user ID
@@ -77,14 +77,14 @@ export default defineEventHandler(async (event) => {
       joinedVia: "google",
     });
 
-    // Create a session and redirect to dashboard
+    // Create a session and redirect to App
     const session = await lucia.createSession(userId, {});
     appendHeader(
       event,
       "Set-Cookie",
       lucia.createSessionCookie(session.id).serialize(),
     );
-    return sendRedirect(event, "/dashboard");
+    return sendRedirect(event, "/app");
   } catch (e) {
     console.error({ e });
     if (e instanceof OAuth2RequestError) {

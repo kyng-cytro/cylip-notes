@@ -34,7 +34,7 @@ definePageMeta({
             :extras="['Keep in mind this means you\'re a brokie']"
             :button="{
               text: 'Sign Up for Free',
-              to: '/dashboard',
+              to: '/app',
               variant: 'outline',
             }"
             description="All the basics, for free."
@@ -50,7 +50,7 @@ definePageMeta({
             ]"
             :button="{
               text: 'Upgrade to Pro',
-              to: '/dashboard/upgrade',
+              to: '/app/upgrade',
               variant: 'default',
             }"
             description="More tokens,  more productivity."
@@ -65,7 +65,7 @@ definePageMeta({
             :extras="['No pro subscription required (we\'re not that clingy)']"
             :button="{
               text: 'Buy Tokens',
-              to: '/dashboard/buy-tokens',
+              to: '/app/buy-tokens',
               variant: 'outline',
             }"
             description="Need more tokens? We got you."

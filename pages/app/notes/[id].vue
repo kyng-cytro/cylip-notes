@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { id } = useRoute("dashboard-notes-id").params;
+const { id } = useRoute("app-notes-id").params;
 definePageMeta({
-  layout: "dashboard",
+  layout: "app",
 });
 </script>
 <template>

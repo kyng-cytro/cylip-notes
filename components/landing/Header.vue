@@ -20,7 +20,7 @@ const closeMobileMenu = () => {
       </div>
       <div class="hidden items-center gap-x-2 lg:flex">
         <ColorMode />
-        <Button to="/dashboard" class="font-semibold">Sign In</Button>
+        <Button to="/app" class="font-semibold">Sign In</Button>
       </div>
       <div class="flex lg:hidden">
         <ColorMode />
@@ -46,9 +46,9 @@ const closeMobileMenu = () => {
         <NuxtLink
           class="flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors hover:text-foreground/80"
           active-class="bg-muted"
-          to="/dashboard"
+          to="/app"
           @click="closeMobileMenu"
-          >Dashboard</NuxtLink
+          >Notes</NuxtLink
         >
         <NuxtLink
           class="flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors hover:text-foreground/80"
@@ -59,7 +59,7 @@ const closeMobileMenu = () => {
         >
         <hr />
         <Button
-          to="/dashboard"
+          to="/app"
           class="border-2 border-primary font-semibold dark:border-secondary"
           variant="outline"
           size="lg"

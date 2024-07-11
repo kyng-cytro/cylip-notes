@@ -15,7 +15,7 @@ definePageMeta({
               ><span class="font-normal"
                 >Now Featuring AI-Enhanced Insights and Search</span
               >
-              <NuxtLink class="font-semibold text-blue-400" to="/dashboard"
+              <NuxtLink class="font-semibold text-blue-400" to="/app"
                 >Try It Now <span aria-hidden="true">→</span></NuxtLink
               >
             </Badge>
@@ -31,7 +31,7 @@ definePageMeta({
               <span class="font-semibold">Remember</span>.
             </p>
             <div class="mt-10 flex items-center justify-center gap-x-6">
-              <Button to="/dashboard" class="font-semibold" size="lg"
+              <Button to="/app" class="font-semibold" size="lg"
                 >Get Started</Button
               >
               <Button class="space-x-1 font-semibold" variant="link" size="lg"

@@ -47,7 +47,7 @@ const dragStart = () => {
     @end="drag = false"
   >
     <TransitionGroup :name="!drag ? 'flip-list' : undefined">
-      <DashboardNote :note="note" v-for="note in notes" :key="note.id" />
+      <AppNote :note="note" v-for="note in notes" :key="note.id" />
     </TransitionGroup>
   </VueDraggableNext>
 </template>

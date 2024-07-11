@@ -20,11 +20,16 @@ const closeMobileMenu = () => {
       </SheetTrigger>
       <SheetContent side="left" class="flex flex-col">
         <nav class="grid gap-y-3 font-medium">
-          <DashboardLogo
-            @click="closeMobileMenu"
-            class="mb-3 items-center text-xl font-semibold"
-          />
-          <DashboardHeaderItem
+          <SheetTitle class="mb-3">
+            <AppLogo
+              @click="closeMobileMenu"
+              class="items-center text-xl font-semibold"
+            />
+          </SheetTitle>
+          <SheetDescription class="sr-only"
+            >Snap, Note, Remember</SheetDescription
+          >
+          <AppHeaderItem
             @click="closeMobileMenu"
             v-for="route in routes"
             :key="route.path"
@@ -34,16 +39,16 @@ const closeMobileMenu = () => {
           />
         </nav>
         <div class="mt-auto" v-if="!isPremium">
-          <DashboardUpgradeCard />
+          <AppUpgradeCard />
         </div>
       </SheetContent>
     </Sheet>
     <div class="w-full flex-1">
-      <DashboardHeaderSearch />
+      <AppHeaderSearch />
     </div>
     <div class="flex items-center gap-1">
       <ColorMode />
-      <DashboardHeaderUser />
+      <AppHeaderUser />
     </div>
   </header>
 </template>

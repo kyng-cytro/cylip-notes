@@ -28,7 +28,7 @@ const layoutStyles = computed(() => ({
 }));
 
 const openModal = () => {
-  useModalRouter().push(`/dashboard/notes/${note.id}`);
+  useModalRouter().push(`/app/notes/${note.id}`);
 };
 </script>
 <template>
@@ -111,7 +111,7 @@ const openModal = () => {
                       class="flex flex-col items-center justify-center gap-2 p-4"
                     >
                       <span>No label with the name "{{ query }}".</span>
-                      <DashboardCreateLabel v-model:value="query">
+                      <AppCreateLabel v-model:value="query">
                         <template #trigger>
                           <Button variant="ghost" size="xs">
                             <Plus class="h-5 w-5" />
@@ -120,7 +120,7 @@ const openModal = () => {
                             >
                           </Button>
                         </template>
-                      </DashboardCreateLabel>
+                      </AppCreateLabel>
                     </CommandEmpty>
                     <CommandGroup>
                       <CommandItem value="all-notes">All Notes</CommandItem>

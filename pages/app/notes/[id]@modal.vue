@@ -11,7 +11,7 @@ const modal = ref<HTMLElement>();
 useFocus(modal, { initialValue: true });
 
 const openNote = () => {
-  return navigateTo(`/dashboard/notes/${id}`, {
+  return navigateTo(`/app/notes/${id}`, {
     external: true,
   });
 };
@@ -66,7 +66,7 @@ const copyToClipboard = () => {
             </TooltipWrapper>
           </div>
         </div>
-        <DashboardNoteTitleInput
+        <AppNoteTitleInput
           @open-note="openNote"
           @copy-to-clipboard="copyToClipboard"
         />

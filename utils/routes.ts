@@ -1,28 +1,28 @@
 import { Bell, Notebook, Archive, Trash, Settings } from "lucide-vue-next";
 export const routes = [
   {
-    name: "Dashboard",
-    path: "/dashboard",
+    name: "Notes",
+    path: "/app",
     icon: Notebook,
   },
   {
     name: "Reminders",
-    path: "/dashboard/reminders",
+    path: "/app/reminders",
     icon: Bell,
   },
   {
     name: "Archive",
-    path: "/dashboard/archive",
+    path: "/app/archive",
     icon: Archive,
   },
   {
     name: "Trash",
-    path: "/dashboard/trash",
+    path: "/app/trash",
     icon: Trash,
   },
   {
     name: "Settings",
-    path: "/dashboard/settings",
+    path: "/app/settings",
     icon: Settings,
   },
 ];

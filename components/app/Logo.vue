@@ -1,6 +1,6 @@
 <template>
   <NuxtLink
-    to="/dashboard"
+    to="/app"
     class="font-mono tracking-tight"
     @click="$emit('logo-click')"
   >

@@ -16,14 +16,14 @@ const { labels } = storeToRefs(useNoteStore());
         </SelectItem>
       </SelectGroup>
       <SelectGroup>
-        <DashboardCreateLabel>
+        <AppCreateLabel>
           <template #trigger>
             <Button variant="ghost" class="w-full" size="xs">
               <Plus class="h-5 w-5" />
               <span class="sr-only">Create new label</span>
             </Button>
           </template>
-        </DashboardCreateLabel>
+        </AppCreateLabel>
       </SelectGroup>
     </SelectContent>
   </Select>

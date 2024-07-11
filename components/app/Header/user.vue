@@ -18,6 +18,7 @@ const { user, logout } = useUser();
           <span class="sr-only">Toggle user menu</span>
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>{{ user?.name || "My Account" }}</DropdownMenuLabel>
         <DropdownMenuSeparator />
