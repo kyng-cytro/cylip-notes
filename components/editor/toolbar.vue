@@ -21,7 +21,7 @@ defineProps<{
 </script>
 <template>
   <div
-    class="flex items-center justify-between overflow-y-auto text-muted-foreground scrollbar-thin"
+    class="flex items-center justify-between overflow-y-auto pb-2 text-muted-foreground scrollbar-thin hover:scrollbar-thin lg:pb-0 lg:scrollbar-none"
   >
     <EditorButton
       label="Heading"

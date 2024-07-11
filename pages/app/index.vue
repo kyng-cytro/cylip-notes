@@ -61,8 +61,9 @@ const otherNotes = computed(() => {
 
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
-  "scrollbar-none hover:scrollbar": layout.value === "grid",
-  "w-full max-w-xl mx-auto scrollbar-none hover:scrollbar-thin ":
+  "scrollbar-thin px-2 lg:px-0 lg:scrollbar-none hover:scrollbar-thin":
+    layout.value === "grid",
+  "scrollbar-thin w-full max-w-xl mx-auto pr-2 lg:pr-0 lg:scrollbar-none hover:scrollbar-thin":
     layout.value === "list",
 }));
 
