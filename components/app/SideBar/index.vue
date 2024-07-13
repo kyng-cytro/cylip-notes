@@ -7,7 +7,7 @@ const { isPremium } = useUser();
       <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <AppLogo class="items-center text-lg font-semibold" />
       </div>
-      <div class="flex-1">
+      <div class="min-h-20 flex-1 overflow-y-auto scrollbar-thin">
         <nav class="grid items-start gap-y-2 px-2 text-sm font-medium lg:px-4">
           <AppSideBarItem
             v-for="route in routes"

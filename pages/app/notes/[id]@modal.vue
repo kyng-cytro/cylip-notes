@@ -3,9 +3,9 @@ import { toast } from "vue-sonner";
 import { convertToMarkDown } from "@/lib/turndown";
 import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
 
-const { id } = useParallelRoute("modal")!.params;
-
 const { editor } = useEditor();
+const { copy } = useClipboard();
+const { id } = useParallelRoute("modal")!.params;
 
 const modal = ref<HTMLElement>();
 useFocus(modal, { initialValue: true });
@@ -16,11 +16,10 @@ const openNote = () => {
   });
 };
 
-const copyToClipboard = () => {
+const copyToClipboard = async () => {
   const text = convertToMarkDown(editor.getHTML());
   if (!text) return toast.warning("No content to copy");
-  const { copy } = useClipboard();
-  copy(text);
+  await copy(text);
   return toast.success("Copied to clipboard");
 };
 </script>

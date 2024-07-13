@@ -19,16 +19,18 @@ const closeMobileMenu = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" class="flex flex-col">
-        <nav class="grid gap-y-3 font-medium">
-          <SheetTitle class="mb-3">
-            <AppLogo
-              @click="closeMobileMenu"
-              class="items-center text-xl font-semibold"
-            />
-          </SheetTitle>
-          <SheetDescription class="sr-only"
-            >Snap, Note, Remember</SheetDescription
-          >
+        <SheetTitle class="mb-3">
+          <AppLogo
+            @click="closeMobileMenu"
+            class="items-center text-xl font-semibold"
+          />
+        </SheetTitle>
+        <SheetDescription class="sr-only"
+          >Snap, Note, Remember</SheetDescription
+        >
+        <nav
+          class="grid min-h-20 gap-y-3 overflow-y-auto font-medium scrollbar-thin"
+        >
           <AppHeaderItem
             @click="closeMobileMenu"
             v-for="route in routes"
