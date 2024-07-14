@@ -1,7 +1,7 @@
 import { createHooks } from "hookable";
 
 export interface ServerSentEvent {
-  [event: `sse:event:${string}`]: <T, R>(data: T) => R | void;
+  [event: `sse:event:${string}`]: (data: any) => any | void;
 }
 
 export const sseHooks = createHooks<ServerSentEvent>();
