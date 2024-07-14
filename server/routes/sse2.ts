@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const eventStream = createEventStream(event);
 
   const interval = setInterval(async () => {
-    await eventStream.push(`Message @ ${new Date().toLocaleTimeString()}`);
+    sseHooks.callHook(`sse:event:1`, new Date().toISOString());
   }, 10000);
 
   const sendEvent = async () => {
