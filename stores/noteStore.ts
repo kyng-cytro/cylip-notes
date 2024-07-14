@@ -1,20 +1,38 @@
 import type { Label, Note } from "@/server/utils/drizzle";
-import type { SerializeObject } from "nitropack";
-export const useNoteStore = defineStore("notes", () => {
-  const notes = ref<SerializeObject<Note>[]>([]);
-  const labels = ref<SerializeObject<Label>[]>([]);
 
+export const useNoteStore = defineStore("notes", () => {
+  // Getters
+  const { user } = useUser();
+  const notes = ref<Note[]>([]);
+  const labels = ref<Label[]>([]);
+  const initialized = ref(false);
+  const pinnedNotes = computed(() => []);
+  const { baseUrl } = useRuntimeConfig().public;
+  const userId = computed(() => user.value?.id);
+
+  // Init
+  const initStore = async () => {
+    if (!userId.value) return;
+    const data = await loadData(userId.value);
+    if (data) updateData(data);
+    initialized.value = true;
+  };
+
+  // Actions
   const loadData = async (id: string) => {
     return await $fetch(`/api/users/${id}`);
   };
 
-  const initStore = async () => {
-    const { user } = useUser();
-    if (!user.value) return;
-    const data = await loadData(user.value.id);
-    if (!data) return;
+  const updateData = (data: { notes: Note[]; labels: Label[] }) => {
     notes.value = data.notes;
     labels.value = data.labels;
+  };
+
+  const refreshData = async () => {
+    if (!userId.value) return;
+    console.log("refreshing data");
+    const data = await loadData(userId.value);
+    if (data) updateData(data);
   };
 
   const createLabel = async (values: Record<string, any>) => {
@@ -25,10 +43,22 @@ export const useNoteStore = defineStore("notes", () => {
     labels.value = [label, ...labels.value];
   };
 
+  // SSE
+  const { data } = useEventSource(
+    computed(() => `${baseUrl}/sse?userId=${userId.value}`),
+  );
+
+  // Watch SSE
+  watch(data, async () => {
+    await refreshData();
+  });
+
   return {
     notes,
     labels,
     initStore,
     createLabel,
+    initialized,
+    pinnedNotes,
   };
 });

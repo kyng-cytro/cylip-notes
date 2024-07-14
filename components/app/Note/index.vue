@@ -8,14 +8,10 @@ import {
   Archive,
   EllipsisVertical,
 } from "lucide-vue-next";
+import type { Note } from "@/server/utils/drizzle";
 
 const { note } = defineProps<{
-  note: {
-    id: number;
-    title: string;
-    content: string;
-    pinned?: boolean;
-  };
+  note: Note;
 }>();
 
 const query = ref("");
@@ -48,7 +44,7 @@ const openModal = () => {
         >
           <TooltipWrapper tooltip="Pin note">
             <Button variant="ghost" size="icon" @click.stop>
-              <PinOff class="h-5 w-5 rotate-45" v-if="note.pinned" />
+              <PinOff class="h-5 w-5 rotate-45" v-if="false" />
               <Pin class="h-5 w-5 rotate-45" v-else />
             </Button>
           </TooltipWrapper>

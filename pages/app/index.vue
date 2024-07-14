@@ -4,60 +4,7 @@ definePageMeta({
   layout: "app",
 });
 
-const notes = ref([
-  {
-    id: 1,
-    title: "Note 1",
-    content: "Sample note",
-    pinned: false,
-  },
-  {
-    id: 2,
-    title: "Note 2",
-    content: "Sample note",
-  },
-  {
-    id: 3,
-    title: "Note 3",
-    content: "Sample note",
-    pinned: false,
-  },
-  {
-    id: 4,
-    title: "Note 4",
-    content: "Sample note",
-  },
-  {
-    id: 5,
-    title: "Note 5",
-    content: "Sample note",
-    pinned: false,
-  },
-  {
-    id: 6,
-    title: "Note 6",
-    content: "Sample note",
-  },
-  {
-    id: 7,
-    title: "Note 7",
-    content: "Sample note",
-    pinned: false,
-  },
-  {
-    id: 8,
-    title: "Note 8",
-    content: "Sample note",
-  },
-]);
-
-const pinnedNotes = computed(() => {
-  return notes.value.filter((note) => note.pinned);
-});
-
-const otherNotes = computed(() => {
-  return notes.value.filter((note) => !note.pinned);
-});
+const { notes, initialized, pinnedNotes } = storeToRefs(useNoteStore());
 
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
@@ -66,8 +13,6 @@ const layoutStyles = computed(() => ({
   "scrollbar-thin w-full max-w-xl mx-auto lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-0":
     layout.value === "list",
 }));
-
-const { notes: x } = storeToRefs(useNoteStore());
 </script>
 
 <template>
@@ -82,32 +27,38 @@ const { notes: x } = storeToRefs(useNoteStore());
         </Button>
       </div>
     </div>
-    <div
-      class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto overflow-x-hidden p-1"
-      :class="layoutStyles"
-      v-if="notes.length"
-    >
-      <p
-        class="text-sm font-semibold text-muted-foreground"
-        v-if="pinnedNotes.length"
-      >
-        Pinned
-      </p>
-      <AppNoteContainer v-model:notes="pinnedNotes" v-if="pinnedNotes.length" />
-      <p
-        class="text-sm font-semibold text-muted-foreground"
-        v-if="pinnedNotes.length"
-      >
-        Others
-      </p>
-      <AppNoteContainer v-model:notes="otherNotes" />
-    </div>
-    <template v-else>
+    <template v-if="!notes.length">
       <AppEmptyPage
         title="No notes yet"
         subtitle="Create your first note to get started"
         :button="{ text: 'Create Note', to: '/app/create-note' }"
+        v-if="initialized"
       />
+      <div v-else>Loading...</div>
+    </template>
+    <template v-else>
+      <div
+        class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto overflow-x-hidden p-1"
+        :class="layoutStyles"
+      >
+        <p
+          class="text-sm font-semibold text-muted-foreground"
+          v-if="pinnedNotes.length"
+        >
+          Pinned
+        </p>
+        <AppNoteContainer
+          v-model:notes="pinnedNotes"
+          v-if="pinnedNotes.length"
+        />
+        <p
+          class="text-sm font-semibold text-muted-foreground"
+          v-if="pinnedNotes.length"
+        >
+          Others
+        </p>
+        <AppNoteContainer v-model:notes="notes" />
+      </div>
     </template>
     <Transition name="modal">
       <PlusModalPage name="modal" />

@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { VueDraggableNext } from "vue-draggable-next";
+import type { Note } from "@/server/utils/drizzle";
 
-const notes = defineModel<
-  {
-    id: number;
-    title: string;
-    content: string;
-    pinned?: boolean;
-  }[]
->("notes", { default: [] });
+const notes = defineModel<Note[]>("notes", { default: [] });
 
 const dragOptions = {
   animation: 200,
