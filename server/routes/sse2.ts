@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const sendEvent = async () => {
     console.log(`Sending event`);
-    await eventStream.push(`refresh`);
+    await eventStream.push(`Message @ ${new Date().toISOString()}`);
   };
 
   sseHooks.hook(`sse:event:1`, sendEvent);
