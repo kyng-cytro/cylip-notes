@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
   }, 10000);
 
   const sendEvent = async () => {
+    console.log(`Sending event`);
     await eventStream.push(`refresh`);
   };
 
