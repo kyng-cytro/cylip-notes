@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.write(`id: ${++counter}\n`);
     event.node.res.write(`data: ${JSON.stringify(data)}\n\n`);
   };
+  sendEvent({ type: "connected" });
   sseHooks.hook(`sse:event:${userId}`, sendEvent);
   event._handled = true;
 });
