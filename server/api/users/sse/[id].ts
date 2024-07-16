@@ -25,12 +25,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
     if (chanaged) {
       previousId = newId;
       eventStream.push({ id: `${counter++}`, event: "refresh", data: newId });
-    } else {
-      eventStream.push({
-        id: `${counter++}`,
-        event: "stall",
-        data: "nothing changed",
-      });
     }
   }, parseInt(interval));
 
@@ -40,6 +34,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     await eventStream.close();
   });
 
+  // send initial event
   eventStream.push({
     id: `${counter++}`,
     event: "connection",

@@ -49,7 +49,7 @@ export const useNoteStore = defineStore("notes", () => {
   // SSE
   const { data, event } = useEventSource(
     `${baseUrl}/api/users/sse/${userId.value}`,
-    ["connection", "refresh", "stall"] as const,
+    ["connection", "refresh"] as const,
   );
 
   // Watch for changes and refresh data
