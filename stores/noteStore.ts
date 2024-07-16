@@ -47,11 +47,17 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   // SSE
-  const { data } = useEventSource(`${baseUrl}/api/users/sse/${userId.value}`);
+  const { data, event } = useEventSource(
+    `${baseUrl}/api/users/sse/${userId.value}`,
+    ["connection", "refresh", "stall"] as const,
+  );
 
   // Watch for changes and refresh data
+
   watch(data, () => {
-    refreshData();
+    if (event.value === "refresh") {
+      refreshData();
+    }
   });
 
   return {

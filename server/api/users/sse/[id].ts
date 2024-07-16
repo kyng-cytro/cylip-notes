@@ -15,18 +15,36 @@ export default defineAuthenticatedEventHandler(async (event) => {
       message: "You are not authorized to access this resource",
     });
   }
+  let counter = 0;
   let previousId = "";
   const eventStream = createEventStream(event);
+
+  // check for changes every interval
   const t0 = setInterval(async () => {
     const { chanaged, newId } = await checkForChanges(id, previousId);
     if (chanaged) {
       previousId = newId;
-      eventStream.push(`refetch: ${previousId}`);
+      eventStream.push({ id: `${counter++}`, event: "refresh", data: newId });
+    } else {
+      eventStream.push({
+        id: `${counter++}`,
+        event: "stall",
+        data: "nothing changed",
+      });
     }
   }, parseInt(interval));
+
+  // listen for changes close
   eventStream.onClosed(async () => {
     clearInterval(t0);
     await eventStream.close();
   });
+
+  eventStream.push({
+    id: `${counter++}`,
+    event: "connection",
+    data: "connected",
+  });
+
   return eventStream.send();
 });
