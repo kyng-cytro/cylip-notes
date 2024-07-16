@@ -16,7 +16,6 @@ export const checkForChanges = async (
   if (!lastChange) {
     return { chanaged: false, newId: null };
   }
-  console.log(lastChange.id, previousId);
   if (lastChange.id !== previousId) {
     return { chanaged: true, newId: lastChange.id };
   }

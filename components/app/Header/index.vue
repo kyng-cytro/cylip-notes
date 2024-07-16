@@ -48,7 +48,8 @@ const closeMobileMenu = () => {
     <div class="w-full flex-1">
       <AppHeaderSearch />
     </div>
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-x-2">
+      <AppHeaderFetching />
       <ColorMode />
       <AppHeaderUser />
     </div>

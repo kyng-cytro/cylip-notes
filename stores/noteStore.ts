@@ -7,6 +7,7 @@ export const useNoteStore = defineStore("notes", () => {
   const labels = ref<Label[]>([]);
   const initialized = ref(false);
   const pinnedNotes = computed(() => []);
+  const fetching = ref(false);
   const { baseUrl } = useRuntimeConfig().public;
   const userId = computed(() => user.value?.id);
 
@@ -20,7 +21,10 @@ export const useNoteStore = defineStore("notes", () => {
 
   // Actions
   const loadData = async (id: string) => {
-    return await $fetch(`/api/users/${id}`);
+    fetching.value = true;
+    const data = await $fetch(`/api/users/${id}`);
+    fetching.value = false;
+    return data;
   };
 
   const updateData = (data: { notes: Note[]; labels: Label[] }) => {
@@ -30,7 +34,6 @@ export const useNoteStore = defineStore("notes", () => {
 
   const refreshData = async () => {
     if (!userId.value) return;
-    console.log("refreshing data");
     const data = await loadData(userId.value);
     if (data) updateData(data);
   };
@@ -43,9 +46,18 @@ export const useNoteStore = defineStore("notes", () => {
     labels.value = [label, ...labels.value];
   };
 
+  // SSE
+  const { data } = useEventSource(`${baseUrl}/api/users/sse/${userId.value}`);
+
+  // Watch for changes and refresh data
+  watch(data, () => {
+    refreshData();
+  });
+
   return {
     notes,
     labels,
+    fetching,
     initStore,
     createLabel,
     initialized,

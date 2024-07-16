@@ -21,9 +21,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const { chanaged, newId } = await checkForChanges(id, previousId);
     if (chanaged) {
       previousId = newId;
-      eventStream.push(
-        `${JSON.stringify({ updatedAt: new Date(previousId).toUTCString() })}`,
-      );
+      eventStream.push(`refetch: ${previousId}`);
     }
   }, parseInt(interval));
   eventStream.onClosed(async () => {
