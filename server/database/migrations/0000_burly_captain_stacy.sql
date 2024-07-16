@@ -10,6 +10,14 @@ CREATE TABLE `attachments` (
 	FOREIGN KEY (`note_id`) REFERENCES `notes`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `change_logs` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`table_name` text NOT NULL,
+	`operation` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `email_verification_tokens` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -29,8 +37,8 @@ CREATE TABLE `labels` (
 --> statement-breakpoint
 CREATE TABLE `notes` (
 	`id` text PRIMARY KEY NOT NULL,
-	`title` text NOT NULL,
-	`slug` text NOT NULL,
+	`title` text,
+	`slug` text,
 	`content` text,
 	`label_id` text,
 	`user_id` text NOT NULL,
@@ -60,6 +68,7 @@ CREATE TABLE `users` (
 	`updated_at` integer DEFAULT (current_timestamp) NOT NULL
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `change_logs_user_id_unique` ON `change_logs` (`user_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `labels_slug_user_id_unique` ON `labels` (`slug`,`user_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_google_id_unique` ON `users` (`google_id`);

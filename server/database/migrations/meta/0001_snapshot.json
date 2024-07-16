@@ -1,8 +1,8 @@
 {
+  "id": "65e77dd9-7239-4dca-bdcd-28738dfd74df",
+  "prevId": "48c2eed1-59b9-4ce7-9ff7-a3cd0071561a",
   "version": "6",
   "dialect": "sqlite",
-  "id": "48c2eed1-59b9-4ce7-9ff7-a3cd0071561a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "attachments": {
       "name": "attachments",
@@ -71,15 +71,15 @@
         "attachments_note_id_notes_id_fk": {
           "name": "attachments_note_id_notes_id_fk",
           "tableFrom": "attachments",
-          "tableTo": "notes",
           "columnsFrom": [
             "note_id"
           ],
+          "tableTo": "notes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -130,15 +130,15 @@
         "change_logs_user_id_users_id_fk": {
           "name": "change_logs_user_id_users_id_fk",
           "tableFrom": "change_logs",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -174,15 +174,15 @@
         "email_verification_tokens_user_id_users_id_fk": {
           "name": "email_verification_tokens_user_id_users_id_fk",
           "tableFrom": "email_verification_tokens",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -250,15 +250,15 @@
         "labels_user_id_users_id_fk": {
           "name": "labels_user_id_users_id_fk",
           "tableFrom": "labels",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -331,28 +331,28 @@
         "notes_label_id_labels_id_fk": {
           "name": "notes_label_id_labels_id_fk",
           "tableFrom": "notes",
-          "tableTo": "labels",
           "columnsFrom": [
             "label_id"
           ],
+          "tableTo": "labels",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "notes_user_id_users_id_fk": {
           "name": "notes_user_id_users_id_fk",
           "tableFrom": "notes",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -388,15 +388,15 @@
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -503,9 +503,9 @@
   },
   "enums": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   },
   "internal": {
     "indexes": {}

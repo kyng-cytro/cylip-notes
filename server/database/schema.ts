@@ -1,5 +1,11 @@
 import { sql, relations } from "drizzle-orm";
-import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  unique,
+  index,
+} from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("users", {
   id: text("id").notNull().primaryKey(),
@@ -98,8 +104,8 @@ export const labelsRelations = relations(label, ({ one }) => ({
 
 export const note = sqliteTable("notes", {
   id: text("id").notNull().primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull(),
+  title: text("title"),
+  slug: text("slug"),
   content: text("content"),
   labelId: text("label_id").references(() => label.id),
   userId: text("user_id")
@@ -154,3 +160,17 @@ export const attachmentsRelations = relations(attachment, ({ one }) => ({
     references: [note.id],
   }),
 }));
+
+export const changelog = sqliteTable("change_logs", {
+  id: text("id").notNull().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, {
+      onDelete: "cascade",
+    })
+    .unique(),
+  table_name: text("table_name").notNull(),
+  operation: text("operation", {
+    enum: ["insert", "update", "delete"],
+  }).notNull(),
+});

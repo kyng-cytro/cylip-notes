@@ -43,16 +43,6 @@ export const useNoteStore = defineStore("notes", () => {
     labels.value = [label, ...labels.value];
   };
 
-  // SSE
-  const { data } = useEventSource(
-    computed(() => `${baseUrl}/sse?userId=${userId.value}`),
-  );
-
-  // Watch SSE
-  watch(data, async () => {
-    await refreshData();
-  });
-
   return {
     notes,
     labels,
