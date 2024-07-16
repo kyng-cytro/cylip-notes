@@ -66,6 +66,7 @@ export const useNoteStore = defineStore("notes", () => {
     fetching,
     initStore,
     createLabel,
+    refreshData,
     initialized,
     pinnedNotes,
   };

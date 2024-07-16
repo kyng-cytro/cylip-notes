@@ -7,6 +7,10 @@ defineProps<{
     to?: string;
   };
 }>();
+
+defineEmits<{
+  (e: "buttonClick"): void;
+}>();
 </script>
 <template>
   <div
@@ -17,7 +21,12 @@ defineProps<{
       <p class="text-sm text-muted-foreground">
         {{ subtitle }}
       </p>
-      <Button v-if="button" class="mt-4" :to="button.to">
+      <Button
+        v-if="button"
+        class="mt-4"
+        :to="button.to"
+        @click="$emit('buttonClick')"
+      >
         {{ button.text }}
       </Button>
     </div>

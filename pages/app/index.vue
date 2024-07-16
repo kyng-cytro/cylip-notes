@@ -31,10 +31,16 @@ const layoutStyles = computed(() => ({
       <AppEmptyPage
         title="No notes yet"
         subtitle="Create your first note to get started"
-        :button="{ text: 'Create Note', to: '/app/create-note' }"
+        :button="{ text: 'Create Note' }"
         v-if="initialized"
       />
-      <div v-else>Loading...</div>
+      <div
+        class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto overflow-x-hidden p-1"
+        v-else
+        :class="layoutStyles"
+      >
+        <AppNotesLoading />
+      </div>
     </template>
     <template v-else>
       <div

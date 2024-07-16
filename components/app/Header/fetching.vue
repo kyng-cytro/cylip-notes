@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { RotateCw } from "lucide-vue-next";
-const { fetching } = storeToRefs(useNoteStore());
+const noteStore = useNoteStore();
+const { fetching } = storeToRefs(noteStore);
 </script>
 <template>
   <Button
     variant="ghost"
     size="icon"
     :class="{ 'text-muted-foreground': !fetching }"
+    @click="noteStore.refreshData"
   >
-    <RotateCw :class="{ 'animate-spin:': fetching }" class="size-4" />
+    <RotateCw class="size-4" :class="{ 'animate-spin': fetching }" />
   </Button>
 </template>
