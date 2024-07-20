@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { convertToMarkDown } from "@/lib/turndown";
 import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
 
-const { editor } = useEditor();
-const { copy } = useClipboard();
-const { id } = useParallelRoute("modal")!.params;
-
 const modal = ref<HTMLElement>();
+
 useFocus(modal, { initialValue: true });
+
+const { id } = useParallelRoute("modal")!.params as { id: string };
+
+const noteStore = useNoteStore();
+
+const note = noteStore.getNoteById(id);
+
+const title = ref(note?.title);
+
+const { editor, content } = useEditor({ initialValue: note?.content });
+
+const { copy } = useCustomClipboard();
 
 const openNote = () => {
   return navigateTo(`/app/notes/${id}`, {
@@ -16,12 +23,21 @@ const openNote = () => {
   });
 };
 
-const copyToClipboard = async () => {
-  const text = convertToMarkDown(editor.getHTML());
-  if (!text) return toast.warning("No content to copy");
-  await copy(text);
-  return toast.success("Copied to clipboard");
-};
+watchDebounced(
+  title,
+  () => {
+    console.log("title changed");
+  },
+  { debounce: 1000, maxWait: 5000 },
+);
+
+watchDebounced(
+  content,
+  () => {
+    console.log("content changed");
+  },
+  { debounce: 1000, maxWait: 5000 },
+);
 </script>
 <template>
   <div
@@ -33,6 +49,7 @@ const copyToClipboard = async () => {
       ref="modal"
       tabindex="-1"
       @click.stop
+      v-if="note"
     >
       <CardHeader class="space-y-4">
         <div class="flex items-center justify-between">
@@ -66,8 +83,9 @@ const copyToClipboard = async () => {
           </div>
         </div>
         <AppNoteTitleInput
+          v-model="title"
           @open-note="openNote"
-          @copy-to-clipboard="copyToClipboard"
+          @copy-to-clipboard="() => copy(editor.getHTML(), true)"
         />
         <EditorToolbar :editor="editor" />
       </CardHeader>
@@ -78,7 +96,7 @@ const copyToClipboard = async () => {
         <p
           class="whitespace-nowrap text-sm font-medium leading-none text-muted-foreground"
         >
-          Edited: Jun 12
+          Edited: {{ note.updatedAt }}
         </p>
       </CardFooter>
     </Card>

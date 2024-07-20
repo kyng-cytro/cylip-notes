@@ -16,7 +16,7 @@ const lowlight = createLowlight(common);
 lowlight.register({ ts });
 
 type EditorOpts = {
-  initialValue?: string;
+  initialValue?: string | null;
   placeholder?: string;
 };
 

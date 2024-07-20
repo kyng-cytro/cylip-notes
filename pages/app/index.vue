@@ -4,11 +4,12 @@ definePageMeta({
   layout: "app",
 });
 
-const { notes, initialized, pinnedNotes } = storeToRefs(useNoteStore());
+const notesStore = useNoteStore();
+const { notes, initialized, pinnedNotes } = storeToRefs(notesStore);
 
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
-  "scrollbar-thin lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-0":
+  "scrollbar-thin lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-4":
     layout.value === "grid",
   "scrollbar-thin w-full max-w-xl mx-auto lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-0":
     layout.value === "list",
@@ -21,7 +22,7 @@ const layoutStyles = computed(() => ({
       <AppNoteLabelSelect />
       <div class="flex items-center gap-2">
         <AppNoteLayoutSelect />
-        <Button variant="secondary" size="icon">
+        <Button variant="secondary" size="icon" @click="notesStore.createNote">
           <Plus />
           <span class="sr-only">Create new note</span>
         </Button>
@@ -32,6 +33,7 @@ const layoutStyles = computed(() => ({
         title="No notes yet"
         subtitle="Create your first note to get started"
         :button="{ text: 'Create Note' }"
+        @button-click="notesStore.createNote"
         v-if="initialized"
       />
       <div

@@ -1,4 +1,5 @@
 import type { Label, Note } from "@/server/utils/drizzle";
+import { toast } from "vue-sonner";
 
 export const useNoteStore = defineStore("notes", () => {
   // Getters
@@ -38,12 +39,29 @@ export const useNoteStore = defineStore("notes", () => {
     if (data) updateData(data);
   };
 
+  const getNoteById = (id: string) => {
+    return notes.value.find((note) => note.id === id);
+  };
+
   const createLabel = async (values: Record<string, any>) => {
     const label = await $fetch("/api/labels", {
       method: "POST",
       body: values,
     });
     labels.value = [label, ...labels.value];
+  };
+
+  const createNote = async () => {
+    try {
+      const note = await $fetch("/api/notes", { method: "POST" });
+      notes.value = [note, ...notes.value];
+      useModalRouter().push(`/app/notes/${note.id}`);
+    } catch (e: any) {
+      toast.error({
+        title: "Error creating note",
+        description: e.message,
+      });
+    }
   };
 
   // SSE
@@ -65,7 +83,9 @@ export const useNoteStore = defineStore("notes", () => {
     labels,
     fetching,
     initStore,
+    createNote,
     createLabel,
+    getNoteById,
     refreshData,
     initialized,
     pinnedNotes,

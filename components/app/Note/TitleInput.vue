@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EllipsisVertical, ExternalLink } from "lucide-vue-next";
-const content = defineModel({ default: "" });
+const text = defineModel({ default: "" });
 const emit = defineEmits<{
   (e: "open-note"): void;
   (e: "delete-note"): void;
@@ -16,7 +16,7 @@ const emit = defineEmits<{
         type="text"
         placeholder="Title"
         class="border-none px-0 text-xl font-semibold focus-visible:ring-0"
-        v-model="content"
+        v-model="text"
       />
       <DropdownMenuTrigger>
         <Button variant="link" class="px-0">
