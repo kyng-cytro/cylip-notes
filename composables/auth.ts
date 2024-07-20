@@ -22,7 +22,7 @@ export const useUser = () => {
       method: "POST",
     });
     user.value = null;
-    await navigateTo("/login");
+    await navigateTo(authRoutes.login);
   }
 
   return { loggedIn, isPremium, user, logout, signIn };

@@ -26,3 +26,9 @@ export const routes = [
     icon: Settings,
   },
 ];
+
+export const authRoutes = {
+  home: "/",
+  app: "/app",
+  login: "/login",
+};

@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { TriangleAlert } from "lucide-vue-next";
 import type { NuxtError } from "#app";
-const router = useRouter();
+
+const { loggedIn } = useUser();
+
+const back = () => {
+  if (loggedIn) {
+    navigateTo(authRoutes.app);
+  } else {
+    navigateTo(authRoutes.home);
+  }
+};
+
 defineProps({
   error: Object as () => NuxtError,
 });
@@ -25,7 +35,7 @@ defineProps({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button class="mt-2" variant="outline" @click="router.back()">
+            <Button class="mt-2" variant="outline" @click="back">
               Back Home
             </Button>
           </CardContent>

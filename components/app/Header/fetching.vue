@@ -11,5 +11,6 @@ const { fetching } = storeToRefs(noteStore);
     @click="noteStore.refreshData"
   >
     <RotateCw class="size-4" :class="{ 'animate-spin': fetching }" />
+    <span class="sr-only">Refresh</span>
   </Button>
 </template>
