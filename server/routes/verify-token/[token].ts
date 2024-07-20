@@ -1,3 +1,5 @@
+import { authRoutes } from "@/utils/routes";
+
 export default defineEventHandler(async (event) => {
   const { token } = getRouterParams(event);
 
@@ -23,7 +25,7 @@ export default defineEventHandler(async (event) => {
       "Set-Cookie",
       lucia.createSessionCookie(session.id).serialize(),
     );
-    return sendRedirect(event, "/app");
+    return sendRedirect(event, authRoutes.app);
   } catch (e) {
     console.error({ e });
     throw createError({

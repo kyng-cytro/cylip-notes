@@ -48,7 +48,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   // SSE
   const { data, event } = useEventSource(
-    `${baseUrl}/api/users/sse/${userId.value}`,
+    `${baseUrl}/api/users/server-events/${userId.value}`,
     ["connection", "refresh"] as const,
   );
 

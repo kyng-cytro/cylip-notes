@@ -20,7 +20,7 @@ export const sendEmail = async ({
   subject: string;
   category?: "welcome" | "sign-in";
 }) => {
-  const { error } = await resend.emails.send({
+  const { error: e } = await resend.emails.send({
     from: "cylip|notes <no-reply@cylip-notes.cytro.com.ng>",
     to,
     subject,
@@ -31,7 +31,7 @@ export const sendEmail = async ({
     },
     ...(category && { tags: [{ name: "category", value: category }] }),
   });
-  if (error) {
-    console.error({ error });
+  if (e) {
+    console.error({ e });
   }
 };

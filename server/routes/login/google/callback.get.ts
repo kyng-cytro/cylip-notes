@@ -1,5 +1,6 @@
 import { OAuth2RequestError } from "arctic";
 import { generateId } from "lucia";
+import { authRoutes } from "~/utils/routes";
 
 export default defineEventHandler(async (event) => {
   // Grab the code and state from the query string
@@ -84,7 +85,7 @@ export default defineEventHandler(async (event) => {
       "Set-Cookie",
       lucia.createSessionCookie(session.id).serialize(),
     );
-    return sendRedirect(event, "/app");
+    return sendRedirect(event, authRoutes.app);
   } catch (e) {
     console.error({ e });
     if (e instanceof OAuth2RequestError) {
