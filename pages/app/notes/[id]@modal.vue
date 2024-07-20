@@ -17,6 +17,8 @@ const { editor, content } = useEditor({ initialValue: note?.content });
 
 const { copy } = useCustomClipboard();
 
+const { formatToTimeAgo } = useDateUtils();
+
 const openNote = () => {
   return navigateTo(`/app/notes/${id}`, {
     external: true,
@@ -96,7 +98,7 @@ watchDebounced(
         <p
           class="whitespace-nowrap text-sm font-medium leading-none text-muted-foreground"
         >
-          Edited: {{ note.updatedAt }}
+          Edited: {{ formatToTimeAgo(note.updatedAt) }}
         </p>
       </CardFooter>
     </Card>

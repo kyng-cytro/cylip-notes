@@ -18,8 +18,15 @@ const { layout } = storeToRefs(useLayoutStore());
 const drag = ref(false);
 
 const layoutStyles = computed(() => ({
-  "grid gap-4 grid-cols-2 sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]":
-    layout.value === "grid",
+  "grid gap-4 grid-cols-2": layout.value === "grid",
+  "sm:grid-cols-[repeat(auto-fit,minmax(200px,max-content))]":
+    layout.value === "grid" && notes.value.length < 3,
+  "sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(200px,0.15fr))]":
+    layout.value === "grid" &&
+    notes.value.length >= 3 &&
+    notes.value.length < 5,
+  "sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]":
+    layout.value === "grid" && notes.value.length >= 5,
   "grid-cols-1": layout.value === "list",
 }));
 
