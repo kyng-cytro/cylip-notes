@@ -9,7 +9,7 @@ const { id } = useParallelRoute("modal")!.params as { id: string };
 
 const noteStore = useNoteStore();
 
-const note = noteStore.getNoteById(id);
+const note = noteStore.methods.getNoteById(id);
 
 const title = ref(note?.title);
 

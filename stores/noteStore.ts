@@ -7,10 +7,23 @@ export const useNoteStore = defineStore("notes", () => {
   const notes = ref<Note[]>([]);
   const labels = ref<Label[]>([]);
   const initialized = ref(false);
-  const pinnedNotes = computed(() => []);
   const fetching = ref(false);
   const { baseUrl } = useRuntimeConfig().public;
   const userId = computed(() => user.value?.id);
+  const normalNotes = computed(() => {
+    return notes.value.filter(
+      (note) => !note.trashed && !note.archived && !note.pinned,
+    );
+  });
+  const pinnedNotes = computed(() => {
+    return notes.value.filter((note) => note.pinned);
+  });
+  const trashedNotes = computed(() => {
+    return notes.value.filter((note) => note.trashed);
+  });
+  const archivedNotes = computed(() => {
+    return notes.value.filter((note) => note.archived);
+  });
 
   // Init
   const initStore = async () => {
@@ -64,6 +77,17 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const toggleNoteProp = async (
+    note: Note,
+    prop: "pinned" | "archived" | "trashed",
+  ) => {
+    const data = await $fetch(`/api/notes/${note.id}`, {
+      method: "PATCH",
+      body: { [prop]: !note[prop] },
+    });
+    notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
+  };
+
   // SSE
   const { data, event } = useEventSource(
     `${baseUrl}/api/users/server-events/${userId.value}`,
@@ -79,15 +103,20 @@ export const useNoteStore = defineStore("notes", () => {
   });
 
   return {
-    notes,
-    labels,
     fetching,
-    initStore,
-    createNote,
-    createLabel,
-    getNoteById,
-    refreshData,
     initialized,
+    labels,
     pinnedNotes,
+    normalNotes,
+    trashedNotes,
+    archivedNotes,
+    methods: {
+      createNote,
+      createLabel,
+      getNoteById,
+      refreshData,
+      toggleNoteProp,
+    },
+    initStore,
   };
 });

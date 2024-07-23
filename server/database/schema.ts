@@ -107,6 +107,9 @@ export const note = sqliteTable("notes", {
   title: text("title"),
   slug: text("slug"),
   content: text("content"),
+  pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
+  archived: integer("archived", { mode: "boolean" }).notNull().default(false),
+  trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),
   labelId: text("label_id").references(() => label.id),
   userId: text("user_id")
     .notNull()

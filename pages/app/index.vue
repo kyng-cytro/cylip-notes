@@ -5,7 +5,7 @@ definePageMeta({
 });
 
 const notesStore = useNoteStore();
-const { notes, initialized, pinnedNotes } = storeToRefs(notesStore);
+const { normalNotes, initialized, pinnedNotes } = storeToRefs(notesStore);
 
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
@@ -22,18 +22,22 @@ const layoutStyles = computed(() => ({
       <AppNoteLabelSelect />
       <div class="flex items-center gap-2">
         <AppNoteLayoutSelect />
-        <Button variant="secondary" size="icon" @click="notesStore.createNote">
+        <Button
+          variant="secondary"
+          size="icon"
+          @click="notesStore.methods.createNote"
+        >
           <Plus />
           <span class="sr-only">Create new note</span>
         </Button>
       </div>
     </div>
-    <template v-if="!notes.length">
+    <template v-if="!normalNotes.length">
       <AppEmptyPage
         title="No notes yet"
         subtitle="Create your first note to get started"
         :button="{ text: 'Create Note' }"
-        @button-click="notesStore.createNote"
+        @button-click="notesStore.methods.createNote"
         v-if="initialized"
       />
       <div
@@ -65,7 +69,7 @@ const layoutStyles = computed(() => ({
         >
           Others
         </p>
-        <AppNoteContainer v-model:notes="notes" />
+        <AppNoteContainer v-model:notes="normalNotes" />
       </div>
     </template>
     <Transition name="modal">

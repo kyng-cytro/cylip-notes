@@ -8,7 +8,7 @@ const { fetching } = storeToRefs(noteStore);
     variant="ghost"
     size="icon"
     :class="{ 'text-muted-foreground': !fetching }"
-    @click="noteStore.refreshData"
+    @click="noteStore.methods.refreshData"
   >
     <RotateCw class="size-4" :class="{ 'animate-spin': fetching }" />
     <span class="sr-only">Refresh</span>
