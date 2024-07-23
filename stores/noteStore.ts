@@ -10,17 +10,24 @@ export const useNoteStore = defineStore("notes", () => {
   const fetching = ref(false);
   const { baseUrl } = useRuntimeConfig().public;
   const userId = computed(() => user.value?.id);
+
+  // Notes that are not trashed or archived
+  const activeNotes = computed(() => {
+    return notes.value.filter((note) => !note.trashed && !note.archived);
+  });
+
   const normalNotes = computed(() => {
-    return notes.value.filter(
-      (note) => !note.trashed && !note.archived && !note.pinned,
-    );
+    return activeNotes.value.filter((note) => !note.pinned);
   });
+
   const pinnedNotes = computed(() => {
-    return notes.value.filter((note) => note.pinned);
+    return activeNotes.value.filter((note) => note.pinned);
   });
+
   const trashedNotes = computed(() => {
     return notes.value.filter((note) => note.trashed);
   });
+
   const archivedNotes = computed(() => {
     return notes.value.filter((note) => note.archived);
   });
@@ -83,7 +90,7 @@ export const useNoteStore = defineStore("notes", () => {
   ) => {
     const data = await $fetch(`/api/notes/${note.id}`, {
       method: "PATCH",
-      body: { [prop]: !note[prop] },
+      body: { field: prop, value: !note[prop] },
     });
     notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
   };

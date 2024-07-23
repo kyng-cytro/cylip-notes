@@ -32,7 +32,7 @@ const layoutStyles = computed(() => ({
         </Button>
       </div>
     </div>
-    <template v-if="!normalNotes.length">
+    <template v-if="!normalNotes.length && !pinnedNotes.length">
       <AppEmptyPage
         title="No notes yet"
         subtitle="Create your first note to get started"

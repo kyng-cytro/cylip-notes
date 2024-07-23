@@ -5,13 +5,19 @@ export default defineAuthenticatedEventHandler(async (event) => {
   if (!id) {
     throw createError({ statusCode: 400, message: "Invalid or missing id." });
   }
-  const data = await readValidatedBody(event, notePatchSchema.parse);
+  const { field, value } = await readValidatedBody(
+    event,
+    notePatchSchema.parse,
+  );
   try {
     const db = useDrizzle();
 
     const [note] = await db
       .update(tables.note)
-      .set(data)
+      .set({
+        [field]: value,
+        updatedAt: sql`current_timestamp`,
+      })
       .where(
         and(
           eq(tables.note.id, id),

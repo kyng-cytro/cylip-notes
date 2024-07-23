@@ -1,11 +1,7 @@
 import { z } from "zod";
 
-export const notePatchSchema = z
-  .object({
-    pinned: z.boolean().default(false),
-    trashed: z.boolean().default(false),
-    archived: z.boolean().default(false),
-  })
-  .refine((data) => data.pinned || data.trashed || data.archived, {
-    message: "At least one of pinned, trashed or archived must be true.",
-  });
+export const notePatchSchema = z.discriminatedUnion("field", [
+  z.object({ field: z.literal("pinned"), value: z.boolean() }),
+  z.object({ field: z.literal("archived"), value: z.boolean() }),
+  z.object({ field: z.literal("trashed"), value: z.boolean() }),
+]);

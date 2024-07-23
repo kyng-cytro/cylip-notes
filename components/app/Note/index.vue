@@ -16,7 +16,8 @@ const { note } = defineProps<{
 
 const query = ref("");
 
-const { labels } = storeToRefs(useNoteStore());
+const noteStore = useNoteStore();
+const { labels } = storeToRefs(noteStore);
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
   "justify-between": layout.value === "grid",
@@ -43,8 +44,12 @@ const openModal = () => {
           class="invisible flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible"
         >
           <TooltipWrapper tooltip="Pin note">
-            <Button variant="ghost" size="icon" @click.stop>
-              <PinOff class="h-5 w-5 rotate-45" v-if="false" />
+            <Button
+              variant="ghost"
+              size="icon"
+              @click.stop="noteStore.methods.toggleNoteProp(note, 'pinned')"
+            >
+              <PinOff class="h-5 w-5 rotate-45" v-if="note.pinned" />
               <Pin class="h-5 w-5 rotate-45" v-else />
             </Button>
           </TooltipWrapper>
@@ -65,7 +70,11 @@ const openModal = () => {
         </Button>
       </TooltipWrapper>
       <TooltipWrapper tooltip="Archive">
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          @click.stop="noteStore.methods.toggleNoteProp(note, 'archived')"
+        >
           <Archive class="h-4 w-4" />
         </Button>
       </TooltipWrapper>
@@ -134,7 +143,9 @@ const openModal = () => {
             </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem class="text-red-600"
+              <DropdownMenuItem
+                class="text-red-600"
+                @click.stop="noteStore.methods.toggleNoteProp(note, 'trashed')"
                 >Delete Note</DropdownMenuItem
               >
             </DropdownMenuGroup>

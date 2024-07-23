@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
   }
   try {
     const lucia = initializeLucia();
-    await lucia.invalidateUserSessions(userId);
     const session = await lucia.createSession(userId, {});
     appendHeader(
       event,
