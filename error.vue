@@ -37,6 +37,7 @@ defineProps({
           <CardContent>
             <Button class="mt-2" variant="outline" @click="back">
               Back Home
+              <span class="sr-only">Back Home</span>
             </Button>
           </CardContent>
         </Card>

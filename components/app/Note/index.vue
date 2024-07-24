@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import {
-  Plus,
-  Pin,
-  PinOff,
-  Share2,
-  BellRing,
-  Archive,
-  EllipsisVertical,
-} from "lucide-vue-next";
+import { Pin, PinOff } from "lucide-vue-next";
 import type { Note } from "@/server/utils/drizzle";
 
 const { note } = defineProps<{
   note: Note;
 }>();
 
-const query = ref("");
-
 const noteStore = useNoteStore();
-const { labels } = storeToRefs(noteStore);
 const { layout } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
   "justify-between": layout.value === "grid",
@@ -42,6 +31,7 @@ const openModal = () => {
         </div>
         <div
           class="invisible flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible"
+          v-if="!note.archived && !note.trashed"
         >
           <TooltipWrapper tooltip="Pin note">
             <Button
@@ -49,8 +39,14 @@ const openModal = () => {
               size="icon"
               @click.stop="noteStore.methods.toggleNoteProp(note, 'pinned')"
             >
-              <PinOff class="h-5 w-5 rotate-45" v-if="note.pinned" />
-              <Pin class="h-5 w-5 rotate-45" v-else />
+              <template v-if="note.pinned">
+                <PinOff class="h-5 w-5 rotate-45" />
+                <span class="sr-only">Pin note</span>
+              </template>
+              <template v-else>
+                <Pin class="h-5 w-5 rotate-45" />
+                <span class="sr-only">Unpin note</span>
+              </template>
             </Button>
           </TooltipWrapper>
         </div>
@@ -59,99 +55,7 @@ const openModal = () => {
     <CardContent class="pb-2.5">
       <Skeleton class="h-32 w-full" />
     </CardContent>
-    <CardFooter
-      @click.stop
-      class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
-      :class="layoutStyles"
-    >
-      <TooltipWrapper tooltip="Remind me">
-        <Button variant="ghost" size="icon">
-          <BellRing class="h-4 w-4" />
-        </Button>
-      </TooltipWrapper>
-      <TooltipWrapper tooltip="Archive">
-        <Button
-          variant="ghost"
-          size="icon"
-          @click.stop="noteStore.methods.toggleNoteProp(note, 'archived')"
-        >
-          <Archive class="h-4 w-4" />
-        </Button>
-      </TooltipWrapper>
-      <TooltipWrapper tooltip="Share">
-        <Button variant="ghost" size="icon">
-          <Share2 class="h-4 w-4" />
-        </Button>
-      </TooltipWrapper>
-      <ClientOnly>
-        <template #fallback>
-          <Button variant="ghost" size="icon">
-            <EllipsisVertical class="h-4 w-4" />
-          </Button>
-        </template>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon">
-              <EllipsisVertical class="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent class="w-[200px]">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>Make a Copy</DropdownMenuItem>
-              <DropdownMenuItem>Version History</DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger> Assign Label </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent class="p-0">
-                <Command v-model:searchTerm="query">
-                  <CommandInput
-                    id="group-filter"
-                    placeholder="Filter group..."
-                    auto-focus
-                  />
-                  <CommandList>
-                    <CommandEmpty
-                      class="flex flex-col items-center justify-center gap-2 p-4"
-                    >
-                      <span>No label with the name "{{ query }}".</span>
-                      <AppCreateLabel v-model:value="query">
-                        <template #trigger>
-                          <Button variant="ghost" size="xs">
-                            <Plus class="h-5 w-5" />
-                            <span class="sr-only"
-                              >Create a label with this name</span
-                            >
-                          </Button>
-                        </template>
-                      </AppCreateLabel>
-                    </CommandEmpty>
-                    <CommandGroup>
-                      <CommandItem value="all-notes">All Notes</CommandItem>
-                      <CommandItem
-                        v-for="label in labels"
-                        :key="label.id"
-                        :value="label.slug"
-                      >
-                        {{ capitalize(label.name) }}
-                      </CommandItem>
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                class="text-red-600"
-                @click.stop="noteStore.methods.toggleNoteProp(note, 'trashed')"
-                >Delete Note</DropdownMenuItem
-              >
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ClientOnly>
-    </CardFooter>
+    <AppNoteFooter :class="layoutStyles" v-if="!note.trashed" />
+    <AppNoteFooterInactive :class="layoutStyles" v-else />
   </Card>
 </template>

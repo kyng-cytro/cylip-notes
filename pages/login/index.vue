@@ -60,6 +60,7 @@ const onSubmit = async (values: Record<string, any>) => {
                 :loading="loading"
               >
                 Sign In with Email
+                <span class="sr-only">Sign In with Email</span>
               </Button>
               <div class="relative">
                 <div class="absolute inset-0 flex items-center">
@@ -77,6 +78,7 @@ const onSubmit = async (values: Record<string, any>) => {
                 @click="signIn({ type: 'google' })"
               >
                 Sign In with Google
+                <span class="sr-only">Sign In with Google</span>
               </Button>
             </Form>
             <div class="mt-4">

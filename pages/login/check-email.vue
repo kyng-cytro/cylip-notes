@@ -24,6 +24,7 @@ definePageMeta({
 
             <Button to="/login" class="mt-4" variant="outline">
               Back to Login
+              <span class="sr-only">Back to Login</span>
             </Button>
           </CardContent>
         </Card>
