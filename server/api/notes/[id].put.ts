@@ -1,25 +1,20 @@
-import { notePatchSchema } from "@/schemas/note";
+import { slugify } from "@/utils/helpers";
+import { notePutSchema } from "@/schemas/note";
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const { id } = getRouterParams(event);
   if (!id) {
     throw createError({ statusCode: 400, message: "Invalid or missing id." });
   }
-  const { field, value } = await readValidatedBody(
-    event,
-    notePatchSchema.parse,
-  );
+
+  const { field, value } = await readValidatedBody(event, notePutSchema.parse);
+
   try {
     const db = useDrizzle();
 
     const data = {
-      ...(field === "pinned" && { pinned: value, archived: false }),
-      ...(field === "archived" && { archived: value, pinned: false }),
-      ...(field === "trashed" && {
-        trashed: value,
-        pinned: false,
-        archived: false,
-      }),
+      ...(field === "title" && { title: value, slug: slugify(value) }),
+      ...(field === "content" && { content: value }),
       updatedAt: sql`current_timestamp`,
     };
 
