@@ -27,18 +27,20 @@ const openNote = () => {
 
 watchDebounced(
   title,
-  () => {
-    console.log("title changed");
+  async () => {
+    if (!title.value || title.value === note!.title) return;
+    await noteStore.methods.updateNote(note!.id, "title", title.value);
   },
-  { debounce: 1000, maxWait: 5000 },
+  { debounce: 1000 },
 );
 
 watchDebounced(
   content,
-  () => {
-    console.log("content changed");
+  async () => {
+    if (!content.value || content.value === note!.content) return;
+    await noteStore.methods.updateNote(note!.id, "content", content.value);
   },
-  { debounce: 1000, maxWait: 5000 },
+  { debounce: 1000 },
 );
 </script>
 <template>

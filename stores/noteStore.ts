@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/vue-3";
 import type { Label, Note } from "@/server/utils/drizzle";
 import { toast } from "vue-sonner";
 
@@ -84,6 +85,18 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const updateNote = async (
+    noteId: string,
+    prop: "title" | "content",
+    newValue: string | JSONContent,
+  ) => {
+    const data = await $fetch(`/api/notes/${noteId}`, {
+      method: "PUT",
+      body: { field: prop, value: newValue },
+    });
+    notes.value = notes.value.map((n) => (n.id === noteId ? data : n));
+  };
+
   const toggleNoteProp = async (
     note: Note,
     prop: "pinned" | "archived" | "trashed",
@@ -118,6 +131,7 @@ export const useNoteStore = defineStore("notes", () => {
     trashedNotes,
     archivedNotes,
     methods: {
+      updateNote,
       createNote,
       createLabel,
       getNoteById,

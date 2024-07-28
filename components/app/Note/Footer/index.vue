@@ -21,7 +21,7 @@ defineEmits<{
 }>();
 </script>
 <template>
-  <CardFooter
+  <div
     @click.stop
     class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
   >
@@ -115,5 +115,5 @@ defineEmits<{
         </DropdownMenuContent>
       </DropdownMenu>
     </ClientOnly>
-  </CardFooter>
+  </div>
 </template>

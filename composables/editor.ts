@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/vue-3";
+import { convertToMarkDown } from "@/lib/turndown";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
@@ -11,12 +11,13 @@ import Highlight from "@tiptap/extension-highlight";
 import Placeholder from "@tiptap/extension-placeholder";
 import FileHandler from "@tiptap-pro/extension-file-handler";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
 
 const lowlight = createLowlight(common);
 lowlight.register({ ts });
 
 type EditorOpts = {
-  initialValue?: string | null;
+  initialValue?: JSONContent | null;
   placeholder?: string;
 };
 
@@ -33,11 +34,48 @@ const CustomCodeBlock = CodeBlockLowlight.extend({
   },
 });
 
-export const useEditor = ({
-  initialValue = "",
-  placeholder = "Note it down...",
-}: EditorOpts = {}) => {
-  const content = ref(initialValue ?? "");
+const extensions = [
+  Image,
+  TaskList,
+  Underline,
+  Highlight,
+  TaskItem.configure({
+    nested: true,
+  }),
+  Link.configure({
+    linkOnPaste: true,
+  }),
+  CustomCodeBlock.configure({
+    lowlight,
+  }),
+  Placeholder.configure({ placeholder: "Note it down..." }),
+  StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
+  FileHandler.configure({
+    allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/svg+xml"],
+    onDrop: (currentEditor, files, pos) => {
+      console.log(files);
+    },
+    onPaste: (currentEditor, files, htmlContent) => {
+      console.log(files);
+    },
+  }),
+];
+
+export const useEditorUtils = () => {
+  const convertToText = (doc: JSONContent) => {
+    return convertToMarkDown(convertToHtml(doc));
+  };
+
+  const convertToHtml = (doc: JSONContent) => {
+    if (!doc) return "";
+    return generateHTML(doc, extensions);
+  };
+
+  return { convertToText, convertToHtml };
+};
+
+export const useEditor = ({ initialValue = {} }: EditorOpts = {}) => {
+  const content = ref(initialValue);
   const editor = new Editor({
     content: content.value,
     editorProps: {
@@ -45,39 +83,9 @@ export const useEditor = ({
         class: "min-h-[200px] prose dark:prose-invert outline-none",
       },
     },
-    extensions: [
-      Image,
-      TaskList,
-      Underline,
-      Highlight,
-      TaskItem.configure({
-        nested: true,
-      }),
-      Link.configure({
-        linkOnPaste: true,
-      }),
-      CustomCodeBlock.configure({
-        lowlight,
-      }),
-      Placeholder.configure({ placeholder: placeholder }),
-      StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
-      FileHandler.configure({
-        allowedMimeTypes: [
-          "image/png",
-          "image/jpeg",
-          "image/gif",
-          "image/svg+xml",
-        ],
-        onDrop: (currentEditor, files, pos) => {
-          console.log(files);
-        },
-        onPaste: (currentEditor, files, htmlContent) => {
-          console.log(files);
-        },
-      }),
-    ],
+    extensions,
     onUpdate: ({ editor }) => {
-      const value = editor.getHTML();
+      const value = editor.getJSON();
       if (value !== content.value) {
         content.value = value;
       }
