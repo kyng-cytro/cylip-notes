@@ -18,9 +18,8 @@ const { layout } = storeToRefs(useLayoutStore());
 const drag = ref(false);
 
 const layoutStyles = computed(() => ({
-  "grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))]":
-    layout.value === "grid",
-  "grid-cols-1": layout.value === "list",
+  "flex-wrap": layout.value === "grid",
+  "flex-col": layout.value === "list",
 }));
 
 const { vibrate, isSupported } = useVibrate();
@@ -33,7 +32,7 @@ const dragStart = () => {
 
 <template>
   <VueDraggableNext
-    class="grid gap-4"
+    class="flex gap-4"
     :class="layoutStyles"
     v-bind="dragOptions"
     v-model="notes"
@@ -56,7 +55,7 @@ const dragStart = () => {
 }
 
 .ghost {
-  @apply bg-muted opacity-50;
+  @apply border-2 bg-muted opacity-50;
 }
 
 .chosen {

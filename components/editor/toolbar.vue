@@ -27,8 +27,8 @@ defineProps<{
       label="Heading"
       tooltip="Heading"
       :icon="Heading1"
-      :active="editor.isActive('heading', { level: 3 })"
-      @toggled="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+      :active="editor.isActive('heading', { level: 4 })"
+      @toggled="editor.chain().focus().toggleHeading({ level: 4 }).run()"
     />
     <EditorButton
       label="Bold"

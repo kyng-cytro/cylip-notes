@@ -49,7 +49,7 @@ const extensions = [
     lowlight,
   }),
   Placeholder.configure({ placeholder: "Note it down..." }),
-  StarterKit.configure({ heading: { levels: [3] }, codeBlock: false }),
+  StarterKit.configure({ heading: { levels: [4] }, codeBlock: false }),
   FileHandler.configure({
     allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/svg+xml"],
     onDrop: (currentEditor, files, pos) => {

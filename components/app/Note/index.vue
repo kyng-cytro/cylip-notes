@@ -8,12 +8,12 @@ const { note } = defineProps<{
 
 const noteStore = useNoteStore();
 const { layout } = storeToRefs(useLayoutStore());
-const layoutStyles = computed(() => ({
-  "justify-between": layout.value === "grid",
-  "justify-start gap-6": layout.value === "list",
-}));
-
 const { convertToHtml } = useEditorUtils();
+
+const noContent = computed(() => {
+  const content = convertToHtml(note.content);
+  return !content || content.length < 10;
+});
 
 const openModal = () => {
   useModalRouter().push(`/app/notes/${note.id}`);
@@ -21,16 +21,28 @@ const openModal = () => {
 </script>
 <template>
   <Card
-    class="group flex w-full cursor-pointer flex-col gap-3 p-4 pb-0 ring-blue-500 focus:outline-none focus:ring-2"
     tabindex="0"
+    class="group flex w-full flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
+    :class="{
+      'self-start': noContent,
+      'min-w-32 md:min-w-[300px]': layout === 'grid',
+    }"
     @click="openModal"
   >
+    <!-- Content -->
+    <p
+      v-html="convertToHtml(note.content)"
+      v-if="!noContent"
+      class="tiptap prose pointer-events-none relative max-h-48 max-w-none flex-1 overflow-y-hidden px-3 pt-2 text-muted-foreground dark:prose-invert"
+    />
     <!-- Header -->
-    <div class="flex items-center justify-between">
-      <CardTitle class="text-xl">{{ note.title }}</CardTitle>
+    <div
+      class="flex items-center justify-between rounded-b-lg bg-muted px-3 py-2"
+      :class="{ 'rounded-t-lg': noContent }"
+    >
+      <CardTitle class="line-clamp-1 text-xl">{{ note.title }}</CardTitle>
       <div
-        class="invisible flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible"
-        v-if="!note.archived && !note.trashed"
+        class="flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible md:invisible"
       >
         <TooltipWrapper tooltip="Pin note">
           <Button
@@ -50,15 +62,5 @@ const openModal = () => {
         </TooltipWrapper>
       </div>
     </div>
-
-    <!-- Content -->
-    <p
-      class="tiptap prose pointer-events-none max-h-20 flex-1 overflow-y-hidden text-muted-foreground dark:prose-invert"
-      v-html="convertToHtml(note.content)"
-    />
-
-    <!-- Footer -->
-    <AppNoteFooter :class="layoutStyles" v-if="!note.trashed" />
-    <AppNoteFooterInactive :class="layoutStyles" v-else />
   </Card>
 </template>
