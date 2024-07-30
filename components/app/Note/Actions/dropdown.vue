@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  BellRing,
-  Archive,
-  Share2,
-  EllipsisVertical,
-  Plus,
-} from "lucide-vue-next";
+import { EllipsisVertical, Plus } from "lucide-vue-next";
 
 const query = ref("");
 const { labels } = storeToRefs(useNoteStore());
@@ -18,31 +12,11 @@ defineEmits<{
   (e: "remind"): void;
   (e: "archive"): void;
   (e: "versions"): void;
+  (e: "toggle-show-preview"): void;
 }>();
 </script>
 <template>
-  <div
-    @click.stop
-    class="invisible flex items-center pb-2.5 text-muted-foreground group-hover:visible group-focus:visible"
-  >
-    <TooltipWrapper tooltip="Remind me">
-      <Button variant="ghost" size="icon">
-        <BellRing class="h-4 w-4" />
-        <span class="sr-only">Remind me</span>
-      </Button>
-    </TooltipWrapper>
-    <TooltipWrapper tooltip="Archive">
-      <Button variant="ghost" size="icon" @click="$emit('archive')">
-        <Archive class="h-4 w-4" />
-        <span class="sr-only">Archive</span>
-      </Button>
-    </TooltipWrapper>
-    <TooltipWrapper tooltip="Share">
-      <Button variant="ghost" size="icon">
-        <Share2 class="h-4 w-4" />
-        <span class="sr-only">Share</span>
-      </Button>
-    </TooltipWrapper>
+  <div @click.stop>
     <ClientOnly>
       <template #fallback>
         <Button variant="ghost" size="icon">
@@ -53,14 +27,28 @@ defineEmits<{
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Button variant="ghost" size="icon">
-            <EllipsisVertical class="h-4 w-4" />
+            <EllipsisVertical class="size-5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuGroup>
+            <DropdownMenuItem @click="$emit('share')">Share</DropdownMenuItem>
+            <DropdownMenuItem @click="$emit('archive')"
+              >Archive</DropdownMenuItem
+            >
+            <DropdownMenuItem @click="$emit('remind')"
+              >Remind me</DropdownMenuItem
+            >
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Extras</DropdownMenuLabel>
+          <DropdownMenuGroup>
             <DropdownMenuItem @click="$emit('copy')"
               >Make a Copy</DropdownMenuItem
+            >
+            <DropdownMenuItem @click="$emit('toggle-show-preview')"
+              >Toggle Preview</DropdownMenuItem
             >
             <DropdownMenuItem @click="$emit('versions')"
               >Version History</DropdownMenuItem

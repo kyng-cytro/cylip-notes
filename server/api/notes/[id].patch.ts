@@ -13,12 +13,14 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const db = useDrizzle();
 
     const data = {
+      ...(field === "showPreview" && { showPreview: value }),
       ...(field === "pinned" && { pinned: value, archived: false }),
       ...(field === "archived" && { archived: value, pinned: false }),
       ...(field === "trashed" && {
         trashed: value,
         pinned: false,
         archived: false,
+        trashedAt: value ? sql`current_timestamp` : null,
       }),
       updatedAt: sql`current_timestamp`,
     };

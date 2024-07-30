@@ -106,13 +106,27 @@ export const useNoteStore = defineStore("notes", () => {
 
   const toggleNoteProp = async (
     note: Note,
-    prop: "pinned" | "archived" | "trashed",
+    prop: "pinned" | "archived" | "trashed" | "showPreview",
+    options?: { recursiveCall?: boolean },
   ) => {
     const data = await $fetch(`/api/notes/${note.id}`, {
       method: "PATCH",
       body: { field: prop, value: !note[prop] },
     });
     notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
+    if (options?.recursiveCall) return;
+    const actionMap = {
+      pinned: note[prop] ? "unpinned" : "pinned",
+      archived: note[prop] ? "unarchived" : "archived",
+      trashed: note[prop] ? "restored" : "trashed",
+      showPreview: note[prop] ? "hide preview" : "show preview",
+    };
+    toast.success(`Note ${actionMap[prop]}.`, {
+      action: {
+        label: "Undo",
+        onClick: () => toggleNoteProp(data, prop, { recursiveCall: true }),
+      },
+    });
   };
 
   // SSE

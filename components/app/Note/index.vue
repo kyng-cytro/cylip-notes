@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Pin, PinOff, Repeat2, Trash2 } from "lucide-vue-next";
 import type { Note } from "@/server/utils/drizzle";
 
-const { note } = defineProps<{
+const props = defineProps<{
   note: Note;
 }>();
 
@@ -10,21 +9,20 @@ const noteStore = useNoteStore();
 const { layout } = storeToRefs(useLayoutStore());
 const { convertToHtml } = useEditorUtils();
 
-const noContent = computed(() => {
-  const content = convertToHtml(note.content);
-  return !content || content.length < 10;
-});
-
 const openModal = () => {
-  useModalRouter().push(`/app/notes/${note.id}`);
+  useModalRouter().push(`/app/notes/${props.note.id}`);
 };
+
+const content = computed(() => {
+  return convertToHtml(props.note.content);
+});
 </script>
 <template>
   <Card
     tabindex="0"
     class="group flex w-full max-w-sm flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
     :class="{
-      'max-w-none self-start': noContent,
+      'max-w-none self-start': !note.showPreview,
       'min-w-36 md:min-w-[300px]': layout === 'grid',
       'max-w-none': layout === 'list',
     }"
@@ -32,14 +30,20 @@ const openModal = () => {
   >
     <!-- Content -->
     <p
-      v-html="convertToHtml(note.content)"
-      v-if="!noContent"
-      class="tiptap prose pointer-events-none relative max-h-32 min-h-32 max-w-none flex-1 overflow-y-hidden px-3 pt-2 text-muted-foreground dark:prose-invert"
+      v-if="note.showPreview && !content"
+      class="pointer-events-none relative max-h-32 min-h-32 max-w-none px-3 pt-2 text-muted-foreground"
+    >
+      No content to preview.
+    </p>
+    <p
+      v-html="content"
+      v-if="note.showPreview && content"
+      class="tiptap prose pointer-events-none relative max-h-32 min-h-32 max-w-none flex-1 overflow-y-hidden px-3 pt-2 dark:prose-invert"
     />
     <!-- Header -->
     <div
       class="flex items-center justify-between rounded-b-lg bg-muted px-3 py-2"
-      :class="{ 'rounded-t-lg': noContent }"
+      :class="{ 'rounded-t-lg': !note.showPreview }"
     >
       <CardTitle
         class="line-clamp-1 text-xl"
@@ -49,40 +53,27 @@ const openModal = () => {
       <div
         class="flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible md:invisible"
       >
-        <template v-if="!note.trashed">
-          <TooltipWrapper tooltip="Pin note">
-            <Button
-              variant="ghost"
-              size="icon"
-              @click.stop="noteStore.methods.toggleNoteProp(note, 'pinned')"
-            >
-              <template v-if="note.pinned">
-                <PinOff class="h-5 w-5 rotate-45" />
-                <span class="sr-only">Pin note</span>
-              </template>
-              <template v-else>
-                <Pin class="h-5 w-5 rotate-45" />
-                <span class="sr-only">Unpin note</span>
-              </template>
-            </Button>
-          </TooltipWrapper>
-        </template>
-        <template v-if="note.trashed">
-          <TooltipWrapper tooltip="Restore note">
-            <Button
-              variant="ghost"
-              size="icon"
-              @click.stop="noteStore.methods.toggleNoteProp(note, 'trashed')"
-            >
-              <Repeat2 class="size-5" />
-            </Button>
-          </TooltipWrapper>
-          <!-- TODO: implement delete permanently -->
-          <TooltipWrapper tooltip="Delete permanently">
-            <Button variant="ghost" size="icon">
-              <Trash2 class="size-5" />
-            </Button>
-          </TooltipWrapper>
+        <AppNoteActionsTrashed
+          v-if="note.trashed"
+          @restore="noteStore.methods.toggleNoteProp(note, 'trashed')"
+        />
+        <template v-else>
+          <AppNoteActionsPin
+            :pinned="note.pinned"
+            @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
+          />
+          <AppNoteActionsDropdown
+            v-if="!note.archived"
+            @delete="noteStore.methods.toggleNoteProp(note, 'trashed')"
+            @archive="noteStore.methods.toggleNoteProp(note, 'archived')"
+            @toggle-show-preview="
+              noteStore.methods.toggleNoteProp(note, 'showPreview')
+            "
+          />
+          <AppNoteActionsArchived
+            v-else
+            @unarchive="noteStore.methods.toggleNoteProp(note, 'archived')"
+          />
         </template>
       </div>
     </div>

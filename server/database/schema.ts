@@ -107,6 +107,9 @@ export const note = sqliteTable("notes", {
   title: text("title"),
   slug: text("slug"),
   content: text("content", { mode: "json" }),
+  showPreview: integer("show_preview", { mode: "boolean" })
+    .notNull()
+    .default(true),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),
   trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),
@@ -116,6 +119,7 @@ export const note = sqliteTable("notes", {
     .references(() => user.id, {
       onDelete: "cascade",
     }),
+  trashedAt: integer("trashed_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(current_timestamp)`),
