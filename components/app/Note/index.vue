@@ -22,10 +22,11 @@ const openModal = () => {
 <template>
   <Card
     tabindex="0"
-    class="group flex w-full flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
+    class="group flex w-full max-w-sm flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
     :class="{
-      'self-start': noContent,
-      'min-w-32 md:min-w-[300px]': layout === 'grid',
+      'max-w-none self-start': noContent,
+      'min-w-36 md:min-w-[300px]': layout === 'grid',
+      'max-w-none': layout === 'list',
     }"
     @click="openModal"
   >
@@ -33,14 +34,18 @@ const openModal = () => {
     <p
       v-html="convertToHtml(note.content)"
       v-if="!noContent"
-      class="tiptap prose pointer-events-none relative max-h-48 max-w-none flex-1 overflow-y-hidden px-3 pt-2 text-muted-foreground dark:prose-invert"
+      class="tiptap prose pointer-events-none relative max-h-32 min-h-32 max-w-none flex-1 overflow-y-hidden px-3 pt-2 text-muted-foreground dark:prose-invert"
     />
     <!-- Header -->
     <div
       class="flex items-center justify-between rounded-b-lg bg-muted px-3 py-2"
       :class="{ 'rounded-t-lg': noContent }"
     >
-      <CardTitle class="line-clamp-1 text-xl">{{ note.title }}</CardTitle>
+      <CardTitle
+        class="line-clamp-1 text-xl"
+        :class="{ 'text-muted-foreground': !note.title }"
+        >{{ note.title || "Untitled" }}</CardTitle
+      >
       <div
         class="flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible md:invisible"
       >

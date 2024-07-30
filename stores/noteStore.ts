@@ -12,27 +12,6 @@ export const useNoteStore = defineStore("notes", () => {
   const { baseUrl } = useRuntimeConfig().public;
   const userId = computed(() => user.value?.id);
 
-  // Notes that are not trashed or archived
-  const activeNotes = computed(() => {
-    return notes.value.filter((note) => !note.trashed && !note.archived);
-  });
-
-  const normalNotes = computed(() => {
-    return activeNotes.value.filter((note) => !note.pinned);
-  });
-
-  const pinnedNotes = computed(() => {
-    return activeNotes.value.filter((note) => note.pinned);
-  });
-
-  const trashedNotes = computed(() => {
-    return notes.value.filter((note) => note.trashed);
-  });
-
-  const archivedNotes = computed(() => {
-    return notes.value.filter((note) => note.archived);
-  });
-
   // Init
   const initStore = async () => {
     if (!userId.value) return;
@@ -58,6 +37,34 @@ export const useNoteStore = defineStore("notes", () => {
     if (!userId.value) return;
     const data = await loadData(userId.value);
     if (data) updateData(data);
+  };
+
+  const retrieveNotes = (
+    status: "active" | "pinned" | "trashed" | "archived",
+    lableId?: string,
+  ) => {
+    return notes.value.filter((note) => {
+      if (status === "active") {
+        if (lableId && lableId !== "all-notes") {
+          return (
+            !note.trashed &&
+            !note.archived &&
+            !note.pinned &&
+            note.labelId === lableId
+          );
+        }
+        return !note.trashed && !note.archived && !note.pinned;
+      }
+      if (status === "pinned") {
+        return !note.trashed && !note.archived && note.pinned;
+      }
+      if (status === "trashed") {
+        return note.trashed;
+      }
+      if (status === "archived") {
+        return note.archived;
+      }
+    });
   };
 
   const getNoteById = (id: string) => {
@@ -126,16 +133,13 @@ export const useNoteStore = defineStore("notes", () => {
     fetching,
     initialized,
     labels,
-    pinnedNotes,
-    normalNotes,
-    trashedNotes,
-    archivedNotes,
     methods: {
       updateNote,
       createNote,
       createLabel,
-      getNoteById,
       refreshData,
+      getNoteById,
+      retrieveNotes,
       toggleNoteProp,
     },
     initStore,

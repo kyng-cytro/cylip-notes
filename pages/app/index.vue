@@ -5,15 +5,23 @@ definePageMeta({
 });
 
 const notesStore = useNoteStore();
-const { normalNotes, initialized, pinnedNotes } = storeToRefs(notesStore);
+const { initialized } = storeToRefs(notesStore);
 
-const { layout } = storeToRefs(useLayoutStore());
+const { layout, label } = storeToRefs(useLayoutStore());
 const layoutStyles = computed(() => ({
   "scrollbar-thin lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-4":
     layout.value === "grid",
   "scrollbar-thin w-full max-w-xl mx-auto lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-4":
     layout.value === "list",
 }));
+
+const notes = computed(() => {
+  return notesStore.methods.retrieveNotes("active", label.value);
+});
+
+const pinnedNotes = computed(() => {
+  return notesStore.methods.retrieveNotes("pinned");
+});
 </script>
 
 <template>
@@ -32,7 +40,7 @@ const layoutStyles = computed(() => ({
         </Button>
       </div>
     </div>
-    <template v-if="!normalNotes.length && !pinnedNotes.length">
+    <template v-if="!notes.length && !pinnedNotes.length">
       <AppEmptyPage
         title="No notes yet"
         subtitle="Create your first note to get started"
@@ -69,7 +77,7 @@ const layoutStyles = computed(() => ({
         >
           Others
         </p>
-        <AppNoteContainer v-model:notes="normalNotes" />
+        <AppNoteContainer v-model:notes="notes" />
       </div>
     </template>
     <Transition name="modal">
