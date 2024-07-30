@@ -9,9 +9,9 @@ defineEmits<{
   (e: "share"): void;
   (e: "assign"): void;
   (e: "delete"): void;
-  (e: "remind"): void;
   (e: "archive"): void;
   (e: "versions"): void;
+  (e: "set-remind"): void;
   (e: "toggle-show-preview"): void;
 }>();
 </script>
@@ -37,8 +37,8 @@ defineEmits<{
             <DropdownMenuItem @click="$emit('archive')"
               >Archive</DropdownMenuItem
             >
-            <DropdownMenuItem @click="$emit('remind')"
-              >Remind me</DropdownMenuItem
+            <DropdownMenuItem @click="$emit('set-remind')"
+              >Set Reminder</DropdownMenuItem
             >
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
