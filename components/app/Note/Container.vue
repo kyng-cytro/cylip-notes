@@ -2,9 +2,14 @@
 import { VueDraggableNext } from "vue-draggable-next";
 import type { Note } from "@/server/utils/drizzle";
 
+const { disabled } = defineProps<{
+  disabled?: boolean;
+}>();
+
 const notes = defineModel<Note[]>("notes", { default: [] });
 
 const dragOptions = {
+  disabled,
   animation: 200,
   delay: 150,
   delayOnTouchOnly: true,
@@ -13,14 +18,9 @@ const dragOptions = {
   dragClass: "dragging",
 };
 
-const { layout } = storeToRefs(useLayoutStore());
+const { conatinerStyles: layoutStyles } = useLayout();
 
 const drag = ref(false);
-
-const layoutStyles = computed(() => ({
-  "flex-wrap": layout.value === "grid",
-  "flex-col": layout.value === "list",
-}));
 
 const { vibrate, isSupported } = useVibrate();
 

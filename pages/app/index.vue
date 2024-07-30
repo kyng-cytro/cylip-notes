@@ -6,14 +6,8 @@ definePageMeta({
 
 const notesStore = useNoteStore();
 const { initialized } = storeToRefs(notesStore);
-
-const { layout, label } = storeToRefs(useLayoutStore());
-const layoutStyles = computed(() => ({
-  "scrollbar-thin lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-4":
-    layout.value === "grid",
-  "scrollbar-thin w-full max-w-xl mx-auto lg:scrollbar-none hover:scrollbar-thin pr-2 lg:pr-4":
-    layout.value === "list",
-}));
+const { label } = storeToRefs(useLayoutStore());
+const { containerParentStyles: layoutStyles } = useLayout();
 
 const notes = computed(() => {
   return notesStore.methods.retrieveNotes("active", label.value);

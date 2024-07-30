@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Pin, PinOff } from "lucide-vue-next";
+import { Pin, PinOff, Repeat2, Trash2 } from "lucide-vue-next";
 import type { Note } from "@/server/utils/drizzle";
 
 const { note } = defineProps<{
@@ -49,22 +49,41 @@ const openModal = () => {
       <div
         class="flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible md:invisible"
       >
-        <TooltipWrapper tooltip="Pin note">
-          <Button
-            variant="ghost"
-            size="icon"
-            @click.stop="noteStore.methods.toggleNoteProp(note, 'pinned')"
-          >
-            <template v-if="note.pinned">
-              <PinOff class="h-5 w-5 rotate-45" />
-              <span class="sr-only">Pin note</span>
-            </template>
-            <template v-else>
-              <Pin class="h-5 w-5 rotate-45" />
-              <span class="sr-only">Unpin note</span>
-            </template>
-          </Button>
-        </TooltipWrapper>
+        <template v-if="!note.trashed">
+          <TooltipWrapper tooltip="Pin note">
+            <Button
+              variant="ghost"
+              size="icon"
+              @click.stop="noteStore.methods.toggleNoteProp(note, 'pinned')"
+            >
+              <template v-if="note.pinned">
+                <PinOff class="h-5 w-5 rotate-45" />
+                <span class="sr-only">Pin note</span>
+              </template>
+              <template v-else>
+                <Pin class="h-5 w-5 rotate-45" />
+                <span class="sr-only">Unpin note</span>
+              </template>
+            </Button>
+          </TooltipWrapper>
+        </template>
+        <template v-if="note.trashed">
+          <TooltipWrapper tooltip="Restore note">
+            <Button
+              variant="ghost"
+              size="icon"
+              @click.stop="noteStore.methods.toggleNoteProp(note, 'trashed')"
+            >
+              <Repeat2 class="size-5" />
+            </Button>
+          </TooltipWrapper>
+          <!-- TODO: implement delete permanently -->
+          <TooltipWrapper tooltip="Delete permanently">
+            <Button variant="ghost" size="icon">
+              <Trash2 class="size-5" />
+            </Button>
+          </TooltipWrapper>
+        </template>
       </div>
     </div>
   </Card>
