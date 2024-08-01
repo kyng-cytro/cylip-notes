@@ -30,7 +30,7 @@ const colorMode = useColorMode();
       </DropdownMenuContent>
     </DropdownMenu>
     <template #fallback>
-      <Button variant="ghost">
+      <Button variant="ghost" size="icon">
         <Skeleton class="h-[1.2rem] w-[1.2rem]" />
         <span class="sr-only">Toggle theme</span>
       </Button>

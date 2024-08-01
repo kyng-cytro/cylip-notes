@@ -56,4 +56,8 @@ export default defineNuxtConfig({
       interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
     },
   },
+  routeRules: {
+    "/": { prerender: true },
+    "/pricing": { prerender: true },
+  },
 });
