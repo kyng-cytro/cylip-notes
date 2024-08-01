@@ -6,7 +6,7 @@ defineProps<{
 <template>
   <TooltipProvider>
     <Tooltip>
-      <TooltipTrigger as-child>
+      <TooltipTrigger>
         <slot />
       </TooltipTrigger>
       <TooltipContent>

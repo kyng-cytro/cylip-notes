@@ -85,8 +85,7 @@ export const useNoteStore = defineStore("notes", () => {
       notes.value = [note, ...notes.value];
       useModalRouter().push(`/app/notes/${note.id}`);
     } catch (e: any) {
-      toast.error({
-        title: "Error creating note",
+      toast.error("Error creating note", {
         description: e.message,
       });
     }
@@ -97,11 +96,17 @@ export const useNoteStore = defineStore("notes", () => {
     prop: "title" | "content",
     newValue: string | JSONContent,
   ) => {
-    const data = await $fetch(`/api/notes/${noteId}`, {
-      method: "PUT",
-      body: { field: prop, value: newValue },
-    });
-    notes.value = notes.value.map((n) => (n.id === noteId ? data : n));
+    try {
+      const data = await $fetch(`/api/notes/${noteId}`, {
+        method: "PUT",
+        body: { field: prop, value: newValue },
+      });
+      notes.value = notes.value.map((n) => (n.id === noteId ? data : n));
+    } catch (e: any) {
+      toast.error("Something went wrong updating the note.", {
+        description: e.message,
+      });
+    }
   };
 
   const toggleNoteProp = async (
@@ -109,24 +114,40 @@ export const useNoteStore = defineStore("notes", () => {
     prop: "pinned" | "archived" | "trashed" | "showPreview",
     options?: { recursiveCall?: boolean },
   ) => {
-    const data = await $fetch(`/api/notes/${note.id}`, {
-      method: "PATCH",
-      body: { field: prop, value: !note[prop] },
-    });
-    notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
-    if (options?.recursiveCall) return;
-    const actionMap = {
-      pinned: note[prop] ? "unpinned" : "pinned",
-      archived: note[prop] ? "unarchived" : "archived",
-      trashed: note[prop] ? "restored" : "trashed",
-      showPreview: note[prop] ? "hide preview" : "show preview",
-    };
-    toast.success(`Note ${actionMap[prop]}.`, {
-      action: {
-        label: "Undo",
-        onClick: () => toggleNoteProp(data, prop, { recursiveCall: true }),
-      },
-    });
+    try {
+      const data = await $fetch(`/api/notes/${note.id}`, {
+        method: "PATCH",
+        body: { field: prop, value: !note[prop] },
+      });
+      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
+      if (options?.recursiveCall) return;
+      const actionMap = {
+        pinned: note[prop] ? "unpinned" : "pinned",
+        archived: note[prop] ? "unarchived" : "archived",
+        trashed: note[prop] ? "restored" : "trashed",
+        showPreview: note[prop] ? "hide preview" : "show preview",
+      };
+      toast.success(`Note ${actionMap[prop]}.`, {
+        action: {
+          label: "Undo",
+          onClick: () => toggleNoteProp(data, prop, { recursiveCall: true }),
+        },
+      });
+    } catch (e: any) {
+      toast.error("Something went wrong updating the note.", {
+        description: e.message,
+      });
+    }
+  };
+
+  const permenentlyDeleteNote = async (note: Note) => {
+    try {
+      await $fetch(`/api/notes/${note.id}`, { method: "DELETE" });
+      notes.value = notes.value.filter((n) => n.id !== note.id);
+      toast.success("Note deleted permanently.");
+    } catch (e: any) {
+      toast.error("Error deleting note.", { description: e.message });
+    }
   };
 
   // SSE
@@ -155,6 +176,7 @@ export const useNoteStore = defineStore("notes", () => {
       getNoteById,
       retrieveNotes,
       toggleNoteProp,
+      permenentlyDeleteNote,
     },
     initStore,
   };

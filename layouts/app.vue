@@ -21,11 +21,25 @@ onBeforeUnmount(() => {
       <PlusModalNuxtPage v-slot="{ route }">
         <NuxtPage :route="route" />
       </PlusModalNuxtPage>
+      <Transition name="modal">
+        <PlusModalPage name="modal" />
+      </Transition>
     </div>
   </div>
 </template>
 
 <style>
+/* modal */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
 /* basic editor styles */
 .tiptap :first-child {
   margin-top: 0;

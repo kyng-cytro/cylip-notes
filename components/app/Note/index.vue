@@ -56,6 +56,7 @@ const content = computed(() => {
         <AppNoteActionsTrashed
           v-if="note.trashed"
           @restore="noteStore.methods.toggleNoteProp(note, 'trashed')"
+          @delete-forever="noteStore.methods.permenentlyDeleteNote(note)"
         />
         <template v-else>
           <AppNoteActionsPin
