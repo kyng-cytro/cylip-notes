@@ -2,17 +2,20 @@ import { verifyRequestOrigin } from "lucia";
 import type { Session, User } from "lucia";
 
 export default defineEventHandler(async (event) => {
-  if (event.method !== "GET" && !import.meta.dev) {
-    if (!event.path.includes("_hub")) {
-      const originHeader = getHeader(event, "Origin") ?? null;
-      const hostHeader = getHeader(event, "Host") ?? null;
-      if (
-        !originHeader ||
-        !hostHeader ||
-        !verifyRequestOrigin(originHeader, [hostHeader])
-      ) {
-        return event.node.res.writeHead(403).end();
-      }
+  if (import.meta.prerender) return;
+  if (
+    !import.meta.dev &&
+    event.method !== "GET" &&
+    !event.path.includes("_hub")
+  ) {
+    const originHeader = getHeader(event, "Origin") ?? null;
+    const hostHeader = getHeader(event, "Host") ?? null;
+    if (
+      !originHeader ||
+      !hostHeader ||
+      !verifyRequestOrigin(originHeader, [hostHeader])
+    ) {
+      return event.node.res.writeHead(403).end();
     }
   }
   const lucia = initializeLucia();

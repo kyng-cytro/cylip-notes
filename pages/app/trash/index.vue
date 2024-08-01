@@ -33,7 +33,7 @@ const notes = computed(() => {
         :class="layoutStyles"
       >
         <p class="text-sm font-semibold text-muted-foreground">
-          Notes will be deleted permanently after 30 days.
+          Notes will be deleted permanently after 7 days.
         </p>
 
         <AppNoteContainer v-model:notes="notes" :disabled="true" />
