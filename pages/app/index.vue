@@ -36,9 +36,15 @@ const pinnedNotes = computed(() => {
     </div>
     <template v-if="!notes.length && !pinnedNotes.length">
       <AppEmptyPage
-        title="No notes yet"
-        subtitle="Create your first note to get started"
-        :button="{ text: 'Create Note' }"
+        :title="
+          label === 'all-notes' ? 'No notes yet' : 'No notes in this label'
+        "
+        :subtitle="
+          label === 'all-notes'
+            ? 'Create your first note to get started'
+            : 'Notes with this label will show up here.'
+        "
+        :button="label === 'all-notes' ? { text: 'Create Note' } : undefined"
         @button-click="notesStore.methods.createNote"
         v-if="initialized"
       />

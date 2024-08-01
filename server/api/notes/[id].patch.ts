@@ -16,6 +16,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       ...(field === "showPreview" && { showPreview: value }),
       ...(field === "pinned" && { pinned: value, archived: false }),
       ...(field === "archived" && { archived: value, pinned: false }),
+      ...(field === "label" && { labelId: value }),
       ...(field === "trashed" && {
         trashed: value,
         pinned: false,

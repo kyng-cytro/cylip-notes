@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { EllipsisVertical, Plus } from "lucide-vue-next";
+import { EllipsisVertical, Plus, Check } from "lucide-vue-next";
+
+defineProps<{
+  labelId: string | null;
+}>();
 
 const query = ref("");
+const open = ref(false);
 const { labels } = storeToRefs(useNoteStore());
 
-defineEmits<{
+const emits = defineEmits<{
   (e: "copy"): void;
   (e: "share"): void;
-  (e: "assign"): void;
   (e: "delete"): void;
   (e: "archive"): void;
   (e: "versions"): void;
   (e: "set-remind"): void;
   (e: "toggle-show-preview"): void;
+  (e: "assign-label", labelId: string | null): void;
 }>();
+
+const assign = (labelId: string | null) => {
+  emits("assign-label", labelId);
+  open.value = false;
+};
 </script>
 <template>
   <div @click.stop>
@@ -24,7 +34,7 @@ defineEmits<{
           <span class="sr-only">More actions</span>
         </Button>
       </template>
-      <DropdownMenu>
+      <DropdownMenu v-model:open="open">
         <DropdownMenuTrigger>
           <Button variant="ghost" size="icon">
             <EllipsisVertical class="size-5" />
@@ -81,13 +91,23 @@ defineEmits<{
                     </AppCreateLabel>
                   </CommandEmpty>
                   <CommandGroup>
-                    <CommandItem value="all-notes">All Notes</CommandItem>
+                    <CommandItem value="all-notes" @select="assign(null)"
+                      >All Notes
+
+                      <Check class="ml-auto size-4" v-if="!labelId" />
+                    </CommandItem>
                     <CommandItem
                       v-for="label in labels"
                       :key="label.id"
                       :value="label.slug"
+                      @select="assign(label.id)"
                     >
                       {{ capitalize(label.name) }}
+
+                      <Check
+                        class="ml-auto size-4"
+                        v-if="label.id === labelId"
+                      />
                     </CommandItem>
                   </CommandGroup>
                 </CommandList>

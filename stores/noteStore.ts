@@ -109,6 +109,22 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const assignLabel = async (note: Note, labelId: string | null) => {
+    if (labelId === note.labelId) return;
+    try {
+      const data = await $fetch(`/api/notes/${note.id}`, {
+        method: "PATCH",
+        body: { field: "label", value: labelId },
+      });
+      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
+      toast.success("Label updated successfully.");
+    } catch (e: any) {
+      toast.error("Something went wrong updating the note.", {
+        description: e.message,
+      });
+    }
+  };
+
   const toggleNoteProp = async (
     note: Note,
     prop: "pinned" | "archived" | "trashed" | "showPreview",
@@ -172,6 +188,7 @@ export const useNoteStore = defineStore("notes", () => {
       updateNote,
       createNote,
       createLabel,
+      assignLabel,
       refreshData,
       getNoteById,
       retrieveNotes,

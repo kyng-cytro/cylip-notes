@@ -64,9 +64,13 @@ const content = computed(() => {
             @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
           />
           <AppNoteActionsDropdown
+            :label-id="note.labelId"
             v-if="!note.archived"
             @delete="noteStore.methods.toggleNoteProp(note, 'trashed')"
             @archive="noteStore.methods.toggleNoteProp(note, 'archived')"
+            @assign-label="
+              (labelId) => noteStore.methods.assignLabel(note, labelId)
+            "
             @toggle-show-preview="
               noteStore.methods.toggleNoteProp(note, 'showPreview')
             "
