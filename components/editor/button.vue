@@ -4,6 +4,7 @@ defineProps<{
   label: string;
   tooltip: string;
   active: boolean;
+  disabled?: boolean;
 }>();
 
 defineEmits<{
@@ -20,6 +21,7 @@ defineEmits<{
           :aria-label="label"
           :pressed="active"
           @click="$emit('toggled')"
+          :disabled="disabled"
         >
           <component :is="icon" class="size-5" />
         </Toggle>

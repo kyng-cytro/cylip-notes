@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { Pin, PinOff, Archive, BellRing, ArrowLeft } from "lucide-vue-next";
+import {
+  Pin,
+  PinOff,
+  Archive,
+  BellRing,
+  ArchiveX,
+  XCircle,
+} from "lucide-vue-next";
 
 const modal = ref<HTMLElement>();
 
@@ -13,22 +20,33 @@ const note = noteStore.methods.getNoteById(id);
 
 const title = ref(note?.title);
 
-const { editor, content } = useEditor({ initialValue: note?.content });
+const trashed = computed(() => note?.trashed || false);
+const archived = computed(() => note?.archived || false);
+
+const { editor, content } = useEditor({
+  disabled: trashed.value,
+  initialValue: note?.content,
+});
 
 const { copy } = useCustomClipboard();
 
 const { formatToTimeAgo } = useDateUtils();
 
-const openNote = () => {
+const openHandler = () => {
   return navigateTo(`/app/notes/${id}`, {
     external: true,
   });
 };
 
+const archiveHandler = async () => {
+  await noteStore.methods.toggleNoteProp(note!, "archived");
+  useModalRouter().close();
+};
+
 watchDebounced(
   title,
   async () => {
-    if (!title.value || title.value === note!.title) return;
+    if (!title.value || title.value === note!.title || trashed.value) return;
     await noteStore.methods.updateNote(note!.id, "title", title.value);
   },
   { debounce: 1000 },
@@ -37,7 +55,8 @@ watchDebounced(
 watchDebounced(
   content,
   async () => {
-    if (!content.value || content.value === note!.content) return;
+    if (!content.value || content.value === note!.content || trashed.value)
+      return;
     await noteStore.methods.updateNote(note!.id, "content", content.value);
   },
   { debounce: 1000 },
@@ -59,17 +78,24 @@ watchDebounced(
         <div class="flex items-center justify-between">
           <TooltipWrapper tooltip="Close note">
             <Button
-              class="rounded-full px-0 text-muted-foreground"
-              variant="ghost"
+              variant="link"
+              class="-ml-3 text-muted-foreground hover:text-primary"
               size="xs"
               @click="useModalRouter().close()"
             >
-              <ArrowLeft class="size-5" />
+              <XCircle class="size-5" />
             </Button>
           </TooltipWrapper>
-          <div class="flex items-center gap-2 text-muted-foreground">
+          <div
+            class="flex items-center gap-2 text-muted-foreground"
+            v-if="!trashed"
+          >
             <TooltipWrapper tooltip="Pin note">
-              <Button variant="ghost" size="xs">
+              <Button
+                variant="ghost"
+                size="xs"
+                @click="noteStore.methods.toggleNoteProp(note, 'pinned')"
+              >
                 <PinOff class="size-5" v-if="false" />
                 <Pin class="size-5" v-else />
               </Button>
@@ -79,28 +105,34 @@ watchDebounced(
                 <BellRing class="size-5" />
               </Button>
             </TooltipWrapper>
-            <TooltipWrapper tooltip="Archive">
-              <Button variant="ghost" size="xs">
-                <Archive class="size-5" />
+            <TooltipWrapper :tooltip="archived ? 'Unarchive' : 'Archive'">
+              <Button variant="ghost" size="xs" @click="archiveHandler">
+                <Archive class="size-5" v-if="!archived" />
+                <ArchiveX class="size-5" v-else />
               </Button>
             </TooltipWrapper>
           </div>
         </div>
         <AppNoteTitleInput
           v-model="title"
-          @open-note="openNote"
+          :disabled="trashed"
+          @open-note="openHandler"
           @copy-to-clipboard="() => copy(editor.getHTML(), true)"
         />
-        <EditorToolbar :editor="editor" />
+        <EditorToolbar :editor="editor" :disabled="trashed" />
       </CardHeader>
       <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
         <Editor :editor="editor" oncontextmenu="return false;" />
       </CardContent>
       <CardFooter class="flex justify-end border-t py-2">
         <p
-          class="whitespace-nowrap text-sm font-medium leading-none text-muted-foreground"
+          class="space-x-2 whitespace-nowrap text-sm font-medium leading-none text-muted-foreground"
         >
-          Edited: {{ formatToTimeAgo(note.updatedAt) }}
+          <template v-if="trashed">
+            <span>Note in Trash</span>
+            <span>•</span>
+          </template>
+          <span>Edited: {{ formatToTimeAgo(note.updatedAt) }} </span>
         </p>
       </CardFooter>
     </Card>

@@ -17,6 +17,7 @@ import type { Editor } from "@tiptap/vue-3";
 
 defineProps<{
   editor: Editor;
+  disabled?: boolean;
 }>();
 </script>
 <template>
@@ -29,6 +30,7 @@ defineProps<{
       :icon="Heading1"
       :active="editor.isActive('heading', { level: 4 })"
       @toggled="editor.chain().focus().toggleHeading({ level: 4 }).run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Bold"
@@ -36,6 +38,7 @@ defineProps<{
       :icon="Bold"
       :active="editor.isActive('bold')"
       @toggled="editor.chain().focus().toggleBold().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Italic"
@@ -43,6 +46,7 @@ defineProps<{
       :icon="Italic"
       :active="editor.isActive('italic')"
       @toggled="editor.chain().focus().toggleItalic().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Underline"
@@ -50,6 +54,7 @@ defineProps<{
       :icon="Underline"
       :active="editor.isActive('underline')"
       @toggled="editor.chain().focus().toggleUnderline().run()"
+      :disabled="disabled"
     />
     <div class="h-5 w-px bg-border" />
     <EditorButton
@@ -58,6 +63,7 @@ defineProps<{
       :icon="Undo2"
       :active="editor.isActive('undo')"
       @toggled="editor.chain().focus().undo().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Redo"
@@ -65,6 +71,7 @@ defineProps<{
       :icon="Redo2"
       :active="editor.isActive('redo')"
       @toggled="editor.chain().focus().redo().run()"
+      :disabled="disabled"
     />
     <div class="h-5 w-px bg-border" />
     <EditorButton
@@ -73,6 +80,7 @@ defineProps<{
       :icon="MessageSquareQuote"
       :active="editor.isActive('blockquote')"
       @toggled="editor.chain().focus().toggleBlockquote().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Code Block"
@@ -80,6 +88,7 @@ defineProps<{
       :icon="Code"
       :active="editor.isActive('codeBlock')"
       @toggled="editor.chain().focus().toggleCodeBlock().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Highlighter"
@@ -87,6 +96,7 @@ defineProps<{
       :icon="Highlighter"
       :active="editor.isActive('highlight')"
       @toggled="editor.chain().focus().toggleHighlight().run()"
+      :disabled="disabled"
     />
     <div class="h-5 w-px bg-border" />
     <EditorButton
@@ -95,6 +105,7 @@ defineProps<{
       :icon="ListTodo"
       :active="editor.isActive('taskList')"
       @toggled="editor.chain().focus().toggleTaskList().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Bullet List"
@@ -102,6 +113,7 @@ defineProps<{
       :icon="List"
       :active="editor.isActive('bulletList')"
       @toggled="editor.chain().focus().toggleBulletList().run()"
+      :disabled="disabled"
     />
     <EditorButton
       label="Numbered List"
@@ -109,6 +121,7 @@ defineProps<{
       :icon="ListOrdered"
       :active="editor.isActive('orderedList')"
       @toggled="editor.chain().focus().toggleOrderedList().run()"
+      :disabled="disabled"
     />
   </div>
 </template>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { EllipsisVertical, ExternalLink } from "lucide-vue-next";
 const text = defineModel({ default: "" });
+defineProps<{
+  disabled?: boolean;
+}>();
 const emit = defineEmits<{
   (e: "open-note"): void;
   (e: "delete-note"): void;
@@ -17,6 +20,7 @@ const emit = defineEmits<{
         placeholder="Title"
         class="border-none px-0 text-xl font-semibold focus-visible:ring-0"
         v-model="text"
+        :disabled="disabled"
       />
       <DropdownMenuTrigger>
         <Button variant="link" class="px-0">
@@ -35,7 +39,10 @@ const emit = defineEmits<{
           <DropdownMenuItem @click="$emit('copy-to-clipboard')">
             Copy to Clipboard
           </DropdownMenuItem>
-          <DropdownMenuItem class="text-red-600" @click="$emit('delete-note')"
+          <DropdownMenuItem
+            class="text-red-600"
+            @click="$emit('delete-note')"
+            v-if="!disabled"
             >Delete Note
           </DropdownMenuItem>
         </DropdownMenuGroup>

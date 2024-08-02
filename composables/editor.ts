@@ -17,8 +17,9 @@ const lowlight = createLowlight(common);
 lowlight.register({ ts });
 
 type EditorOpts = {
-  initialValue?: JSONContent | null;
+  disabled?: boolean;
   placeholder?: string;
+  initialValue?: JSONContent | null;
 };
 
 const CustomCodeBlock = CodeBlockLowlight.extend({
@@ -74,9 +75,10 @@ export const useEditorUtils = () => {
   return { convertToText, convertToHtml };
 };
 
-export const useEditor = ({ initialValue = {} }: EditorOpts = {}) => {
+export const useEditor = ({ disabled, initialValue = {} }: EditorOpts = {}) => {
   const content = ref(initialValue);
   const editor = new Editor({
+    editable: !disabled,
     content: content.value,
     editorProps: {
       attributes: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Archive } from "lucide-vue-next";
+import { ArchiveX } from "lucide-vue-next";
 defineEmits<{
   (e: "unarchive"): void;
 }>();
@@ -7,7 +7,7 @@ defineEmits<{
 <template>
   <TooltipWrapper tooltip="Unarchive note">
     <Button variant="ghost" size="icon" @click.stop="$emit('unarchive')">
-      <Archive class="size-5" />
+      <ArchiveX class="size-5" />
     </Button>
   </TooltipWrapper>
 </template>
