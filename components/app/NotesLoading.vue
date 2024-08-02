@@ -4,7 +4,6 @@ const { conatinerStyles: layoutStyles } = useLayout();
 
 <template>
   <div class="flex gap-4" :class="layoutStyles">
-    <AppNoteSkeleton v-for="i in 5" :key="i" />
     <AppNoteSkeleton v-for="i in 5" :key="i" preview />
   </div>
 </template>

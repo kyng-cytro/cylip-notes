@@ -6,8 +6,8 @@ const { layout } = storeToRefs(layoutStore);
 <template>
   <Button variant="ghost" size="icon" @click="layoutStore.toggleLayout">
     <Transition name="fade" mode="out-in">
-      <StretchHorizontal v-if="layout === 'grid'" />
-      <LayoutGrid v-else />
+      <StretchHorizontal class="size-5" v-if="layout === 'grid'" />
+      <LayoutGrid class="size-5" v-else />
     </Transition>
     <span class="sr-only">Toggle layout</span>
   </Button>
