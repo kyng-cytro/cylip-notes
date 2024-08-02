@@ -80,5 +80,8 @@ const pinnedNotes = computed(() => {
         <AppNoteContainer v-model:notes="notes" />
       </div>
     </template>
+    <Transition name="modal">
+      <PlusModalPage name="modal" />
+    </Transition>
   </main>
 </template>

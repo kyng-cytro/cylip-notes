@@ -37,5 +37,8 @@ const notes = computed(() => {
         <AppNoteContainer v-model:notes="notes" :disabled="true" />
       </div>
     </template>
+    <Transition name="modal">
+      <PlusModalPage name="modal" />
+    </Transition>
   </main>
 </template>

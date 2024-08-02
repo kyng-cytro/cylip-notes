@@ -11,7 +11,6 @@ defineEmits<{
       <Repeat2 class="size-5" />
     </Button>
   </TooltipWrapper>
-  <!-- TODO: implement delete permanently -->
   <div @click.stop>
     <TooltipWrapper tooltip="Delete forever">
       <AppConfirmDialog

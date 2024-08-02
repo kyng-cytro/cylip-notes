@@ -25,6 +25,13 @@ export default defineNuxtConfig({
   nitro: {
     // @ts-ignore
     rollupConfig: { plugins: [vue()] },
+    experimental: {
+      tasks: true,
+      openAPI: process.env.NODE_ENV === "production",
+    },
+    scheduledTasks: {
+      "00 00 * * *": ["notes:clear-trash"],
+    },
   },
   app: {
     head: {

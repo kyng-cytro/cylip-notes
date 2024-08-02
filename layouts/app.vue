@@ -21,9 +21,6 @@ onBeforeUnmount(() => {
       <PlusModalNuxtPage v-slot="{ route }">
         <NuxtPage :route="route" />
       </PlusModalNuxtPage>
-      <Transition name="modal">
-        <PlusModalPage name="modal" />
-      </Transition>
     </div>
   </div>
 </template>
