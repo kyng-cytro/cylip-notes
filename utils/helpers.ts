@@ -1,3 +1,15 @@
+export const CONSTANTS = {
+  imageSizeLimit: 300000,
+  imageCompressionOptions: {
+    maxSizeMB: 0.01,
+    maxWidthOrHeight: 1920,
+  },
+  maxImagePerNote: {
+    free: 1,
+    premium: 3,
+  },
+};
+
 export const slugify = (text: string) => {
   return text
     .toLowerCase()

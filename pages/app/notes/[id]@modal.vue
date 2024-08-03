@@ -8,10 +8,6 @@ import {
   XCircle,
 } from "lucide-vue-next";
 
-const modal = ref<HTMLElement>();
-
-useFocus(modal, { initialValue: true });
-
 const { id } = useParallelRoute("modal")!.params as { id: string };
 
 const noteStore = useNoteStore();
@@ -24,6 +20,7 @@ const trashed = computed(() => note?.trashed || false);
 const archived = computed(() => note?.archived || false);
 
 const { editor, content } = useEditor({
+  autofocus: true,
   disabled: trashed.value,
   initialValue: note?.content,
 });
@@ -69,7 +66,6 @@ watchDebounced(
   >
     <Card
       class="z-50 flex h-full w-full max-w-2xl flex-col lg:max-h-[80%]"
-      ref="modal"
       tabindex="-1"
       @click.stop
       v-if="note"

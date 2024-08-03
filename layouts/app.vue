@@ -117,6 +117,18 @@ pre code {
   padding: 0;
 }
 
+/* Gap Cursor */
+.tiptap img {
+  display: block;
+  height: auto;
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  @apply outline outline-ring;
+}
+
 /* Code styling */
 .hljs-comment,
 .hljs-quote {

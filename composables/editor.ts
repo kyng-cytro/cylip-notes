@@ -1,13 +1,15 @@
-import { convertToMarkDown } from "@/lib/turndown";
+import { toast } from "vue-sonner";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
+import { getDataUrl } from "@/lib/image-utils";
 import { common, createLowlight } from "lowlight";
 import TaskList from "@tiptap/extension-task-list";
+import { convertToMarkDown } from "@/lib/turndown";
 import Underline from "@tiptap/extension-underline";
-import ts from "highlight.js/lib/languages/typescript";
 import TaskItem from "@tiptap/extension-task-item";
 import Highlight from "@tiptap/extension-highlight";
+import ts from "highlight.js/lib/languages/typescript";
 import Placeholder from "@tiptap/extension-placeholder";
 import FileHandler from "@tiptap-pro/extension-file-handler";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -18,6 +20,7 @@ lowlight.register({ ts });
 
 type EditorOpts = {
   disabled?: boolean;
+  autofocus?: boolean;
   placeholder?: string;
   initialValue?: JSONContent | null;
 };
@@ -34,6 +37,59 @@ const CustomCodeBlock = CodeBlockLowlight.extend({
     };
   },
 });
+
+const preCheck = (
+  editor: Editor,
+  files: File[],
+): { valid: true; file: File } | { valid: false; message: string } => {
+  if (!files.length || !files[0])
+    return { valid: false, message: "No file found." };
+  if (files.length > 1)
+    return { valid: false, message: "You can only upload one file at a time." };
+  const { user } = useUser();
+  if (!user.value) return { valid: false, message: "User not found." };
+  const images = editor.$nodes("image");
+  const max = CONSTANTS.maxImagePerNote[user.value.accountType];
+  if (images && images.length >= max)
+    return {
+      valid: false,
+      message: `Notes under the ${user.value.accountType} plan can only have ${max} image at a time.`,
+    };
+  return { valid: true, file: files[0] };
+};
+
+const proccessImage = async (editor: Editor, file: File, pos: number) => {
+  editor.commands.insertContentAt(pos, {
+    type: "image",
+    attrs: {
+      src: "https://placehold.co/800x400",
+    },
+  });
+  getDataUrl(file)
+    .then((dataUrl) => {
+      editor
+        .chain()
+        .deleteRange({ from: pos, to: pos + 1 })
+        .insertContentAt(pos, {
+          type: "image",
+          attrs: {
+            src: dataUrl,
+          },
+        })
+        .focus()
+        .run();
+    })
+    .catch((err) => {
+      toast.error("Something went wrong", {
+        description: err.message,
+      });
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from: pos, to: pos + 1 })
+        .run();
+    });
+};
 
 const extensions = [
   Image,
@@ -54,10 +110,19 @@ const extensions = [
   FileHandler.configure({
     allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/svg+xml"],
     onDrop: (currentEditor, files, pos) => {
-      console.log(files);
+      const result = preCheck(currentEditor as Editor, files);
+      if (!result.valid) return toast.warning(result.message);
+      proccessImage(currentEditor as Editor, result.file, pos);
     },
     onPaste: (currentEditor, files, htmlContent) => {
-      console.log(files);
+      if (htmlContent) return;
+      const result = preCheck(currentEditor as Editor, files);
+      if (!result.valid) return toast.warning(result.message);
+      proccessImage(
+        currentEditor as Editor,
+        result.file,
+        currentEditor.state.selection.anchor,
+      );
     },
   }),
 ];
@@ -75,9 +140,14 @@ export const useEditorUtils = () => {
   return { convertToText, convertToHtml };
 };
 
-export const useEditor = ({ disabled, initialValue = {} }: EditorOpts = {}) => {
+export const useEditor = ({
+  disabled,
+  autofocus,
+  initialValue = {},
+}: EditorOpts = {}) => {
   const content = ref(initialValue);
   const editor = new Editor({
+    autofocus,
     editable: !disabled,
     content: content.value,
     editorProps: {

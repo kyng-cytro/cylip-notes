@@ -26,9 +26,9 @@ definePageMeta({
             title="Freeloader"
             :perks="[
               'Dark theme',
-              'Unlimited notes',
+              '1 image per note',
               '3 custom note labels',
-              '2 vrsion histories per note',
+              '2 version histories per note',
               '100 AI tokens per month (enough to impress your cat)',
             ]"
             :extras="['Keep in mind this means you\'re a brokie']"
@@ -44,6 +44,7 @@ definePageMeta({
             title="Take My Money"
             :perks="[
               'Access to all basic features (yes you get dark theme too)',
+              '3 images per note',
               'Unlimited custom note labels',
               '10 version histories per note',
               '1000 AI tokens per month (enough to look busy at work)',
