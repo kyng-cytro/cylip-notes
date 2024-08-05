@@ -2,7 +2,7 @@ import { toast } from "vue-sonner";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
-import { getDataUrl } from "@/lib/image-utils";
+import { getDataUrl, isValidImage } from "@/lib/image-utils";
 import { common, createLowlight } from "lowlight";
 import TaskList from "@tiptap/extension-task-list";
 import { convertToMarkDown } from "@/lib/turndown";
@@ -42,12 +42,22 @@ const preCheck = (
   editor: Editor,
   files: File[],
 ): { valid: true; file: File } | { valid: false; message: string } => {
+  // Cheking if the file list is empty
   if (!files.length || !files[0])
     return { valid: false, message: "No file found." };
+  // Cheking if the file list has more than one file
   if (files.length > 1)
     return { valid: false, message: "You can only upload one file at a time." };
+  // Cheking if any of the files is not an image
+  if (files.some((file) => !isValidImage(file)))
+    return {
+      valid: false,
+      message: "Only image files are allowed.",
+    };
+  // Cheking if the user is not logged in
   const { user } = useUser();
   if (!user.value) return { valid: false, message: "User not found." };
+  // Cheking if the user has reached the max image limit
   const images = editor.$nodes("image");
   const max = CONSTANTS.maxImagePerNote[user.value.accountType];
   if (images && images.length >= max)
@@ -59,18 +69,27 @@ const preCheck = (
 };
 
 const proccessImage = async (editor: Editor, file: File, pos: number) => {
-  editor.commands.insertContentAt(pos, {
-    type: "image",
-    attrs: {
-      src: "https://placehold.co/800x400",
+  // Inserting a placehold image
+  editor.commands.insertContentAt(
+    pos,
+    {
+      type: "image",
+      attrs: {
+        src: "https://placehold.co/800x400",
+      },
     },
-  });
+    { updateSelection: true },
+  );
+  // Get position of the placehold image
+  const placeholdPos = editor.state.selection.anchor;
+  // Get the data url of the image
   getDataUrl(file)
     .then((dataUrl) => {
+      // Replace the placehold image with the actual image
       editor
         .chain()
-        .deleteRange({ from: pos, to: pos + 1 })
-        .insertContentAt(pos, {
+        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
+        .insertContentAt(placeholdPos, {
           type: "image",
           attrs: {
             src: dataUrl,
@@ -83,10 +102,11 @@ const proccessImage = async (editor: Editor, file: File, pos: number) => {
       toast.error("Something went wrong", {
         description: err.message,
       });
+      // Remove the placehold image
       editor
         .chain()
+        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
         .focus()
-        .deleteRange({ from: pos, to: pos + 1 })
         .run();
     });
 };
@@ -131,13 +151,26 @@ export const useEditorUtils = () => {
   const convertToText = (doc: JSONContent) => {
     return convertToMarkDown(convertToHtml(doc));
   };
-
   const convertToHtml = (doc: JSONContent) => {
     if (!doc) return "";
     return generateHTML(doc, extensions);
   };
-
-  return { convertToText, convertToHtml };
+  const addImage = (editor: Editor) => {
+    const { open, onChange } = useFileDialog({
+      accept: "image/*",
+      multiple: false,
+    });
+    open();
+    onChange((filelist) => {
+      if (!filelist) return;
+      const files = Array.from(filelist);
+      if (!files.length) return;
+      const result = preCheck(editor, files);
+      if (!result.valid) return toast.warning(result.message);
+      proccessImage(editor, result.file, editor.state.selection.anchor);
+    });
+  };
+  return { addImage, convertToText, convertToHtml };
 };
 
 export const useEditor = ({

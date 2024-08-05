@@ -12,6 +12,7 @@ import {
   Highlighter,
   ListOrdered,
   MessageSquareQuote,
+  ImagePlus,
 } from "lucide-vue-next";
 import type { Editor } from "@tiptap/vue-3";
 
@@ -74,6 +75,14 @@ defineProps<{
       :disabled="disabled"
     />
     <div class="h-5 w-px bg-border" />
+    <EditorButton
+      label="Image"
+      tooltip="Image"
+      :icon="ImagePlus"
+      :active="false"
+      @toggled="() => useEditorUtils().addImage(editor)"
+      :disabled="disabled"
+    />
     <EditorButton
       label="Block Quote"
       tooltip="Block Quote"
