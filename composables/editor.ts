@@ -82,6 +82,7 @@ const proccessImage = async (editor: Editor, file: File, pos: number) => {
   );
   // Get position of the placehold image
   const placeholdPos = editor.state.selection.anchor;
+  console.log(pos, placeholdPos);
   // Get the data url of the image
   getDataUrl(file)
     .then((dataUrl) => {
@@ -141,7 +142,7 @@ const extensions = [
       proccessImage(
         currentEditor as Editor,
         result.file,
-        currentEditor.state.selection.anchor,
+        currentEditor.state.doc.resolve(currentEditor.state.selection.to).end(),
       );
     },
   }),
@@ -167,7 +168,11 @@ export const useEditorUtils = () => {
       if (!files.length) return;
       const result = preCheck(editor, files);
       if (!result.valid) return toast.warning(result.message);
-      proccessImage(editor, result.file, editor.state.selection.anchor);
+      proccessImage(
+        editor,
+        result.file,
+        editor.state.doc.resolve(editor.state.selection.to).end(),
+      );
     });
   };
   return { addImage, convertToText, convertToHtml };
