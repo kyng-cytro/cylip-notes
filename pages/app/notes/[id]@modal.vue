@@ -19,7 +19,8 @@ const title = ref(note?.title);
 const trashed = computed(() => note?.trashed || false);
 const archived = computed(() => note?.archived || false);
 
-const { editor, content } = useEditor({
+const { editor } = await useEditor({
+  roomId: note!.id,
   autofocus: true,
   disabled: trashed.value,
   initialValue: note?.content,
@@ -45,16 +46,6 @@ watchDebounced(
   async () => {
     if (!title.value || title.value === note!.title || trashed.value) return;
     await noteStore.methods.updateNote(note!.id, "title", title.value);
-  },
-  { debounce: 1000 },
-);
-
-watchDebounced(
-  content,
-  async () => {
-    if (!content.value || content.value === note!.content || trashed.value)
-      return;
-    await noteStore.methods.updateNote(note!.id, "content", content.value);
   },
   { debounce: 1000 },
 );

@@ -71,6 +71,10 @@ blockquote {
   pointer-events: none;
 }
 
+.tiptap p {
+  word-break: break-all;
+}
+
 /* task list specific styles */
 .tiptap ul[data-type="taskList"] {
   list-style: none;
@@ -123,6 +127,33 @@ pre code {
   height: auto;
   margin: 1.5rem 0;
   max-width: 100%;
+}
+
+/* Collaboration Cursor */
+.collaboration-cursor__caret {
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+/* Render the username above the caret */
+.collaboration-cursor__label {
+  border-radius: 3px 3px 3px 0;
+  color: #0d0d0d;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  left: -1px;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  position: absolute;
+  top: 1.4em;
+  user-select: none;
+  white-space: nowrap;
 }
 
 .tiptap img.ProseMirror-selectednode {
