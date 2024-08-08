@@ -23,4 +23,8 @@ logs
 .env.*
 !.env.example
 
+# PartyKit
+.partykit
+
+# Nvim
 .supermaven
