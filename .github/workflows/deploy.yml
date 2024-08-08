@@ -18,3 +18,4 @@ jobs:
         env:
           PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
           PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN  }}
+          TIP_TAP_TOKEN: ${{ secrets.TIP_TAP_TOKEN }}
