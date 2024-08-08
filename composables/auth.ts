@@ -17,6 +17,13 @@ export const useUser = () => {
     });
     await navigateTo("/login/check-email");
   }
+
+  const getToken = async () => {
+    const session = await useRequestFetch()("/api/session");
+    if (!session) return "";
+    return session.id;
+  };
+
   async function logout() {
     await $fetch("/api/logout", {
       method: "POST",
@@ -25,5 +32,5 @@ export const useUser = () => {
     await navigateTo(authRoutes.login);
   }
 
-  return { loggedIn, isPremium, user, logout, signIn };
+  return { loggedIn, isPremium, user, signIn, logout, getToken };
 };

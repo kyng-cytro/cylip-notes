@@ -19,7 +19,7 @@ const title = ref(note?.title);
 const trashed = computed(() => note?.trashed || false);
 const archived = computed(() => note?.archived || false);
 
-const { editor } = useEditor({
+const { editor } = await useEditor({
   roomId: note!.id,
   autofocus: true,
   disabled: trashed.value,

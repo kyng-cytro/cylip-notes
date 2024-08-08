@@ -7,6 +7,7 @@ import FileHandler from "@tiptap-pro/extension-file-handler";
 import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
 import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { session } from "~/server/database/schema";
 
 type EditorOpts = {
   roomId: string;
@@ -81,14 +82,19 @@ export const useEditorUtils = () => {
   return { addImage, convertToHtml };
 };
 
-export const useEditor = ({
+export const useEditor = async ({
   roomId,
   disabled,
   autofocus,
   initialValue = {},
 }: EditorOpts) => {
   const yDoc = new Y.Doc();
-  const provider = new YPartyKitProvider("http://localhost:1999", roomId, yDoc);
+  const provider = new YPartyKitProvider(
+    "http://localhost:1999",
+    roomId,
+    yDoc,
+    { params: { auth_session: await useUser().getToken() } },
+  );
   const editor = new Editor({
     autofocus,
     editable: !disabled,
