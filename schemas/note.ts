@@ -5,6 +5,11 @@ export const notePutSchema = z.discriminatedUnion("field", [
   z.object({ field: z.literal("content"), value: z.any() }),
 ]);
 
+export const noteWebsocketPutSchema = z.object({
+  jsonContent: z.any(),
+  uint8Content: z.any(),
+});
+
 export const notePatchSchema = z.discriminatedUnion("field", [
   z.object({ field: z.literal("pinned"), value: z.boolean() }),
   z.object({ field: z.literal("archived"), value: z.boolean() }),

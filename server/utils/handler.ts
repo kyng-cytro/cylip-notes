@@ -45,7 +45,7 @@ export const definePremiumEventHandler = <T extends EventHandlerRequest, D>(
     return handler(event);
   });
 
-export const definePartyKitEventHandler = <T extends EventHandlerRequest, D>(
+export const defineWebsocketEventHandler = <T extends EventHandlerRequest, D>(
   handler: EventHandler<T, D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
@@ -57,7 +57,7 @@ export const definePartyKitEventHandler = <T extends EventHandlerRequest, D>(
         message: "Missing API token or session token.",
       });
     }
-    if (apiKey.toString() !== useRuntimeConfig().partykit.apiKey.toString()) {
+    if (apiKey.toString() !== useRuntimeConfig().websocket.apiKey.toString()) {
       throw createError({
         statusCode: 401,
         message: "Invalid API token.",

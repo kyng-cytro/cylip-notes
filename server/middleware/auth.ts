@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     !import.meta.dev &&
     event.method !== "GET" &&
     !event.path.includes("_hub") &&
-    !event.path.includes("partykit")
+    !event.path.includes("websocket")
   ) {
     const originHeader = getHeader(event, "Origin") ?? null;
     const hostHeader = getHeader(event, "Host") ?? null;

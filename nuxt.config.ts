@@ -51,6 +51,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+      webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
     },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
@@ -59,8 +60,8 @@ export default defineNuxtConfig({
     resend: {
       apiKey: process.env.NUXT_RESEND_API_KEY,
     },
-    partykit: {
-      apiKey: process.env.NUXT_PARTYKIT_API_KEY,
+    websocket: {
+      apiKey: process.env.NUXT_WEBSOCKET_API_KEY,
     },
     serverSentEvents: {
       interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,

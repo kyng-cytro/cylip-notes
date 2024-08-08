@@ -31,16 +31,18 @@ export const saveDoc = async ({
   const jsonContent = getJsonFromDoc(doc);
   const uint8Content = Y.encodeStateAsUpdateV2(doc);
   const data = { jsonContent, uint8Content };
-  const res = await fetch(`${baseUrl}/api/notes/partykit/${roomId}`, {
+  const res = await fetch(`${baseUrl}/api/notes/websocket/${roomId}`, {
     method: "PUT",
     headers: {
       "x-api-key": apiKey,
       "x-session-id": sessionToken,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
-
   if (!res.ok) {
+    const e = await res.json();
+    console.error({ e });
     throw new Error("Failed to save document to database");
   }
 };

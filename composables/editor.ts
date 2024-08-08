@@ -90,7 +90,7 @@ export const useEditor = async ({
 }: EditorOpts) => {
   const yDoc = new Y.Doc();
   const provider = new YPartyKitProvider(
-    "http://localhost:1999",
+    useRuntimeConfig().public.webSocketUrl,
     roomId,
     yDoc,
     { params: { auth_session: await useUser().getToken() } },
