@@ -59,6 +59,9 @@ export default defineNuxtConfig({
     resend: {
       apiKey: process.env.NUXT_RESEND_API_KEY,
     },
+    partykit: {
+      apiKey: process.env.NUXT_PARTYKIT_API_KEY,
+    },
     serverSentEvents: {
       interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
     },

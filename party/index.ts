@@ -12,6 +12,7 @@ export default class YjsServer implements Party.Server {
       },
       callback: {
         async handler(yDoc) {
+          saveDoc(yDoc, "hello", "");
         },
         debounceWait: 10000,
         debounceMaxWait: 20000,
