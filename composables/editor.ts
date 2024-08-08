@@ -7,7 +7,6 @@ import FileHandler from "@tiptap-pro/extension-file-handler";
 import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
 import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { session } from "~/server/database/schema";
 
 type EditorOpts = {
   roomId: string;
