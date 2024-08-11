@@ -1,11 +1,6 @@
+import type { JSONContent } from "@tiptap/core";
 import { sql, relations } from "drizzle-orm";
-import {
-  sqliteTable,
-  text,
-  integer,
-  unique,
-  index,
-} from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("users", {
   id: text("id").notNull().primaryKey(),
@@ -106,7 +101,7 @@ export const note = sqliteTable("notes", {
   id: text("id").notNull().primaryKey(),
   title: text("title"),
   slug: text("slug"),
-  content: text("content", { mode: "json" }),
+  content: text("content", { mode: "json" }).$type<JSONContent>(),
   showPreview: integer("show_preview", { mode: "boolean" })
     .notNull()
     .default(true),

@@ -1,1 +1,0 @@
-ALTER TABLE `notes` ADD `pinned` integer DEFAULT false NOT NULL;

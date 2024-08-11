@@ -1,5 +1,7 @@
 import * as Y from "yjs";
-import { getJsonFromDoc } from "@/lib/y-prosemirror";
+import type { JSONContent } from "@tiptap/core";
+import { ofetch } from "ofetch";
+import { getJsonFromDoc, getYdocFromJson } from "@/lib/y-prosemirror";
 
 export const getParam = (url: string, param: string) => {
   const value = new URL(url).searchParams.get(param);
@@ -13,7 +15,34 @@ export const getEnvs = (env: Record<string, unknown>) => {
   return { apiKey, baseUrl };
 };
 
-export const getDoc = ({ roomId }: { roomId: string }) => {};
+export const getDoc = async ({
+  roomId,
+  apiKey,
+  baseUrl,
+  sessionToken,
+}: {
+  roomId: string;
+  apiKey: string;
+  baseUrl: string;
+  sessionToken: string;
+}) => {
+  try {
+    const res = await ofetch<{ id: string; content: JSONContent | null }>(
+      `${baseUrl}/api/notes/websocket/${roomId}`,
+      {
+        headers: {
+          "x-api-key": apiKey,
+          "x-session-id": sessionToken,
+        },
+      },
+    );
+    if (!res.content) return new Y.Doc();
+    return getYdocFromJson(res.content);
+  } catch (e) {
+    console.error({ e });
+    return new Y.Doc();
+  }
+};
 
 export const saveDoc = async ({
   doc,
@@ -28,21 +57,18 @@ export const saveDoc = async ({
   baseUrl: string;
   sessionToken: string;
 }) => {
-  const jsonContent = getJsonFromDoc(doc);
-  const uint8Content = Y.encodeStateAsUpdateV2(doc);
-  const data = { jsonContent, uint8Content };
-  const res = await fetch(`${baseUrl}/api/notes/websocket/${roomId}`, {
-    method: "PUT",
-    headers: {
-      "x-api-key": apiKey,
-      "x-session-id": sessionToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) {
-    const e = await res.json();
+  try {
+    const content = getJsonFromDoc(doc);
+    const data = { content };
+    await ofetch(`${baseUrl}/api/notes/websocket/${roomId}`, {
+      method: "PUT",
+      headers: {
+        "x-api-key": apiKey,
+        "x-session-id": sessionToken,
+      },
+      body: data,
+    });
+  } catch (e) {
     console.error({ e });
-    throw new Error("Failed to save document to database");
   }
 };
