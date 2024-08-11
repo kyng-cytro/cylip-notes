@@ -100,11 +100,13 @@ defineProps<{
       :disabled="disabled"
     />
     <EditorButton
-      label="Highlighter"
-      tooltip="Highlighter"
+      label="Highlight"
+      tooltip="Highlight"
       :icon="Highlighter"
       :active="editor.isActive('highlight')"
-      @toggled="editor.chain().focus().toggleHighlight().run()"
+      @toggled="
+        editor.chain().focus().toggleHighlight({ color: '#00ffaa70' }).run()
+      "
       :disabled="disabled"
     />
     <div class="h-5 w-px bg-border" />

@@ -26,7 +26,7 @@ export const extensions = [
   Image,
   TaskList,
   Underline,
-  Highlight,
+  Highlight.configure({ multicolor: true }),
   TaskItem.configure({
     nested: true,
   }),

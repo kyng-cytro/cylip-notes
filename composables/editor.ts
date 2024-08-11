@@ -138,9 +138,6 @@ export const useEditor = async ({
         },
       }),
     ],
-    onCreate: ({ editor: currentEditor }) => {
-      provider.on("synced", () => {});
-    },
     onDestroy: () => {
       provider.destroy();
       yDoc.destroy();

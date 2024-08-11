@@ -105,7 +105,17 @@ blockquote {
   margin: 0;
 }
 
-pre {
+.tiptap mark {
+  border-radius: 0.3rem;
+  box-decoration-break: clone;
+  padding: 0.1rem 0.3rem;
+}
+
+.tiptap mark * {
+  color: black;
+}
+
+.tiptap pre {
   background: var(--black);
   border-radius: 0.5rem;
   color: var(--white);
@@ -114,14 +124,14 @@ pre {
   padding: 0.75rem 1rem;
 }
 
-pre code {
+.tiptap pre code {
   background: none;
   color: inherit;
   font-size: 0.8rem;
   padding: 0;
 }
 
-/* Gap Cursor */
+/* gap cursor */
 .tiptap img {
   display: block;
   height: auto;
@@ -129,7 +139,7 @@ pre code {
   max-width: 100%;
 }
 
-/* Collaboration Cursor */
+/* collaboration cursor */
 .collaboration-cursor__caret {
   border-left: 1px solid #0d0d0d;
   border-right: 1px solid #0d0d0d;
@@ -140,7 +150,7 @@ pre code {
   word-break: normal;
 }
 
-/* Render the username above the caret */
+/* render the username above the caret */
 .collaboration-cursor__label {
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;
@@ -160,7 +170,7 @@ pre code {
   @apply outline outline-ring;
 }
 
-/* Code styling */
+/* code styling */
 .hljs-comment,
 .hljs-quote {
   color: #616161;
