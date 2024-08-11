@@ -1,6 +1,6 @@
 {
-  "id": "65e77dd9-7239-4dca-bdcd-28738dfd74df",
-  "prevId": "48c2eed1-59b9-4ce7-9ff7-a3cd0071561a",
+  "id": "6b3ffc40-cc15-42c3-a41d-80a27cac359b",
+  "prevId": "6889b685-8545-4cd6-9507-6c88633d07d3",
   "version": "6",
   "dialect": "sqlite",
   "tables": {
@@ -295,6 +295,38 @@
           "notNull": false,
           "autoincrement": false
         },
+        "show_preview": {
+          "name": "show_preview",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "pinned": {
+          "name": "pinned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "archived": {
+          "name": "archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "trashed": {
+          "name": "trashed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "label_id": {
           "name": "label_id",
           "type": "text",
@@ -307,6 +339,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {

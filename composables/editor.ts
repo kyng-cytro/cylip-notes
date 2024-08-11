@@ -55,7 +55,7 @@ const proccessImage = async (editor: Editor, file: File, pos: number) => {
 };
 
 export const useEditorUtils = () => {
-  const convertToHtml = (doc: JSONContent) => {
+  const convertToHtml = (doc: JSONContent | null) => {
     if (!doc) return "";
     return generateHTML(doc, extensions);
   };
@@ -139,11 +139,7 @@ export const useEditor = async ({
       }),
     ],
     onCreate: ({ editor: currentEditor }) => {
-      provider.on("synced", () => {
-        if (currentEditor.isEmpty) {
-          currentEditor.commands.setContent(initialValue);
-        }
-      });
+      provider.on("synced", () => {});
     },
     onDestroy: () => {
       provider.destroy();

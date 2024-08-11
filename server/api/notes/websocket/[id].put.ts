@@ -1,10 +1,47 @@
 import { noteWebsocketPutSchema } from "@/schemas/note";
 
 export default defineWebsocketEventHandler(async (event) => {
-  const { jsonContent, uint8Content } = await readValidatedBody(
+  const { id } = getRouterParams(event);
+  if (!id) {
+    throw createError({ statusCode: 400, message: "Invalid or missing id." });
+  }
+
+  const { content } = await readValidatedBody(
     event,
     noteWebsocketPutSchema.parse,
   );
-  console.log({ jsonContent, uint8Content });
-  return { jsonContent, uint8Content };
+
+  try {
+    const db = useDrizzle();
+    const data = {
+      content,
+      updatedAt: sql`current_timestamp`,
+    };
+
+    const [note] = await db
+      .update(tables.note)
+      .set(data)
+      .where(
+        and(
+          eq(tables.note.id, id),
+          eq(tables.note.userId, event.context.user!.id),
+        ),
+      )
+      .returning();
+
+    if (!note) {
+      throw createError({
+        statusCode: 404,
+        message:
+          "Failed to modify note. Note may not exist, or you don't have access to it.",
+      });
+    }
+    return event.node.res.writeHead(200).end();
+  } catch (e) {
+    console.error({ e });
+    throw createError({
+      statusCode: 500,
+      message: `Failed to modify note. Note may not exist, or you don't have access to it.`,
+    });
+  }
 });

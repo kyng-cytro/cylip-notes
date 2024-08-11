@@ -6,8 +6,7 @@ export const notePutSchema = z.discriminatedUnion("field", [
 ]);
 
 export const noteWebsocketPutSchema = z.object({
-  jsonContent: z.any(),
-  uint8Content: z.any(),
+  content: z.any(),
 });
 
 export const notePatchSchema = z.discriminatedUnion("field", [
