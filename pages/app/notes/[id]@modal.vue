@@ -41,6 +41,15 @@ const archiveHandler = async () => {
   useModalRouter().close();
 };
 
+const deleteHandler = async () => {
+  await noteStore.methods.toggleNoteProp(note!, "trashed");
+  useModalRouter().close();
+};
+
+const shareHandler = () => {};
+
+const makeACopyHandler = () => {};
+
 watchDebounced(
   title,
   async () => {
@@ -104,6 +113,8 @@ watchDebounced(
           v-model="title"
           :disabled="trashed"
           @open-note="openHandler"
+          @delete-note="deleteHandler"
+          @share-note="shareHandler"
           @copy-to-clipboard="() => copy(editor.getHTML(), true)"
         />
         <EditorToolbar :editor="editor" :disabled="trashed" />

@@ -22,7 +22,7 @@ const proccessImage = async (editor: Editor, file: File, pos: number) => {
     {
       type: "image",
       attrs: {
-        src: "https://placehold.co/800x400",
+        src: "/image-placeholder.jpg",
       },
     },
     { updateSelection: true },

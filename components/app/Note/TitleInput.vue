@@ -35,7 +35,6 @@ const emit = defineEmits<{
           <DropdownMenuItem @click="$emit('share-note')">
             Share Note
           </DropdownMenuItem>
-          <DropdownMenuItem>Make a Copy</DropdownMenuItem>
           <DropdownMenuItem @click="$emit('copy-to-clipboard')">
             Copy to Clipboard
           </DropdownMenuItem>

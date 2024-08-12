@@ -104,7 +104,7 @@ export const note = sqliteTable("notes", {
   content: text("content", { mode: "json" }).$type<JSONContent>(),
   showPreview: integer("show_preview", { mode: "boolean" })
     .notNull()
-    .default(true),
+    .default(false),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),
   trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),
