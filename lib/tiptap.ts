@@ -23,7 +23,6 @@ const CustomCodeBlock = CodeBlockLowlight.extend({
 });
 
 export const extensions = [
-  Image,
   TaskList,
   Underline,
   Highlight.configure({ multicolor: true }),
@@ -32,6 +31,12 @@ export const extensions = [
   }),
   Link.configure({
     linkOnPaste: true,
+  }),
+  Image.configure({
+    HTMLAttributes: {
+      "max-width": "100%",
+      "max-height": "300px",
+    },
   }),
   CustomCodeBlock.configure({
     lowlight,

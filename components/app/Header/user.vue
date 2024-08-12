@@ -9,6 +9,7 @@ const { user, logout } = useUser();
         <Button variant="secondary" size="icon" class="rounded-full">
           <NuxtImg
             :src="user.picture"
+            alt="Profile Picture"
             height="1.25rem"
             width="1.25rem"
             class="h-5 w-5 rounded-full"

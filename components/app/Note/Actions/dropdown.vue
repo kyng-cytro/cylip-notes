@@ -32,6 +32,7 @@ const assign = (labelId: string | null) => {
         <Button variant="ghost" size="icon">
           <EllipsisVertical class="h-4 w-4" />
           <span class="sr-only">More actions</span>
+          <span class="sr-only">More actions</span>
         </Button>
       </template>
       <DropdownMenu v-model:open="open">
