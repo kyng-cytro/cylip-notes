@@ -12,9 +12,9 @@ const closeMobileMenu = () => {
     :class="{ pattern: !mobileMenuOpen, 'bg-background': mobileMenuOpen }"
   >
     <nav
-      class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8"
+      class="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-2 lg:px-8"
     >
-      <Logo @logo-click="closeMobileMenu" />
+      <Logo @logo-click="closeMobileMenu" show-beta />
       <div class="hidden lg:flex lg:gap-x-12">
         <NuxtLink class="font-semibold" to="/pricing">Pricing</NuxtLink>
       </div>

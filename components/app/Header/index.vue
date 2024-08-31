@@ -19,10 +19,12 @@ const closeMobileMenu = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" class="flex flex-col">
-        <SheetTitle class="mb-3">
-          <AppLogo
-            @click="closeMobileMenu"
-            class="items-center text-xl font-semibold"
+        <SheetTitle class="mb-4">
+          <Logo
+            class="-mx-4"
+            to="/app"
+            no-padding
+            @logo-click="closeMobileMenu"
           />
         </SheetTitle>
         <SheetDescription class="sr-only"
