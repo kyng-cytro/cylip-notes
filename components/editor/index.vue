@@ -7,5 +7,5 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <editor-content :editor oncontextmenu="return false;" v-if="initialized" />
-  <Skeleton class="min-h-full w-full" v-else />
+  <EditorLoading v-else />
 </template>

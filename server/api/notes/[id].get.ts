@@ -3,7 +3,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
   if (!id) {
     throw createError({ statusCode: 400, message: "Invalid or missing id." });
   }
-  console.log(id);
   const db = useDrizzle();
   try {
     const note = await db.query.note.findFirst({

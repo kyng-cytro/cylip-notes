@@ -42,9 +42,13 @@ watchDebounced(
 </script>
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-    <div class="grid h-full grid-cols-4 gap-4">
-      <Skeleton class="col-span-3 min-h-full w-full" />
-      <Skeleton class="col-space-1 min-h-full w-full" />
+    <div
+      class="grid h-full grid-rows-4 gap-4 md:grid-cols-3 md:grid-rows-1 lg:grid-cols-4"
+    >
+      <Skeleton
+        class="row-span-3 min-h-full w-full md:col-span-2 md:row-span-1 lg:col-span-3"
+      />
+      <Skeleton class="row-span-1 min-h-full w-full md:col-span-1" />
     </div>
   </main>
 </template>
