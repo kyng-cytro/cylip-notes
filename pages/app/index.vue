@@ -16,17 +16,17 @@ const notes = computed(() => {
 const pinnedNotes = computed(() => {
   return notesStore.methods.retrieveNotes("pinned");
 });
+
+const createNote = async () => {
+  await notesStore.methods.createNote(label.value);
+};
 </script>
 
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 pb-0 lg:gap-6 lg:p-6 lg:pb-0">
     <div class="flex items-center justify-between pl-1 pr-2">
       <AppNoteLabelSelect />
-      <Button
-        class="font-semibold"
-        variant="default"
-        @click="notesStore.methods.createNote"
-      >
+      <Button class="font-semibold" variant="default" @click="createNote">
         New Note <Plus class="ml-1 size-5" />
         <span class="sr-only">Create new note</span>
       </Button>
@@ -42,7 +42,7 @@ const pinnedNotes = computed(() => {
             : 'Notes with this label will show up here.'
         "
         :button="label === 'all-notes' ? { text: 'Create Note' } : undefined"
-        @button-click="notesStore.methods.createNote"
+        @button-click="createNote"
         v-if="initialized"
       />
       <div

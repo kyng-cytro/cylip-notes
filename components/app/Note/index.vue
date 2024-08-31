@@ -22,7 +22,7 @@ const content = computed(() => {
     tabindex="0"
     class="group flex w-full max-w-sm flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
     :class="{
-      'max-w-none self-start': !note.showPreview,
+      'self-start': !note.showPreview,
       'min-w-36 md:min-w-[300px]': layout === 'grid',
       'max-w-none': layout === 'list',
     }"

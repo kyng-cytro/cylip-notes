@@ -1,5 +1,5 @@
-import type { JSONContent } from "@tiptap/vue-3";
 import type { Label, Note } from "@/server/utils/drizzle";
+import type { JSONContent } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 
 export const useNoteStore = defineStore("notes", () => {
@@ -79,9 +79,12 @@ export const useNoteStore = defineStore("notes", () => {
     labels.value = [label, ...labels.value];
   };
 
-  const createNote = async () => {
+  const createNote = async (labelId?: string) => {
     try {
-      const note = await $fetch("/api/notes", { method: "POST" });
+      const note = await $fetch("/api/notes", {
+        method: "POST",
+        body: { labelId },
+      });
       notes.value = [note, ...notes.value];
       useModalRouter().push(`/app/notes/${note.id}`);
     } catch (e: any) {

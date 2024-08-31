@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const notePostSchema = z.object({
+  labelId: z.string().optional(),
+});
+
 export const notePutSchema = z.discriminatedUnion("field", [
   z.object({ field: z.literal("title"), value: z.string().min(1) }),
   z.object({ field: z.literal("content"), value: z.any() }),

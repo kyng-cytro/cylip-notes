@@ -1,14 +1,17 @@
 import { generateId } from "lucia";
+import { notePostSchema } from "@/schemas/note";
 
 export default defineAuthenticatedEventHandler(async (event) => {
   try {
     const db = useDrizzle();
+    const { labelId } = await readValidatedBody(event, notePostSchema.parse);
     const id = generateId(15);
     const [note] = await db
       .insert(tables.note)
       .values({
         id,
         userId: event.context.user!.id,
+        ...(labelId && labelId !== "all-notes" && { labelId }),
       })
       .returning();
     if (!note)
