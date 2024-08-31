@@ -85,8 +85,8 @@ export const useEditor = async ({
   roomId,
   disabled,
   autofocus,
-  initialValue = {},
 }: EditorOpts) => {
+  const initialized = ref(false);
   const yDoc = new Y.Doc();
   const provider = new YPartyKitProvider(
     useRuntimeConfig().public.webSocketUrl,
@@ -138,10 +138,15 @@ export const useEditor = async ({
         },
       }),
     ],
+    onCreate: () => {
+      provider.on("synced", () => {
+        initialized.value = true;
+      });
+    },
     onDestroy: () => {
       provider.destroy();
       yDoc.destroy();
     },
   });
-  return { editor };
+  return { editor, initialized };
 };

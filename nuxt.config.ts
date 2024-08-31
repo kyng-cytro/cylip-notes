@@ -46,7 +46,7 @@ export default defineNuxtConfig({
           content: "Snap, Note, Remember",
         },
       ],
-      link: [{ rel: "icon", type: "image/svg+xml", href: "logo-mini.svg" }],
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/logo-mini.svg" }],
     },
   },
   runtimeConfig: {

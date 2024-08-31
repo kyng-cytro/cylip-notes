@@ -9,7 +9,7 @@ defineProps<{
   <Card
     class="flex w-full max-w-sm flex-1 flex-col gap-3 px-3 py-2"
     :class="{
-      'max-w-none self-start': !preview,
+      'self-start': !preview,
       'min-w-32 md:min-w-[300px]': layout === 'grid',
       'max-w-none': layout === 'list',
     }"

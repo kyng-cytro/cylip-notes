@@ -19,11 +19,10 @@ const title = ref(note?.title);
 const trashed = computed(() => note?.trashed || false);
 const archived = computed(() => note?.archived || false);
 
-const { editor } = await useEditor({
+const { editor, initialized } = await useEditor({
   roomId: note!.id,
   autofocus: true,
   disabled: trashed.value,
-  initialValue: note?.content,
 });
 
 const { copy } = useCustomClipboard();
@@ -120,7 +119,7 @@ watchDebounced(
         <EditorToolbar :editor="editor" :disabled="trashed" />
       </CardHeader>
       <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
-        <Editor :editor="editor" oncontextmenu="return false;" />
+        <Editor :editor="editor" :initialized />
       </CardContent>
       <CardFooter class="flex justify-end border-t py-2">
         <p
