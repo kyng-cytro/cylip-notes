@@ -110,6 +110,7 @@ watchDebounced(
         </div>
         <AppNoteTitleInput
           v-model="title"
+          can-open
           :disabled="trashed"
           @open-note="openHandler"
           @delete-note="deleteHandler"
@@ -118,7 +119,7 @@ watchDebounced(
         />
         <EditorToolbar :editor="editor" :disabled="trashed" />
       </CardHeader>
-      <CardContent class="flex-1 space-y-4 overflow-y-auto scrollbar-none">
+      <CardContent class="-m-1 flex-1 overflow-y-hidden">
         <Editor :editor="editor" :initialized />
       </CardContent>
       <CardFooter class="flex justify-end border-t py-2">

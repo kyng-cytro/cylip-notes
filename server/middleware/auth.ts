@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       !hostHeader ||
       !verifyRequestOrigin(originHeader, [hostHeader])
     ) {
-      return event.node.res.writeHead(403).end();
+      return setResponseStatus(event, 403);
     }
   }
   const lucia = initializeLucia();

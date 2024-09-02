@@ -2,6 +2,8 @@
 import { EllipsisVertical, ExternalLink } from "lucide-vue-next";
 const text = defineModel({ default: "" });
 defineProps<{
+  large?: boolean;
+  canOpen?: boolean;
   disabled?: boolean;
 }>();
 const emit = defineEmits<{
@@ -19,6 +21,7 @@ const emit = defineEmits<{
         type="text"
         placeholder="Title"
         class="border-none px-0 text-xl font-semibold focus-visible:ring-0"
+        :class="{ 'py-6': large }"
         v-model="text"
         :disabled="disabled"
       />
@@ -29,7 +32,7 @@ const emit = defineEmits<{
       </DropdownMenuTrigger>
       <DropdownMenuContent class="w-[200px]">
         <DropdownMenuGroup>
-          <DropdownMenuItem @click="$emit('open-note')"
+          <DropdownMenuItem @click="$emit('open-note')" v-if="canOpen"
             >Open Note <ExternalLink class="size-4" />
           </DropdownMenuItem>
           <DropdownMenuItem @click="$emit('share-note')">

@@ -11,24 +11,44 @@ const noteStore = useNoteStore();
 
 const { copy } = useCustomClipboard();
 const { formatToTimeAgo } = useDateUtils();
-const { data: note, status } = await useFetch(`/api/notes/${id}`);
+const { data: note, pending } = await useFetch(`/api/notes/${id}`);
 
-const editor = ref<Editor>();
+const mouting = ref(true);
 const initialized = ref(false);
 const title = ref(note.value?.title);
+const editor = ref<Editor>();
 const trashed = computed(() => note.value?.trashed || false);
 const archived = computed(() => note.value?.archived || false);
 
 onMounted(async () => {
-  if (!note.value) return;
+  if (!note.value) return (mouting.value = false);
   const { editor: currentEditor, initialized: ready } = await useEditor({
     roomId: note.value!.id,
     autofocus: true,
     disabled: trashed.value,
   });
   editor.value = currentEditor;
-  initialized.value = ready.value;
+  mouting.value = false;
+  watch(ready, () => {
+    initialized.value = ready.value;
+  });
 });
+
+const archiveHandler = async () => {
+  if (!note.value) return;
+  await noteStore.methods.toggleNoteProp(note.value, "archived");
+  navigateTo("/app");
+};
+
+const deleteHandler = async () => {
+  if (!note.value) return;
+  await noteStore.methods.toggleNoteProp(note.value, "trashed");
+  navigateTo("/app");
+};
+
+const shareHandler = () => {};
+
+const makeACopyHandler = () => {};
 
 watchDebounced(
   title,
@@ -43,12 +63,37 @@ watchDebounced(
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
     <div
-      class="grid h-full grid-rows-4 gap-4 md:grid-cols-3 md:grid-rows-1 lg:grid-cols-4"
+      class="grid h-full grid-cols-1 grid-rows-[auto_200px] gap-4 md:grid-cols-[auto_200px] md:grid-rows-1"
     >
-      <Skeleton
-        class="row-span-3 min-h-full w-full md:col-span-2 md:row-span-1 lg:col-span-3"
-      />
-      <Skeleton class="row-span-1 min-h-full w-full md:col-span-1" />
+      <template v-if="pending || mouting">
+        <Skeleton class="min-h-full w-full" />
+        <Skeleton class="min-h-full w-full" />
+      </template>
+      <template v-else-if="!note || !editor">
+        <AppEmptyPage
+          class="col-span-2"
+          title="Note not found"
+          subtitle="The note you are looking for does not exist."
+          :button="{ text: 'Go Back', to: '/app' }"
+        />
+      </template>
+      <template v-else>
+        <div class="space-y-4 overflow-y-hidden">
+          <AppNoteTitleInput
+            large
+            v-model="title"
+            :disabled="trashed"
+            @delete-note="deleteHandler"
+            @share-note="shareHandler"
+            @copy-to-clipboard="() => copy(editor!.getHTML(), true)"
+          />
+          <EditorToolbar :editor="editor" :disabled="trashed" large />
+          <div class="h-full max-h-[calc(100vh-225px)] overflow-y-hidden">
+            <Editor :editor="editor" :initialized />
+          </div>
+        </div>
+        <Skeleton class="min-h-full w-full" />
+      </template>
     </div>
   </main>
 </template>

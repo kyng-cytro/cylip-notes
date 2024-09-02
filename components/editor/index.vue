@@ -6,6 +6,11 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <editor-content :editor oncontextmenu="return false;" v-if="initialized" />
+  <editor-content
+    class="h-full w-full"
+    :editor
+    oncontextmenu="return false;"
+    v-if="initialized"
+  />
   <EditorLoading v-else />
 </template>

@@ -36,7 +36,7 @@ export default defineWebsocketEventHandler(async (event) => {
           "Failed to modify note. Note may not exist, or you don't have access to it.",
       });
     }
-    return event.node.res.writeHead(200).end();
+    return setResponseStatus(event, 200);
   } catch (e) {
     console.error({ e });
     throw createError({

@@ -99,7 +99,8 @@ export const useEditor = async ({
     editable: !disabled,
     editorProps: {
       attributes: {
-        class: "min-h-[200px] prose dark:prose-invert outline-none",
+        class:
+          "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin",
       },
     },
     extensions: [

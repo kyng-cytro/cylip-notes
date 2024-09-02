@@ -135,7 +135,6 @@ blockquote {
 .tiptap img {
   display: block;
   margin: 1.5rem 0;
-  width: 100%;
   max-width: 100%;
   max-height: 300px;
   border-radius: 0.5rem;

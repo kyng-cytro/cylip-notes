@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     });
     if (user) {
       await sendMagicLink(user);
-      return event.node.res.writeHead(200).end();
+      return setResponseStatus(event, 200);
     }
     const id = generateId(15);
     const name = generateName(id);
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
       });
     }
     await sendMagicLink(newUser);
-    return event.node.res.writeHead(200).end();
+    return setResponseStatus(event, 200);
   } catch (e) {
     console.error({ e });
     throw createError({

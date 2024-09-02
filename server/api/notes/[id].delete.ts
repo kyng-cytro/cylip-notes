@@ -14,7 +14,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
           eq(tables.note.userId, event.context.user!.id),
         ),
       );
-    return event.node.res.writeHead(200).end();
+    return setResponseStatus(event, 200);
   } catch (e) {
     console.error({ e });
     throw createError({

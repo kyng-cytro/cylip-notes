@@ -34,7 +34,6 @@ export const extensions = [
   }),
   Image.configure({
     HTMLAttributes: {
-      "max-width": "100%",
       "max-height": "300px",
     },
   }),
