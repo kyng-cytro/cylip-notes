@@ -2,12 +2,12 @@
 
 Snap, Note, Remember
 
-**cylip|notes** is a lightweight, real-time note-taking application powered by AI, designed to run efficiently on Cloudflare.
+A lightweight, real-time note-taking application powered by AI, designed to run efficiently on Cloudflare.
 
 ## Features
 
 - **Real-time Collaboration:** Take notes with others in real-time, with instant updates across all connected devices.
-- **AI-Powered:** Get smart suggestions and summaries and search powered by AI to enhance your note-taking process.
+- **AI-Powered:** Get smart suggestions, summaries, and searches powered by AI to enhance your note-taking process.
 
 ## Installation
 
