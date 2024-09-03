@@ -6,22 +6,27 @@ definePageMeta({
 });
 
 const { id } = useRoute("app-notes-id").params;
-
 const noteStore = useNoteStore();
-
 const { copy } = useCustomClipboard();
 const { formatToTimeAgo } = useDateUtils();
-const { data: note, pending } = await useFetch(`/api/notes/${id}`);
+const { data: note, pending, refresh } = await useFetch(`/api/notes/${id}`);
 
+const tab = ref("note");
 const mouting = ref(true);
+const editor = ref<Editor>();
 const initialized = ref(false);
 const title = ref(note.value?.title);
-const editor = ref<Editor>();
+const { labels } = storeToRefs(useNoteStore());
 const trashed = computed(() => note.value?.trashed || false);
 const archived = computed(() => note.value?.archived || false);
 
-onMounted(async () => {
+const initializeEditor = async () => {
   if (!note.value) return (mouting.value = false);
+  // Clean up the existing editor instance if it exists
+  if (editor.value) {
+    editor.value.destroy();
+    editor.value = undefined;
+  }
   const { editor: currentEditor, initialized: ready } = await useEditor({
     roomId: note.value!.id,
     autofocus: true,
@@ -32,12 +37,26 @@ onMounted(async () => {
   watch(ready, () => {
     initialized.value = ready.value;
   });
-});
+};
+
+onMounted(initializeEditor);
+
+const refreshHandler = async () => {
+  mouting.value = true;
+  await refresh();
+  await initializeEditor();
+};
 
 const archiveHandler = async () => {
   if (!note.value) return;
   await noteStore.methods.toggleNoteProp(note.value, "archived");
   navigateTo("/app");
+};
+
+const assignLabelHandler = async (labelId: string | null) => {
+  if (!note.value) return;
+  await noteStore.methods.assignLabel(note.value, labelId);
+  await refreshHandler();
 };
 
 const deleteHandler = async () => {
@@ -63,7 +82,7 @@ watchDebounced(
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
     <div
-      class="grid h-full grid-cols-1 grid-rows-[auto_200px] gap-4 md:grid-cols-[auto_200px] md:grid-rows-1"
+      class="grid h-full grid-cols-1 grid-rows-2 gap-4 md:grid-cols-[auto_250px] md:grid-rows-1 lg:grid-cols-[auto_300px]"
     >
       <template v-if="pending || mouting">
         <Skeleton class="min-h-full w-full" />
@@ -92,7 +111,19 @@ watchDebounced(
             <Editor :editor="editor" :initialized />
           </div>
         </div>
-        <Skeleton class="min-h-full w-full" />
+        <Card class="p-3">
+          <Tabs default-value="note" class="w-full space-y-3" v-model="tab">
+            <TabsList name="note" class="grid w-full grid-cols-2">
+              <TabsTrigger value="note">Note</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
+            <AppNoteTabsContentInfo
+              :note="note"
+              @assign-label="assignLabelHandler"
+            />
+            <TabsContent value="history"> Note History </TabsContent>
+          </Tabs>
+        </Card>
       </template>
     </div>
   </main>
