@@ -25,7 +25,7 @@ const createNote = async () => {
 <template>
   <main class="flex flex-1 flex-col gap-4 p-4 pb-0 lg:gap-6 lg:p-6 lg:pb-0">
     <div class="flex items-center justify-between pl-1 pr-2">
-      <AppNoteLabelSelect />
+      <AppLabelSelect />
       <Button class="font-semibold" variant="default" @click="createNote">
         New Note <Plus class="ml-1 size-5" />
         <span class="sr-only">Create new note</span>

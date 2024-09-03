@@ -15,14 +15,14 @@ const query = defineModel<string>();
     <CommandList>
       <CommandEmpty class="flex flex-col items-center justify-center gap-2 p-4">
         <span>No label with the name "{{ query }}".</span>
-        <AppCreateLabel v-model:value="query">
+        <AppLabelCreate v-model:value="query">
           <template #trigger>
             <Button variant="ghost" size="xs">
               <Plus class="h-5 w-5" />
               <span class="sr-only">Create a label with this name</span>
             </Button>
           </template>
-        </AppCreateLabel>
+        </AppLabelCreate>
       </CommandEmpty>
       <CommandGroup>
         <CommandItem value="all-notes" @select="$emit('assign-label', null)"
