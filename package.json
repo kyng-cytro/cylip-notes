@@ -4,14 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "app:dev": "nuxt dev",
     "deploy": "bunx nuxthub deploy",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "partykit:dev": "partykit dev",
     "partykit:deploy": "partykit deploy",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "dev": "concurrently \"bun app:dev\" \"bun partykit:dev\""
   },
   "dependencies": {
     "@lucia-auth/adapter-drizzle": "^1.0.7",
@@ -72,12 +73,13 @@
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vueuse/nuxt": "^10.11.0",
+    "concurrently": "^9.0.0",
     "drizzle-kit": "^0.22.7",
     "nuxt-pages-plus": "^0.3.0-beta.0",
+    "partykit": "0.0.108",
     "prettier-plugin-tailwindcss": "^0.6.5",
     "tailwind-scrollbar": "^3.1.0",
     "vue-tsc": "^1",
-    "wrangler": "^3.60.3",
-    "partykit": "0.0.108"
+    "wrangler": "^3.60.3"
   }
 }
