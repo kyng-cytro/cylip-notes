@@ -1,5 +1,6 @@
 import vue from "@vitejs/plugin-vue";
 export default defineNuxtConfig({
+  compatibilityDate: "2024-12-27",
   devtools: { enabled: true },
   experimental: { typedPages: true, viewTransition: false },
   future: { compatibilityVersion: 4 },

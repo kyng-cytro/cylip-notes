@@ -6,9 +6,10 @@ export default defineEventHandler(async (event) => {
   const codeVerifier = generateCodeVerifier();
 
   // Generate a new authorization URL
-  const url = await google.createAuthorizationURL(state, codeVerifier, {
-    scopes: ["profile", "email"],
-  });
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "profile",
+    "email",
+  ]);
 
   // Set the state and code verifier cookies
   setCookie(event, "state", state, {

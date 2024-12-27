@@ -38,12 +38,16 @@ onBeforeUnmount(() => {
 }
 
 /* basic editor styles */
+::selection {
+  @apply bg-secondary;
+}
+
 .tiptap :first-child {
   margin-top: 0;
 }
 
 /* blockquote styles */
-blockquote {
+.tiptap blockquote {
   border-left: 3px solid var(--gray-3);
   margin: 1.5rem 0;
   padding-left: 1rem;

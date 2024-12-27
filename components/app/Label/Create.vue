@@ -5,7 +5,7 @@ import { labelCreateSchema } from "@/schemas/label";
 
 const open = ref(false);
 const loading = ref(false);
-const value = defineModel("value", { default: undefined });
+const value = defineModel<string | undefined>("value", { default: undefined });
 const formSchema = toTypedSchema(labelCreateSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
