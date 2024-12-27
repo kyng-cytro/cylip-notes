@@ -9,8 +9,8 @@ export const useLayout = () => {
   }));
 
   const conatinerStyles = computed(() => ({
-    "flex-wrap": layout.value === "grid",
-    "flex-col": layout.value === "list",
+    "gap-2 columns-[150px] sm:columns-[250px]": layout.value === "grid",
+    "flex gap-4 flex-col": layout.value === "list",
   }));
 
   return {

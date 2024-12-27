@@ -20,67 +20,58 @@ const content = computed(() => {
 <template>
   <Card
     tabindex="0"
-    class="group flex w-full max-w-sm flex-1 cursor-pointer flex-col gap-3 ring-blue-500 focus:outline-none focus:ring-2"
+    class="group mb-2 flex w-full cursor-pointer break-inside-avoid flex-col gap-3 rounded-lg p-4 ring-blue-500 focus:outline-none focus:ring-2"
     :class="{
-      'self-start': !note.showPreview,
-      'min-w-36 md:min-w-[300px]': layout === 'grid',
       'max-w-none': layout === 'list',
     }"
     @click="openModal"
   >
-    <!-- Content -->
-    <p
-      v-if="note.showPreview && !content"
-      class="pointer-events-none relative max-h-32 min-h-32 max-w-none px-3 pt-2 text-muted-foreground"
-    >
-      No content to preview.
-    </p>
-    <p
-      v-html="content"
-      v-if="note.showPreview && content"
-      class="tiptap prose pointer-events-none relative max-h-32 min-h-32 max-w-none flex-1 overflow-y-hidden px-3 pt-2 dark:prose-invert"
-    />
     <!-- Header -->
+    <div v-if="note.title">
+      <CardTitle class="line-clamp-2 font-semibold leading-snug">{{
+        note.title
+      }}</CardTitle>
+    </div>
+    <!-- Content -->
+    <div class="line-clamp-[18]" v-if="note.showPreview && content">
+      <p
+        v-html="content"
+        class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
+      />
+    </div>
+    <!-- Actions -->
     <div
-      class="flex items-center justify-between rounded-b-lg bg-muted px-3 py-2"
-      :class="{ 'rounded-t-lg': !note.showPreview }"
+      class="invisible flex items-center justify-end gap-4 text-muted-foreground group-hover:visible group-focus:visible"
     >
-      <CardTitle
-        class="line-clamp-1 text-xl"
-        :class="{ 'text-muted-foreground': !note.title }"
-        >{{ note.title || "Untitled" }}</CardTitle
-      >
-      <div
-        class="flex items-center justify-between text-muted-foreground group-hover:visible group-focus:visible md:invisible"
-      >
+      <template v-if="note.trashed">
         <AppNoteActionsTrashed
-          v-if="note.trashed"
           @restore="noteStore.methods.toggleNoteProp(note, 'trashed')"
           @delete-forever="noteStore.methods.permenentlyDeleteNote(note)"
         />
-        <template v-else>
-          <AppNoteActionsPin
-            :pinned="note.pinned"
-            @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
-          />
-          <AppNoteActionsDropdown
-            :label-id="note.labelId"
-            v-if="!note.archived"
-            @delete="noteStore.methods.toggleNoteProp(note, 'trashed')"
-            @archive="noteStore.methods.toggleNoteProp(note, 'archived')"
-            @assign-label="
-              (labelId) => noteStore.methods.assignLabel(note, labelId)
-            "
-            @toggle-show-preview="
-              noteStore.methods.toggleNoteProp(note, 'showPreview')
-            "
-          />
+      </template>
+      <template v-else>
+        <AppNoteActionsPin
+          :pinned="note.pinned"
+          @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
+        />
+        <AppNoteActionsDropdown
+          :label-id="note.labelId"
+          v-if="!note.archived"
+          @delete="noteStore.methods.toggleNoteProp(note, 'trashed')"
+          @archive="noteStore.methods.toggleNoteProp(note, 'archived')"
+          @assign-label="
+            (labelId) => noteStore.methods.assignLabel(note, labelId)
+          "
+          @toggle-show-preview="
+            noteStore.methods.toggleNoteProp(note, 'showPreview')
+          "
+        />
+        <template v-if="note.archived">
           <AppNoteActionsArchived
-            v-else
             @unarchive="noteStore.methods.toggleNoteProp(note, 'archived')"
           />
         </template>
-      </div>
+      </template>
     </div>
   </Card>
 </template>

@@ -32,7 +32,6 @@ const dragStart = () => {
 
 <template>
   <VueDraggableNext
-    class="flex gap-4"
     :class="layoutStyles"
     v-bind="dragOptions"
     v-model="notes"
