@@ -69,6 +69,11 @@ export default defineNuxtConfig({
       interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
     },
   },
+  alias: {
+    // HACK: not sure why i need the aliases
+    consola: "consola",
+    mime: "mime",
+  },
   routeRules: {
     "/": { prerender: true },
     "/pricing": { prerender: true },
