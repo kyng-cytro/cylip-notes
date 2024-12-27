@@ -14,6 +14,7 @@ defineProps<{
       class="scroll-m-20"
       :class="{ 'p-2': !noPadding }"
       @click="$emit('logo-click')"
+      @dblclick="$emit('logo-dblclick')"
     >
       <svg
         version="1.0"
