@@ -39,6 +39,15 @@ const content = computed(() => {
         class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
       />
     </div>
+    <!-- Label & Reminder -->
+    <div
+      class="mt-3 flex items-center gap-4 text-muted-foreground"
+      v-if="note.label"
+    >
+      <Badge class="text-xs capitalize" v-if="note.label">
+        {{ note.label.name }}
+      </Badge>
+    </div>
     <!-- Actions -->
     <div
       class="invisible flex items-center justify-end gap-4 text-muted-foreground group-hover:visible group-focus:visible"

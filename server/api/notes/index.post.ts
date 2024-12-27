@@ -6,14 +6,15 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const db = useDrizzle();
     const { labelId } = await readValidatedBody(event, notePostSchema.parse);
     const id = generateId(15);
-    const [note] = await db
-      .insert(tables.note)
-      .values({
-        id,
-        userId: event.context.user!.id,
-        ...(labelId && labelId !== "all-notes" && { labelId }),
-      })
-      .returning();
+    await db.insert(tables.note).values({
+      id,
+      userId: event.context.user!.id,
+      ...(labelId && labelId !== "all-notes" && { labelId }),
+    });
+    const note = await db.query.note.findFirst({
+      where: eq(tables.note.id, id),
+      with: { label: true },
+    });
     if (!note)
       throw createError({ statusCode: 500, message: "Failed to create note." });
     return note;

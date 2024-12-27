@@ -17,8 +17,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       ...(field === "content" && { content: value }),
       updatedAt: sql`current_timestamp`,
     };
-
-    const [note] = await db
+    await db
       .update(tables.note)
       .set(data)
       .where(
@@ -26,9 +25,11 @@ export default defineAuthenticatedEventHandler(async (event) => {
           eq(tables.note.id, id),
           eq(tables.note.userId, event.context.user!.id),
         ),
-      )
-      .returning();
-
+      );
+    const note = await db.query.note.findFirst({
+      where: eq(tables.note.id, id),
+      with: { label: true },
+    });
     if (!note) {
       throw createError({
         statusCode: 404,
@@ -36,7 +37,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
           "Failed to modify note. Note may not exist, or you don't have access to it.",
       });
     }
-
     return note;
   } catch (e) {
     console.error({ e });
