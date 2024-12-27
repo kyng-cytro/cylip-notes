@@ -15,7 +15,7 @@ const tab = ref("note");
 const mouting = ref(true);
 const editor = ref<Editor>();
 const initialized = ref(false);
-const title = ref(note.value?.title);
+const title = ref(note.value?.title || "");
 const { labels } = storeToRefs(useNoteStore());
 const trashed = computed(() => note.value?.trashed || false);
 const archived = computed(() => note.value?.archived || false);

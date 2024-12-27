@@ -14,7 +14,7 @@ const noteStore = useNoteStore();
 
 const note = noteStore.methods.getNoteById(id);
 
-const title = ref(note?.title);
+const title = ref(note?.title || "");
 
 const trashed = computed(() => note?.trashed || false);
 const archived = computed(() => note?.archived || false);
