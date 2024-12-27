@@ -104,7 +104,7 @@ export const note = sqliteTable("notes", {
   content: text("content", { mode: "json" }).$type<JSONContent>(),
   showPreview: integer("show_preview", { mode: "boolean" })
     .notNull()
-    .default(false),
+    .default(true),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),
   trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),
@@ -124,7 +124,7 @@ export const note = sqliteTable("notes", {
     .$onUpdate(() => sql`(current_timestamp)`),
 });
 
-export const notesRelations = relations(note, ({ one, many }) => ({
+export const notesRelations = relations(note, ({ one }) => ({
   user: one(user, {
     fields: [note.userId],
     references: [user.id],
@@ -132,34 +132,6 @@ export const notesRelations = relations(note, ({ one, many }) => ({
   label: one(label, {
     fields: [note.labelId],
     references: [label.id],
-  }),
-  attachments: many(attachment),
-}));
-
-export const attachment = sqliteTable("attachments", {
-  id: text("id").notNull().primaryKey(),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-  size: integer("size").notNull(),
-  url: text("url").notNull(),
-  noteId: text("note_id")
-    .notNull()
-    .references(() => note.id, {
-      onDelete: "cascade",
-    }),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(current_timestamp)`),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(current_timestamp)`)
-    .$onUpdate(() => sql`(current_timestamp)`),
-});
-
-export const attachmentsRelations = relations(attachment, ({ one }) => ({
-  note: one(note, {
-    fields: [attachment.noteId],
-    references: [note.id],
   }),
 }));
 

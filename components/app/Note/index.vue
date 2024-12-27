@@ -33,7 +33,10 @@ const content = computed(() => {
       }}</CardTitle>
     </div>
     <!-- Content -->
-    <div class="line-clamp-[18]" v-if="note.showPreview && content">
+    <div
+      class="line-clamp-[18] max-h-96 overflow-hidden"
+      v-if="note.showPreview && content"
+    >
       <p
         v-html="content"
         class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
