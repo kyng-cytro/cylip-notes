@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { AppMainContainer } from "#build/components";
-
 definePageMeta({
   layout: "app",
 });
