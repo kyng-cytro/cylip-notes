@@ -71,8 +71,8 @@ export default defineNuxtConfig({
   },
   alias: {
     // HACK: not sure why i need the aliases
-    consola: "consola",
-    mime: "mime",
+    // consola: "consola",
+    // mime: "mime",
   },
   routeRules: {
     "/": { prerender: true },
