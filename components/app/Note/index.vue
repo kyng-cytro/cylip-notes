@@ -26,31 +26,41 @@ const content = computed(() => {
     }"
     @click="openModal"
   >
-    <!-- Header -->
-    <div v-if="note.title">
-      <CardTitle class="line-clamp-2 font-semibold leading-snug">{{
-        note.title
-      }}</CardTitle>
-    </div>
-    <!-- Content -->
-    <div
-      class="line-clamp-[18] max-h-96 overflow-hidden"
-      v-if="note.showPreview && content"
-    >
-      <p
-        v-html="content"
-        class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
-      />
-    </div>
-    <!-- Label & Reminder -->
-    <div
-      class="mt-3 flex items-center gap-4 text-muted-foreground"
-      v-if="note.label"
-    >
-      <Badge class="text-xs capitalize" v-if="note.label">
-        {{ note.label.name }}
-      </Badge>
-    </div>
+    <!-- Empty note -->
+    <template v-if="!note.title && !content">
+      <CardTitle class="font-semibold leading-snug text-muted-foreground">
+        Empty note
+      </CardTitle>
+    </template>
+
+    <template v-else>
+      <!-- Header -->
+      <div v-if="note.title">
+        <CardTitle class="line-clamp-2 font-semibold leading-snug">{{
+          note.title
+        }}</CardTitle>
+      </div>
+      <!-- Content -->
+      <div
+        class="line-clamp-[18] max-h-96 overflow-hidden"
+        v-if="note.showPreview && content"
+      >
+        <p
+          v-html="content"
+          class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
+        />
+      </div>
+      <!-- Label & Reminder -->
+      <div
+        class="mt-3 flex items-center gap-4 text-muted-foreground"
+        v-if="note.label"
+      >
+        <Badge class="text-xs capitalize" v-if="note.label">
+          {{ note.label.name }}
+        </Badge>
+      </div>
+    </template>
+
     <!-- Actions -->
     <div
       class="invisible flex items-center justify-end gap-4 text-muted-foreground group-hover:visible group-focus:visible"
