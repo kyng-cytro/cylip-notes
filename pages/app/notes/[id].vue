@@ -93,7 +93,7 @@ watchDebounced(
         @share-note="shareHandler"
         @copy-to-clipboard="() => copy(editor!.getHTML(), true)"
       />
-      <EditorToolbar :editor="editor" :disabled="trashed" large />
+      <EditorToolbar :editor="editor" :disabled="trashed" />
       <div class="flex-1 overflow-y-hidden">
         <Editor :editor="editor" :initialized />
       </div>

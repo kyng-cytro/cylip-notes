@@ -18,17 +18,12 @@ import type { Editor } from "@tiptap/vue-3";
 
 defineProps<{
   editor: Editor;
-  large?: boolean;
   disabled?: boolean;
 }>();
 </script>
 <template>
   <div
-    class="flex flex-wrap items-center gap-1 pb-2 lg:pb-0"
-    :class="{
-      'justify-start lg:gap-4': large,
-      'justify-between': !large,
-    }"
+    class="flex flex-wrap items-center justify-start gap-2 pb-2 lg:gap-4 lg:pb-0"
   >
     <EditorButton
       label="Heading"
