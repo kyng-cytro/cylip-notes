@@ -27,7 +27,7 @@ const { editor, initialized } = await useEditor({
 
 const { copy } = useCustomClipboard();
 
-const openHandler = () => {
+const fullScreenHandler = () => {
   return navigateTo(`/app/notes/${id}`, {
     external: true,
   });
@@ -105,7 +105,7 @@ watchDebounced(
           v-model="title"
           can-open
           :disabled="trashed"
-          @open-note="openHandler"
+          @full-screen="fullScreenHandler"
           @delete-note="deleteHandler"
           @share-note="shareHandler"
           @copy-to-clipboard="() => copy(editor.getHTML(), true)"

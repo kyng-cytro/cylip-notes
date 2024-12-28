@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { EllipsisVertical, ExternalLink } from "lucide-vue-next";
+import { EllipsisVertical, MaximizeIcon } from "lucide-vue-next";
 const text = defineModel({ default: "" });
 defineProps<{
   large?: boolean;
   canOpen?: boolean;
   disabled?: boolean;
 }>();
-const emit = defineEmits<{
-  (e: "open-note"): void;
+defineEmits<{
+  (e: "full-screen"): void;
   (e: "delete-note"): void;
   (e: "share-note"): void;
   (e: "copy-to-clipboard"): void;
@@ -32,10 +32,10 @@ const emit = defineEmits<{
       </DropdownMenuTrigger>
       <DropdownMenuContent class="w-[200px]">
         <DropdownMenuGroup>
-          <DropdownMenuItem @click="$emit('open-note')" v-if="canOpen"
-            >Open Note <ExternalLink class="size-4" />
+          <DropdownMenuItem @click="$emit('full-screen')" v-if="canOpen"
+            >Full Screen <MaximizeIcon class="ml-1 size-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem @click="$emit('share-note')">
+          <DropdownMenuItem @click="$emit('share-note')" disabled>
             Share Note
           </DropdownMenuItem>
           <DropdownMenuItem @click="$emit('copy-to-clipboard')">

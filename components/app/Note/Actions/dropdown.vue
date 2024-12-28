@@ -43,11 +43,13 @@ const assign = (labelId: string | null) => {
         <DropdownMenuContent class="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="$emit('share')">Share</DropdownMenuItem>
+            <DropdownMenuItem @click="$emit('share')" disabled
+              >Share</DropdownMenuItem
+            >
             <DropdownMenuItem @click="$emit('archive')"
               >Archive</DropdownMenuItem
             >
-            <DropdownMenuItem @click="$emit('set-remind')"
+            <DropdownMenuItem @click="$emit('set-remind')" disabled
               >Set Reminder</DropdownMenuItem
             >
           </DropdownMenuGroup>
@@ -55,12 +57,12 @@ const assign = (labelId: string | null) => {
           <DropdownMenuLabel>Extras</DropdownMenuLabel>
           <DropdownMenuGroup>
             <DropdownMenuItem @click="$emit('copy')"
-              >Make a Copy</DropdownMenuItem
+              >Copy to Clipboard</DropdownMenuItem
             >
             <DropdownMenuItem @click="$emit('toggle-show-preview')"
               >Toggle Preview</DropdownMenuItem
             >
-            <DropdownMenuItem @click="$emit('versions')"
+            <DropdownMenuItem @click="$emit('versions')" disabled
               >Version History</DropdownMenuItem
             >
           </DropdownMenuGroup>
