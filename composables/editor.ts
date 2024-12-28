@@ -139,6 +139,9 @@ export const useEditor = async ({
         },
       }),
     ],
+    onFocus: ({ event }) => {
+      event.preventDefault();
+    },
     onCreate: () => {
       provider.on("synced", () => {
         initialized.value = true;
