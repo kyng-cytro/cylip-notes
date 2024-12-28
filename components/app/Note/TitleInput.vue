@@ -27,7 +27,7 @@ const emit = defineEmits<{
       />
       <DropdownMenuTrigger>
         <Button variant="link" class="px-0">
-          <EllipsisVertical class="size-5 text-muted-foreground" />
+          <EllipsisVertical class="size-5 text-primary" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent class="w-[200px]">

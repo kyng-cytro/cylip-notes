@@ -74,17 +74,14 @@ watchDebounced(
           <TooltipWrapper tooltip="Close note">
             <Button
               variant="link"
-              class="-ml-3 text-muted-foreground hover:text-primary"
+              class="-ml-3 hover:text-secondary"
               size="xs"
               @click="useModalRouter().close()"
             >
               <XCircle class="size-5" />
             </Button>
           </TooltipWrapper>
-          <div
-            class="flex items-center gap-2 text-muted-foreground"
-            v-if="!trashed"
-          >
+          <div class="flex items-center gap-2" v-if="!trashed">
             <TooltipWrapper tooltip="Pin note">
               <Button
                 variant="ghost"
@@ -123,9 +120,7 @@ watchDebounced(
         <Editor :editor="editor" :initialized />
       </CardContent>
       <CardFooter class="flex justify-end border-t py-2">
-        <p
-          class="space-x-2 whitespace-nowrap text-sm font-medium leading-none text-muted-foreground"
-        >
+        <p class="space-x-2 whitespace-nowrap text-sm font-medium leading-none">
           <template v-if="trashed">
             <span>Note in Trash</span>
             <span>•</span>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { EllipsisVertical, Plus, Check } from "lucide-vue-next";
+import { EllipsisVertical } from "lucide-vue-next";
 
 defineProps<{
   labelId: string | null;
 }>();
 
-const query = ref("");
 const open = ref(false);
 const { labels } = storeToRefs(useNoteStore());
 
