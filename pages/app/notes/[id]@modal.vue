@@ -27,8 +27,6 @@ const { editor, initialized } = await useEditor({
 
 const { copy } = useCustomClipboard();
 
-const { formatToTimeAgo } = useDateUtils();
-
 const openHandler = () => {
   return navigateTo(`/app/notes/${id}`, {
     external: true,
@@ -46,8 +44,6 @@ const deleteHandler = async () => {
 };
 
 const shareHandler = () => {};
-
-const makeACopyHandler = () => {};
 
 watchDebounced(
   title,
@@ -119,14 +115,10 @@ watchDebounced(
       <CardContent class="-m-1 flex-1 overflow-y-hidden">
         <Editor :editor="editor" :initialized />
       </CardContent>
-      <CardFooter class="flex justify-end border-t py-2">
-        <p class="space-x-2 whitespace-nowrap text-sm font-medium leading-none">
-          <template v-if="trashed">
-            <span>Note in Trash</span>
-            <span>•</span>
-          </template>
-          <span>Edited: {{ formatToTimeAgo(note.updatedAt) }} </span>
-        </p>
+      <CardFooter
+        class="flex justify-end border-t border-primary-foreground p-2"
+      >
+        <AppNoteLastEdited :trashed="trashed" :updated-at="note.updatedAt" />
       </CardFooter>
     </Card>
   </div>

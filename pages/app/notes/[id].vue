@@ -8,7 +8,6 @@ definePageMeta({
 const { id } = useRoute("app-notes-id").params;
 const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
-const { formatToTimeAgo } = useDateUtils();
 const { data: note, pending, refresh } = await useFetch(`/api/notes/${id}`);
 
 const tab = ref("note");
@@ -53,12 +52,6 @@ const archiveHandler = async () => {
   navigateTo("/app");
 };
 
-const assignLabelHandler = async (labelId: string | null) => {
-  if (!note.value) return;
-  await noteStore.methods.assignLabel(note.value, labelId);
-  await refreshHandler();
-};
-
 const deleteHandler = async () => {
   if (!note.value) return;
   await noteStore.methods.toggleNoteProp(note.value, "trashed");
@@ -66,8 +59,6 @@ const deleteHandler = async () => {
 };
 
 const shareHandler = () => {};
-
-const makeACopyHandler = () => {};
 
 watchDebounced(
   title,
@@ -93,6 +84,7 @@ watchDebounced(
       />
     </template>
     <template v-else>
+      <!-- Editor -->
       <AppNoteTitleInput
         large
         v-model="title"
@@ -101,9 +93,13 @@ watchDebounced(
         @share-note="shareHandler"
         @copy-to-clipboard="() => copy(editor!.getHTML(), true)"
       />
-      <!-- <EditorToolbar :editor="editor" :disabled="trashed" large /> -->
+      <EditorToolbar :editor="editor" :disabled="trashed" large />
       <div class="flex-1 overflow-y-hidden">
         <Editor :editor="editor" :initialized />
+      </div>
+      <!-- Footer -->
+      <div class="flex justify-end p-2">
+        <AppNoteLastEdited :trashed="trashed" :updated-at="note.updatedAt" />
       </div>
     </template>
   </AppMainContainer>

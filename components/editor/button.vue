@@ -17,7 +17,7 @@ defineEmits<{
     <Tooltip>
       <TooltipTrigger>
         <Toggle
-          class="p-2 text-primary"
+          class="p-2"
           :aria-label="label"
           :pressed="active"
           @click="$emit('toggled')"

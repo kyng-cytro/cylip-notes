@@ -24,7 +24,7 @@ defineProps<{
 </script>
 <template>
   <div
-    class="flex items-center gap-1 overflow-y-auto pb-2 text-muted-foreground scrollbar-thin hover:scrollbar-thin lg:pb-0 lg:scrollbar-none"
+    class="flex flex-wrap items-center gap-1 pb-2 lg:pb-0"
     :class="{
       'justify-start lg:gap-4': large,
       'justify-between': !large,
