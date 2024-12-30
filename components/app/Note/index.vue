@@ -5,7 +5,6 @@ const props = defineProps<{
   note: Note;
 }>();
 
-const noteStore = useNoteStore();
 const { layout } = storeToRefs(useLayoutStore());
 const { convertToHtml } = useEditorUtils();
 
@@ -60,40 +59,12 @@ const content = computed(() => {
         </Badge>
       </div>
     </template>
-
     <!-- Actions -->
     <div
-      class="invisible flex items-center justify-end gap-4 text-muted-foreground group-hover:visible group-focus:visible"
+      class="mt-3 flex items-center justify-between gap-3 overflow-y-auto scrollbar-none group-hover:visible group-focus:visible lg:invisible"
+      @click.stop
     >
-      <template v-if="note.trashed">
-        <AppNoteActionsTrashed
-          @restore="noteStore.methods.toggleNoteProp(note, 'trashed')"
-          @delete-forever="noteStore.methods.permenentlyDeleteNote(note)"
-        />
-      </template>
-      <template v-else>
-        <AppNoteActionsPin
-          :pinned="note.pinned"
-          @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
-        />
-        <AppNoteActionsDropdown
-          :label-id="note.labelId"
-          v-if="!note.archived"
-          @delete="noteStore.methods.toggleNoteProp(note, 'trashed')"
-          @archive="noteStore.methods.toggleNoteProp(note, 'archived')"
-          @assign-label="
-            (labelId) => noteStore.methods.assignLabel(note, labelId)
-          "
-          @toggle-show-preview="
-            noteStore.methods.toggleNoteProp(note, 'showPreview')
-          "
-        />
-        <template v-if="note.archived">
-          <AppNoteActionsArchived
-            @unarchive="noteStore.methods.toggleNoteProp(note, 'archived')"
-          />
-        </template>
-      </template>
+      <AppNoteActions :note="note" />
     </div>
   </Card>
 </template>

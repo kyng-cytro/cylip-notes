@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { EllipsisVertical } from "lucide-vue-next";
+import { EllipsisVertical, MaximizeIcon } from "lucide-vue-next";
 
 defineProps<{
+  canOpen?: boolean;
   labelId: string | null;
 }>();
 
@@ -10,11 +11,9 @@ const { labels } = storeToRefs(useNoteStore());
 
 const emits = defineEmits<{
   (e: "copy"): void;
-  (e: "share"): void;
   (e: "delete"): void;
-  (e: "archive"): void;
   (e: "versions"): void;
-  (e: "set-remind"): void;
+  (e: "full-screen"): void;
   (e: "toggle-show-preview"): void;
   (e: "assign-label", labelId: string | null): void;
 }>();
@@ -28,42 +27,32 @@ const assign = (labelId: string | null) => {
   <div @click.stop>
     <ClientOnly>
       <template #fallback>
-        <Button variant="ghost" size="icon">
-          <EllipsisVertical class="h-4 w-4" />
-          <span class="sr-only">More actions</span>
+        <Button variant="ghost" size="xs">
+          <EllipsisVertical class="size-4" />
           <span class="sr-only">More actions</span>
         </Button>
       </template>
       <DropdownMenu v-model:open="open">
         <DropdownMenuTrigger>
-          <Button variant="ghost" size="icon">
-            <EllipsisVertical class="size-5" />
+          <Button variant="ghost" size="xs">
+            <EllipsisVertical class="size-4" />
+            <span class="sr-only">More actions</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[200px]">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuGroup>
-            <DropdownMenuItem @click="$emit('share')" disabled
-              >Share</DropdownMenuItem
-            >
-            <DropdownMenuItem @click="$emit('archive')"
-              >Archive</DropdownMenuItem
-            >
-            <DropdownMenuItem @click="$emit('set-remind')" disabled
-              >Set Reminder</DropdownMenuItem
-            >
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
           <DropdownMenuLabel>Extras</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="$emit('copy')"
-              >Copy to Clipboard</DropdownMenuItem
+            <DropdownMenuItem @click="$emit('full-screen')" v-if="canOpen"
+              >Full Screen <MaximizeIcon class="ml-1 size-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem @click="$emit('versions')" disabled
+              >Version History</DropdownMenuItem
             >
             <DropdownMenuItem @click="$emit('toggle-show-preview')"
               >Toggle Preview</DropdownMenuItem
             >
-            <DropdownMenuItem @click="$emit('versions')" disabled
-              >Version History</DropdownMenuItem
+            <DropdownMenuItem @click="$emit('copy')"
+              >Copy to Clipboard</DropdownMenuItem
             >
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

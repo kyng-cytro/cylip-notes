@@ -1,55 +1,29 @@
 <script setup lang="ts">
-import {
-  Pin,
-  PinOff,
-  Archive,
-  BellRing,
-  ArchiveX,
-  XCircle,
-} from "lucide-vue-next";
+import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
-
 const noteStore = useNoteStore();
+const note = ref(noteStore.methods.getNoteById(id));
 
-const note = noteStore.methods.getNoteById(id);
-
-const title = ref(note?.title || "");
-
-const trashed = computed(() => note?.trashed || false);
-const archived = computed(() => note?.archived || false);
+const title = ref(note.value?.title || "");
+const trashed = computed(() => note.value?.trashed || false);
 
 const { editor, initialized } = await useEditor({
-  roomId: note!.id,
+  roomId: note.value!.id,
   autofocus: true,
   disabled: trashed.value,
 });
 
-const { copy } = useCustomClipboard();
-
-const fullScreenHandler = () => {
-  return navigateTo(`/app/notes/${id}`, {
-    external: true,
-  });
+const refresh = () => {
+  note.value = noteStore.methods.getNoteById(id);
 };
-
-const archiveHandler = async () => {
-  await noteStore.methods.toggleNoteProp(note!, "archived");
-  useModalRouter().close();
-};
-
-const deleteHandler = async () => {
-  await noteStore.methods.toggleNoteProp(note!, "trashed");
-  useModalRouter().close();
-};
-
-const shareHandler = () => {};
 
 watchDebounced(
   title,
   async () => {
-    if (!title.value || title.value === note!.title || trashed.value) return;
-    await noteStore.methods.updateNote(note!.id, "title", title.value);
+    if (!title.value || title.value === note.value!.title || trashed.value)
+      return;
+    await noteStore.methods.updateNote(note.value!.id, "title", title.value);
   },
   { debounce: 1000 },
 );
@@ -77,39 +51,17 @@ watchDebounced(
               <XCircle class="size-5" />
             </Button>
           </TooltipWrapper>
-          <div class="flex items-center gap-2" v-if="!trashed">
-            <TooltipWrapper tooltip="Pin note">
-              <Button
-                variant="ghost"
-                size="xs"
-                @click="noteStore.methods.toggleNoteProp(note, 'pinned')"
-              >
-                <PinOff class="size-5" v-if="false" />
-                <Pin class="size-5" v-else />
-              </Button>
-            </TooltipWrapper>
-            <TooltipWrapper tooltip="Remind me">
-              <Button variant="ghost" size="xs">
-                <BellRing class="size-5" />
-              </Button>
-            </TooltipWrapper>
-            <TooltipWrapper :tooltip="archived ? 'Unarchive' : 'Archive'">
-              <Button variant="ghost" size="xs" @click="archiveHandler">
-                <Archive class="size-5" v-if="!archived" />
-                <ArchiveX class="size-5" v-else />
-              </Button>
-            </TooltipWrapper>
+          <div class="flex items-center justify-center gap-4">
+            <AppNoteActions
+              can-open
+              :note="note"
+              :editor="editor"
+              :cb="() => navigateTo(`/app`)"
+              :refresh="() => refresh()"
+            />
           </div>
         </div>
-        <AppNoteTitleInput
-          v-model="title"
-          can-open
-          :disabled="trashed"
-          @full-screen="fullScreenHandler"
-          @delete-note="deleteHandler"
-          @share-note="shareHandler"
-          @copy-to-clipboard="() => copy(editor.getHTML(), true)"
-        />
+        <AppNoteTitleInput v-model="title" can-open :disabled="trashed" />
         <EditorToolbar :editor="editor" :disabled="trashed" />
       </CardHeader>
       <CardContent class="-m-1 flex-1 overflow-y-hidden">
@@ -118,7 +70,11 @@ watchDebounced(
       <CardFooter
         class="flex justify-end border-t border-primary-foreground p-2"
       >
-        <AppNoteLastEdited :trashed="trashed" :updated-at="note.updatedAt" />
+        <AppNoteLastEdited
+          :trashed="trashed"
+          :label="note.label"
+          :updated-at="note.updatedAt"
+        />
       </CardFooter>
     </Card>
   </div>
