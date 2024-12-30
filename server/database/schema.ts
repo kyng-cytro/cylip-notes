@@ -99,8 +99,9 @@ export const labelsRelations = relations(label, ({ one }) => ({
 
 export const note = sqliteTable("notes", {
   id: text("id").notNull().primaryKey(),
-  title: text("title"),
   slug: text("slug"),
+  title: text("title"),
+  settingsId: text("settings_id").references(() => noteSettings.id),
   content: text("content", { mode: "json" }).$type<JSONContent>(),
   showPreview: integer("show_preview", { mode: "boolean" })
     .notNull()
@@ -124,6 +125,14 @@ export const note = sqliteTable("notes", {
     .$onUpdate(() => sql`(current_timestamp)`),
 });
 
+export const noteSettings = sqliteTable("note_settings", {
+  id: text("id").notNull().primaryKey(),
+  backgroundType: text("background_type", {
+    enum: ["image", "color"],
+  }),
+  backgroundValue: text("background_value"),
+});
+
 export const notesRelations = relations(note, ({ one }) => ({
   user: one(user, {
     fields: [note.userId],
@@ -132,6 +141,10 @@ export const notesRelations = relations(note, ({ one }) => ({
   label: one(label, {
     fields: [note.labelId],
     references: [label.id],
+  }),
+  settings: one(noteSettings, {
+    fields: [note.settingsId],
+    references: [noteSettings.id],
   }),
 }));
 

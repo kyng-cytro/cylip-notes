@@ -1,16 +1,4 @@
-CREATE TABLE `attachments` (
-	`id` text PRIMARY KEY NOT NULL,
-	`name` text NOT NULL,
-	`type` text NOT NULL,
-	`size` integer NOT NULL,
-	`url` text NOT NULL,
-	`note_id` text NOT NULL,
-	`created_at` integer DEFAULT (current_timestamp) NOT NULL,
-	`updated_at` integer DEFAULT (current_timestamp) NOT NULL,
-	FOREIGN KEY (`note_id`) REFERENCES `notes`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
-CREATE TABLE `change_logs` (
+CREATE TABLE IF NOT EXISTS `change_logs` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`table_name` text NOT NULL,
@@ -18,14 +6,15 @@ CREATE TABLE `change_logs` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `email_verification_tokens` (
+CREATE UNIQUE INDEX IF NOT EXISTS `change_logs_user_id_unique` ON `change_logs` (`user_id`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `email_verification_tokens` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`expires_at` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `labels` (
+CREATE TABLE IF NOT EXISTS `labels` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`slug` text NOT NULL,
@@ -35,10 +24,12 @@ CREATE TABLE `labels` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `notes` (
+CREATE UNIQUE INDEX IF NOT EXISTS `labels_slug_user_id_unique` ON `labels` (`slug`,`user_id`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `notes` (
 	`id` text PRIMARY KEY NOT NULL,
-	`title` text,
 	`slug` text,
+	`title` text,
+	`settings_id` text,
 	`content` text,
 	`show_preview` integer DEFAULT true NOT NULL,
 	`pinned` integer DEFAULT false NOT NULL,
@@ -49,18 +40,25 @@ CREATE TABLE `notes` (
 	`trashed_at` integer,
 	`created_at` integer DEFAULT (current_timestamp) NOT NULL,
 	`updated_at` integer DEFAULT (current_timestamp) NOT NULL,
+	FOREIGN KEY (`settings_id`) REFERENCES `note_settings`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`label_id`) REFERENCES `labels`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `sessions` (
+CREATE TABLE IF NOT EXISTS `note_settings` (
+	`id` text PRIMARY KEY NOT NULL,
+	`background_type` text,
+	`background_value` text
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`expires_at` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`email` text NOT NULL,
@@ -73,7 +71,6 @@ CREATE TABLE `users` (
 	`updated_at` integer DEFAULT (current_timestamp) NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `change_logs_user_id_unique` ON `change_logs` (`user_id`);--> statement-breakpoint
-CREATE UNIQUE INDEX `labels_slug_user_id_unique` ON `labels` (`slug`,`user_id`);--> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
-CREATE UNIQUE INDEX `users_google_id_unique` ON `users` (`google_id`);
+CREATE UNIQUE INDEX IF NOT EXISTS `users_email_unique` ON `users` (`email`);
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `users_google_id_unique` ON `users` (`google_id`);

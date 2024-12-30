@@ -35,7 +35,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       );
     const note = await db.query.note.findFirst({
       where: eq(tables.note.id, id),
-      with: { label: true },
+      with: { label: true, settings: true },
     });
     if (!note) {
       throw createError({

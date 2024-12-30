@@ -13,9 +13,15 @@ export function useDrizzle() {
 export type User = typeof schema.user.$inferSelect;
 // export type Note = SerializeObject<typeof schema.note.$inferSelect>;
 export type Note = SerializeObject<
-  typeof schema.note.$inferSelect & { label: Label | null }
+  typeof schema.note.$inferSelect & {
+    label: Label | null;
+    settings: NoteSettings | null;
+  }
 >;
 export type NoteWithUserAndLabel = SerializeObject<
   typeof schema.note.$inferSelect & { user: User; label: Label | null }
 >;
 export type Label = SerializeObject<typeof schema.label.$inferSelect>;
+export type NoteSettings = SerializeObject<
+  typeof schema.noteSettings.$inferSelect
+>;
