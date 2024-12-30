@@ -5,6 +5,8 @@ const props = defineProps<{
   note: Note;
 }>();
 
+const noteStore = useNoteStore();
+
 const { layout } = storeToRefs(useLayoutStore());
 const { convertToHtml } = useEditorUtils();
 
@@ -34,10 +36,16 @@ const content = computed(() => {
 
     <template v-else>
       <!-- Header -->
-      <div v-if="note.title">
+      <div v-if="note.title" class="flex items-center justify-between gap-3">
         <CardTitle class="line-clamp-2 font-semibold leading-snug">{{
           note.title
         }}</CardTitle>
+        <div class="group-hover:visible group-focus:visible lg:invisible">
+          <AppNoteActionsPin
+            :pinned="note.pinned"
+            @toggle-pinned="noteStore.methods.toggleNoteProp(note, 'pinned')"
+          />
+        </div>
       </div>
       <!-- Content -->
       <div
