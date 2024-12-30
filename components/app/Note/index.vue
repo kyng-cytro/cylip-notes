@@ -56,7 +56,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       >
         <p
           v-html="content"
-          class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm dark:prose-invert"
+          class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
         />
       </div>
       <!-- Label & Reminder -->
