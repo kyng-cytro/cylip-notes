@@ -68,7 +68,7 @@ onBeforeUnmount(() => {
 
 /* placeholder styles */
 .tiptap p.is-editor-empty:first-child::before {
-  @apply text-muted-foreground;
+  @apply animate-pulse text-primary;
   content: attr(data-placeholder);
   float: left;
   height: 0;
