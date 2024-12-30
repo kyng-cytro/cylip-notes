@@ -128,6 +128,31 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const setBackground = async (
+    note: Note,
+    options: { type: "color" | "image"; value: string } | null,
+  ) => {
+    console.log(options);
+    try {
+      const data = await $fetch(`/api/notes/${note.id}/settings`, {
+        method: "PATCH",
+        body: {
+          field: "background",
+          value: {
+            backgroundType: options?.type || null,
+            backgroundValue: options?.value || null,
+          },
+        },
+      });
+      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
+      toast.success("Background updated successfully.");
+    } catch (e: any) {
+      toast.error("Something went wrong updating the note.", {
+        description: e.message,
+      });
+    }
+  };
+
   const toggleNoteProp = async (
     note: Note,
     prop: "pinned" | "archived" | "trashed" | "showPreview",
@@ -195,6 +220,7 @@ export const useNoteStore = defineStore("notes", () => {
       refreshData,
       getNoteById,
       retrieveNotes,
+      setBackground,
       toggleNoteProp,
       permenentlyDeleteNote,
     },

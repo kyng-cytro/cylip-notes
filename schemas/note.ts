@@ -23,3 +23,13 @@ export const notePatchSchema = z.discriminatedUnion("field", [
     value: z.string().min(1).nullable(),
   }),
 ]);
+
+export const noteSettingsPatchSchema = z.discriminatedUnion("field", [
+  z.object({
+    field: z.literal("background"),
+    value: z.object({
+      backgroundType: z.enum(["image", "color"]).nullable(),
+      backgroundValue: z.string().min(1).nullable(),
+    }),
+  }),
+]);

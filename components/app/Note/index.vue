@@ -17,21 +17,23 @@ const openModal = () => {
 const content = computed(() => {
   return convertToHtml(props.note.content);
 });
+
+const { getBackgroundOptionCode } = useBackgroundOptions();
+const isDark = computed(() => useColorMode().value === "dark");
 </script>
 <template>
   <Card
     tabindex="0"
-    class="group mb-2 flex w-full cursor-pointer break-inside-avoid flex-col gap-3 rounded-lg p-4 ring-blue-500 focus:outline-none focus:ring-2"
+    class="group mb-2 flex w-full cursor-pointer break-inside-avoid flex-col gap-3 rounded-lg p-4 ring-blue-500 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2"
     :class="{
       'max-w-none': layout === 'list',
     }"
+    :style="getBackgroundOptionCode(isDark, note.settings)"
     @click="openModal"
   >
     <!-- Empty note -->
     <template v-if="!note.title && !content">
-      <CardTitle class="font-semibold leading-snug text-muted-foreground">
-        Empty note
-      </CardTitle>
+      <CardTitle class="font-semibold leading-snug"> Empty note </CardTitle>
     </template>
 
     <template v-else>
@@ -58,10 +60,7 @@ const content = computed(() => {
         />
       </div>
       <!-- Label & Reminder -->
-      <div
-        class="mt-3 flex items-center gap-4 text-muted-foreground"
-        v-if="note.label"
-      >
+      <div class="mt-3 flex items-center gap-4" v-if="note.label">
         <Badge class="text-xs capitalize" v-if="note.label">
           {{ note.label.name }}
         </Badge>

@@ -5,8 +5,8 @@ definePageMeta({
   layout: "app",
 });
 
-const { id } = useRoute("app-notes-id").params;
 const noteStore = useNoteStore();
+const { id } = useRoute("app-notes-id").params;
 const { data: note, pending, refresh } = await useFetch(`/api/notes/${id}`);
 
 const mouting = ref(true);
@@ -50,9 +50,19 @@ watchDebounced(
   },
   { debounce: 1000 },
 );
+
+const { getBackgroundOptionCode } = useBackgroundOptions();
+const isDark = computed(() => useColorMode().value === "dark");
+const getBg = computed(() => {
+  if (!note.value) return "";
+  return getBackgroundOptionCode(isDark.value, note.value.settings);
+});
 </script>
 <template>
-  <AppMainContainer>
+  <AppMainContainer
+    :style="getBg"
+    class="transition-colors duration-300 ease-in-out"
+  >
     <template v-if="pending || mouting">
       <Skeleton class="min-h-full w-full" />
     </template>

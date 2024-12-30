@@ -27,6 +27,8 @@ watchDebounced(
   },
   { debounce: 1000 },
 );
+const { getBackgroundOptionCode } = useBackgroundOptions();
+const isDark = computed(() => useColorMode().value === "dark");
 </script>
 <template>
   <div
@@ -34,10 +36,11 @@ watchDebounced(
     @click="useModalRouter().close()"
   >
     <Card
-      class="z-50 flex h-full w-full max-w-2xl flex-col lg:max-h-[80%]"
-      tabindex="-1"
-      @click.stop
       v-if="note"
+      @click.stop
+      tabindex="-1"
+      :style="getBackgroundOptionCode(isDark, note.settings)"
+      class="z-50 flex h-full w-full max-w-2xl flex-col transition-colors duration-300 ease-in-out lg:max-h-[80%]"
     >
       <CardHeader class="space-y-4">
         <div class="flex items-center justify-between">
@@ -67,9 +70,7 @@ watchDebounced(
       <CardContent class="-m-1 flex-1 overflow-y-hidden">
         <Editor :editor="editor" :initialized />
       </CardContent>
-      <CardFooter
-        class="flex justify-end border-t border-primary-foreground p-2"
-      >
+      <CardFooter class="flex justify-end px-4 py-2">
         <AppNoteLastEdited
           :trashed="trashed"
           :label="note.label"
