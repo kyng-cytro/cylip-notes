@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
       picture?: string;
     }>("https://openidconnect.googleapis.com/v1/userinfo", {
       headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
+        Authorization: `Bearer ${tokens.accessToken()}`,
       },
     });
 
