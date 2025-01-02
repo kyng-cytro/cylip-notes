@@ -18,6 +18,6 @@ export default defineTask({
       )
       .returning({ id: tables.note.id });
     console.log(`Deleted ${result.length} trashed notes`);
-    return { result: "Completed" };
+    return { result: `Deleted ${result.length} trashed notes` };
   },
 });

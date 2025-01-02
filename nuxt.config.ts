@@ -31,7 +31,7 @@ export default defineNuxtConfig({
       openAPI: process.env.NODE_ENV === "production",
     },
     scheduledTasks: {
-      "00 00 * * *": ["notes:clear-trash"],
+      "* * * * *": ["notes:clear-trash"],
     },
   },
   app: {
