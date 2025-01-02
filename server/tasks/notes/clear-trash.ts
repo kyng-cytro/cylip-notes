@@ -7,7 +7,7 @@ export default defineTask({
   },
   async run() {
     const db = useDrizzle();
-    const sevenDaysAgo = subDays(new Date(), -1);
+    const sevenDaysAgo = subDays(new Date(), 7);
     const result = await db
       .delete(tables.note)
       .where(
