@@ -16,10 +16,11 @@ import {
 } from "lucide-vue-next";
 import type { Editor } from "@tiptap/vue-3";
 
-defineProps<{
+const props = defineProps<{
   editor: Editor;
-  disabled?: boolean;
 }>();
+
+const disabled = computed(() => !props.editor.isEditable);
 </script>
 <template>
   <div

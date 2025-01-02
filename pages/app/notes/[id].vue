@@ -84,8 +84,8 @@ const getBg = computed(() => {
         />
       </div>
       <!-- Editor -->
-      <AppNoteTitleInput large v-model="title" :disabled="trashed" />
-      <EditorToolbar :editor="editor" :disabled="trashed" />
+      <AppNoteTitleInput large v-model="title" :disabled="!editor.isEditable" />
+      <EditorToolbar :editor="editor" />
       <div
         class="relative -mx-6 max-h-[calc(100vh-22rem)] flex-1 overflow-hidden p-6"
       >
