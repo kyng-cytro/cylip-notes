@@ -9,7 +9,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <template v-if="initialized">
-    <ContextMenu>
+    <ContextMenu :modal="false">
       <drag-handle
         :editor
         :tippy-options="{ offset: [0, 4] }"
