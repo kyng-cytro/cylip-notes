@@ -67,7 +67,7 @@ const isDark = computed(() => useColorMode().value === "dark");
         <AppNoteTitleInput v-model="title" can-open :disabled="trashed" />
         <EditorToolbar :editor="editor" :disabled="trashed" />
       </CardHeader>
-      <CardContent class="-m-1 flex-1 overflow-y-hidden">
+      <CardContent class="relative -m-1 flex-1 overflow-hidden">
         <Editor :editor="editor" :initialized />
       </CardContent>
       <CardFooter class="flex justify-end px-4 py-2">

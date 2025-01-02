@@ -86,11 +86,13 @@ const getBg = computed(() => {
       <!-- Editor -->
       <AppNoteTitleInput large v-model="title" :disabled="trashed" />
       <EditorToolbar :editor="editor" :disabled="trashed" />
-      <div class="flex-1 overflow-y-hidden">
+      <div
+        class="relative -mx-6 max-h-[calc(100vh-22rem)] flex-1 overflow-hidden p-6"
+      >
         <Editor :editor="editor" :initialized />
       </div>
       <!-- Footer -->
-      <div class="flex justify-end p-2">
+      <div class="flex justify-end px-4 py-2">
         <AppNoteLastEdited
           :trashed="trashed"
           :label="note.label"

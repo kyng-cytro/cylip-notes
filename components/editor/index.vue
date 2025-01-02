@@ -16,11 +16,7 @@ onBeforeUnmount(() => {
     >
       <GripVerticalIcon class="size-5" />
     </drag-handle>
-    <editor-content
-      class="h-full w-full"
-      :editor
-      oncontextmenu="return false;"
-    />
+    <editor-content class="h-full w-full" :editor />
   </template>
   <EditorLoading v-else />
 </template>
