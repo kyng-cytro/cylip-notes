@@ -43,6 +43,7 @@ export const extensions = [
   }),
   Placeholder.configure({ placeholder: "Note it down..." }),
   StarterKit.configure({
+    horizontalRule: { HTMLAttributes: { class: "bg-primary border-2" } },
     heading: { levels: [4] },
     codeBlock: false,
     history: false,
