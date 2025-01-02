@@ -52,6 +52,9 @@ export default defineNuxtConfig({
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
     },
+    task: {
+      apiKey: process.env.NUXT_TASK_API_KEY,
+    },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,

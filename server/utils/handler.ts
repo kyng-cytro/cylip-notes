@@ -1,4 +1,5 @@
 import type { EventHandler, EventHandlerRequest } from "h3";
+import { handler } from "tailwindcss-animate";
 
 export const defineAuthenticatedEventHandler = <
   T extends EventHandlerRequest,
@@ -40,6 +41,26 @@ export const definePremiumEventHandler = <T extends EventHandlerRequest, D>(
       throw createError({
         statusCode: 403,
         message: "You do not have permission to access this reasource.",
+      });
+    }
+    return handler(event);
+  });
+
+export const defineTaskEventHandler = <T extends EventHandlerRequest, D>(
+  handler: EventHandler<T, D>,
+): EventHandler<T, D> =>
+  defineEventHandler<T>(async (event) => {
+    const apiKey = getRequestHeader(event, "x-api-key");
+    if (!apiKey) {
+      throw createError({
+        statusCode: 401,
+        message: "Missing API token.",
+      });
+    }
+    if (apiKey.toString() !== useRuntimeConfig().task.apiKey.toString()) {
+      throw createError({
+        statusCode: 401,
+        message: "Invalid API token.",
       });
     }
     return handler(event);
