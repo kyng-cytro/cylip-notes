@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/core";
-import { sql, relations } from "drizzle-orm";
-import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
+import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("users", {
   id: text("id").notNull().primaryKey(),
@@ -15,11 +15,11 @@ export const user = sqliteTable("users", {
     .default("free"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(current_timestamp)`)
-    .$onUpdate(() => sql`(current_timestamp)`),
+    .default(new Date())
+    .$onUpdate(() => new Date()),
 });
 
 export const usersRelations = relations(user, ({ many }) => ({
@@ -79,11 +79,11 @@ export const label = sqliteTable(
       }),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(new Date()),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .notNull()
-      .default(sql`(current_timestamp)`)
-      .$onUpdate(() => sql`(current_timestamp)`),
+      .default(new Date())
+      .$onUpdate(() => new Date()),
   },
   (t) => ({
     unq: unique().on(t.slug, t.userId),
@@ -118,11 +118,11 @@ export const note = sqliteTable("notes", {
   trashedAt: integer("trashed_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(current_timestamp)`)
-    .$onUpdate(() => sql`(current_timestamp)`),
+    .default(new Date())
+    .$onUpdate(() => new Date()),
 });
 
 export const noteSettings = sqliteTable("note_settings", {

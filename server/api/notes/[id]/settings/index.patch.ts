@@ -28,7 +28,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     }
     const data = {
       ...(field === "background" && value),
-      updatedAt: sql`current_timestamp`,
+      updatedAt: new Date(),
     };
     if (!note.settingsId) {
       const settingsId = generateId(15);
@@ -36,7 +36,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         db.insert(tables.noteSettings).values({ id: settingsId, ...data }),
         db
           .update(tables.note)
-          .set({ settingsId, updatedAt: sql`current_timestamp` })
+          .set({ settingsId, updatedAt: new Date() })
           .where(eq(tables.note.id, id)),
       ]);
     } else {

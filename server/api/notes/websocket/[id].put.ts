@@ -15,7 +15,7 @@ export default defineWebsocketEventHandler(async (event) => {
     const db = useDrizzle();
     const data = {
       content,
-      updatedAt: sql`current_timestamp`,
+      updatedAt: new Date(),
     };
 
     const [note] = await db

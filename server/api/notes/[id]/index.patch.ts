@@ -20,9 +20,9 @@ export default defineAuthenticatedEventHandler(async (event) => {
         trashed: value,
         pinned: false,
         archived: false,
-        trashedAt: value ? sql`current_timestamp` : null,
+        trashedAt: value ? new Date() : null,
       }),
-      updatedAt: sql`current_timestamp`,
+      updatedAt: new Date(),
     };
     await db
       .update(tables.note)

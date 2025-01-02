@@ -85,7 +85,7 @@ const runWithRefresh = async (action: () => Promise<void>) => {
       "
       @full-screen="navigateTo(`/app/notes/${note.id}`, { external: true })"
       @assign-label="
-        (labelId) =>
+        (labelId: string | null) =>
           runWithRefresh(() => noteStore.methods.assignLabel(note, labelId))
       "
       @toggle-show-preview="

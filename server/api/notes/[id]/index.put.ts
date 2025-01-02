@@ -15,7 +15,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const data = {
       ...(field === "title" && { title: value, slug: slugify(value) }),
       ...(field === "content" && { content: value }),
-      updatedAt: sql`current_timestamp`,
+      updatedAt: new Date(),
     };
     await db
       .update(tables.note)
