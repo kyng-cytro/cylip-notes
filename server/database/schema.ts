@@ -15,11 +15,11 @@ export const user = sqliteTable("users", {
     .default("free"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(new Date()),
+    .$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(new Date())
-    .$onUpdate(() => new Date()),
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
 });
 
 export const usersRelations = relations(user, ({ many }) => ({
@@ -79,11 +79,11 @@ export const label = sqliteTable(
       }),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .default(new Date()),
+      .$defaultFn(() => new Date()),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .notNull()
-      .default(new Date())
-      .$onUpdate(() => new Date()),
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date()),
   },
   (t) => ({
     unq: unique().on(t.slug, t.userId),
@@ -115,14 +115,15 @@ export const note = sqliteTable("notes", {
     .references(() => user.id, {
       onDelete: "cascade",
     }),
+  reminderAt: integer("reminder_at", { mode: "timestamp_ms" }),
   trashedAt: integer("trashed_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(new Date()),
+    .$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(new Date())
-    .$onUpdate(() => new Date()),
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
 });
 
 export const noteSettings = sqliteTable("note_settings", {

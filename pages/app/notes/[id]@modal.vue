@@ -78,6 +78,7 @@ const isDark = computed(() => useColorMode().value === "dark");
           :trashed="trashed"
           :label="note.label"
           :updated-at="note.updatedAt"
+          :reminder-at="note.reminderAt"
         />
       </CardFooter>
     </Card>

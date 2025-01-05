@@ -12,10 +12,11 @@ export default defineAuthenticatedEventHandler(async (event) => {
   try {
     const db = useDrizzle();
     const data = {
+      ...(field === "label" && { labelId: value }),
+      ...(field === "reminder_at" && { reminderAt: value }),
       ...(field === "showPreview" && { showPreview: value }),
       ...(field === "pinned" && { pinned: value, archived: false }),
       ...(field === "archived" && { archived: value, pinned: false }),
-      ...(field === "label" && { labelId: value }),
       ...(field === "trashed" && {
         trashed: value,
         pinned: false,

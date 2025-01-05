@@ -46,6 +46,7 @@
     "@vueuse/core": "^12.2.0",
     "arctic": "^2.3.3",
     "browser-image-compression": "^2.0.2",
+    "chrono-node": "^2.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.38.3",

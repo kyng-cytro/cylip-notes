@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "35677185-5116-4eeb-9979-efbe42c58c9f",
+  "id": "4fc545ea-9d67-4f09-a572-f518e38aa191",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "change_logs": {
@@ -145,16 +145,14 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -270,6 +268,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "reminder_at": {
+          "name": "reminder_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "trashed_at": {
           "name": "trashed_at",
           "type": "integer",
@@ -282,16 +287,14 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -482,16 +485,14 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
         }
       },
       "indexes": {

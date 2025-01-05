@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Note } from "@/server/utils/drizzle";
+import { TagIcon } from "lucide-vue-next";
 
 const props = defineProps<{
   note: Note;
@@ -60,10 +61,21 @@ const isDark = computed(() => useColorMode().value === "dark");
         />
       </div>
       <!-- Label & Reminder -->
-      <div class="mt-3 flex items-center gap-4" v-if="note.label">
-        <Badge class="text-xs capitalize" v-if="note.label">
-          {{ note.label.name }}
-        </Badge>
+      <div
+        class="mt-3 flex flex-wrap items-center gap-4"
+        v-if="note.label || note.reminderAt"
+      >
+        <AppLabelDisplay
+          v-if="note.label"
+          :name="note.label.name"
+          @click.stop
+        />
+        <AppNoteActionsReminderBadge
+          v-if="note.reminderAt"
+          :date="note.reminderAt"
+          @clear-reminder="noteStore.methods.setReminder(note, null)"
+          @click.stop
+        />
       </div>
     </template>
     <!-- Actions -->

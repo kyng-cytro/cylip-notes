@@ -97,6 +97,7 @@ const getBg = computed(() => {
           :trashed="trashed"
           :label="note.label"
           :updated-at="note.updatedAt"
+          :reminder-at="note.reminderAt"
         />
       </div>
     </template>

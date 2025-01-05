@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DropletOffIcon, ImageOffIcon, PaletteIcon } from "lucide-vue-next";
+import { DropletOffIcon, PaletteIcon } from "lucide-vue-next";
 import type { NoteSettings } from "~/server/utils/drizzle";
 
 const props = defineProps<{

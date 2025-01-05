@@ -19,6 +19,10 @@ export const notePatchSchema = z.discriminatedUnion("field", [
   z.object({ field: z.literal("trashed"), value: z.boolean() }),
   z.object({ field: z.literal("showPreview"), value: z.boolean() }),
   z.object({
+    field: z.literal("reminder_at"),
+    value: z.coerce.date().nullable(),
+  }),
+  z.object({
     field: z.literal("label"),
     value: z.string().min(1).nullable(),
   }),

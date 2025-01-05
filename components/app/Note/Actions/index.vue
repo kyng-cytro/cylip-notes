@@ -2,7 +2,6 @@
 import type { Editor } from "@tiptap/vue-3";
 import {
   ArchiveIcon,
-  BellPlusIcon,
   Repeat2Icon,
   Share2Icon,
   Trash2Icon,
@@ -59,7 +58,12 @@ const runWithRefresh = async (action: () => Promise<void>) => {
     </TooltipWrapper>
   </template>
   <template v-else>
-    <AppNoteActionsButton tooltip="Remind me" :icon="BellPlusIcon" disabled />
+    <AppNoteActionsReminder
+      :reminder-at="note.reminderAt"
+      @set-reminder="
+        runWithRefresh(() => noteStore.methods.setReminder(note, $event))
+      "
+    />
     <AppNoteActionsButton tooltip="Share note" :icon="Share2Icon" disabled />
     <AppNoteActionsBackgroundOptions
       :settings="note.settings"
