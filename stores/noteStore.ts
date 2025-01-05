@@ -132,7 +132,6 @@ export const useNoteStore = defineStore("notes", () => {
     note: Note,
     options: { type: "color" | "image"; value: string } | null,
   ) => {
-    console.log(options);
     try {
       const data = await $fetch(`/api/notes/${note.id}/settings`, {
         method: "PATCH",
