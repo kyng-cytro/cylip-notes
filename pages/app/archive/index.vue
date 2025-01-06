@@ -19,13 +19,9 @@ const notes = computed(() => {
         subtitle="Archived notes will appear here"
         v-if="initialized"
       />
-      <div
-        class="flex max-h-[calc(100vh-150px)] flex-col gap-4 overflow-y-auto overflow-x-hidden p-1"
-        v-else
-        :class="layoutStyles"
-      >
+      <AppScrollContainer v-else :class="layoutStyles">
         <AppNotesLoading />
-      </div>
+      </AppScrollContainer>
     </template>
     <template v-else>
       <AppScrollContainer :class="layoutStyles">

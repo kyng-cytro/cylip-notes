@@ -40,7 +40,7 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   const retrieveNotes = (
-    status: "active" | "pinned" | "trashed" | "archived",
+    status: "active" | "pinned" | "trashed" | "archived" | "reminders",
     lableId?: string,
   ) => {
     return notes.value.filter((note) => {
@@ -63,6 +63,9 @@ export const useNoteStore = defineStore("notes", () => {
       }
       if (status === "archived") {
         return note.archived;
+      }
+      if (status === "reminders") {
+        return note.reminderAt;
       }
     });
   };

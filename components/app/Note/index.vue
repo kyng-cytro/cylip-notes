@@ -36,7 +36,6 @@ const isDark = computed(() => useColorMode().value === "dark");
     <template v-if="!note.title && !content">
       <CardTitle class="font-semibold leading-snug"> Empty note </CardTitle>
     </template>
-
     <template v-else>
       <!-- Header -->
       <div v-if="note.title" class="flex items-center justify-between gap-3">
@@ -60,24 +59,20 @@ const isDark = computed(() => useColorMode().value === "dark");
           class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
         />
       </div>
-      <!-- Label & Reminder -->
-      <div
-        class="mt-3 flex flex-wrap items-center gap-4"
-        v-if="note.label || note.reminderAt"
-      >
-        <AppLabelDisplay
-          v-if="note.label"
-          :name="note.label.name"
-          @click.stop
-        />
-        <AppNoteActionsReminderBadge
-          v-if="note.reminderAt"
-          :date="note.reminderAt"
-          @clear-reminder="noteStore.methods.setReminder(note, null)"
-          @click.stop
-        />
-      </div>
     </template>
+    <!-- Label & Reminder -->
+    <div
+      class="mt-3 flex flex-wrap items-center gap-4"
+      v-if="note.label || note.reminderAt"
+    >
+      <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />
+      <AppNoteActionsReminderBadge
+        v-if="note.reminderAt"
+        :date="note.reminderAt"
+        @clear-reminder="noteStore.methods.setReminder(note, null)"
+        @click.stop
+      />
+    </div>
     <!-- Actions -->
     <div
       class="mt-3 flex items-center justify-between gap-3 overflow-y-auto scrollbar-none group-hover:visible group-focus:visible lg:invisible"
