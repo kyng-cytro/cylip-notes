@@ -1,8 +1,64 @@
 {
+  "display": "standalone",
   "name": "cylip|notes",
   "short_name": "cylip|notes",
-  "icons": [],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "description": "Snap, Note, Remember",
+  "start_url": "/app",
+  "icons": [
+    {
+      "sizes": "any",
+      "type": "image/svg",
+      "src": "/logo-mini.svg"
+    }
+  ],
+  "screenshots": [
+    {
+      "type": "image/png",
+      "label": "Landing Page",
+      "src": "/screenshots/landing.png"
+    },
+    {
+      "type": "image/png",
+      "label": "Notes Mansory View",
+      "src": "/screenshots/notes-mansory.png"
+    },
+    {
+      "type": "image/png",
+      "label": "Reminder Popup",
+      "src": "/screenshots/reminders.png"
+    },
+    {
+      "type": "image/png",
+      "label": "Notes List View",
+      "src": "/screenshots/notes-list.png"
+    },
+
+    {
+      "type": "image/png",
+      "label": "Note Page",
+      "src": "/screenshots/note-page.png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Note",
+      "url": "/app/new",
+      "icons": [{ "src": "/shortcuts/notes.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Archive",
+      "url": "/app/archive",
+      "icons": [{ "src": "/shortcuts/archive.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Reminders",
+      "url": "/app/reminders",
+      "icons": [{ "src": "/shortcuts/reminders.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Settings",
+      "url": "/app/settings",
+      "icons": [{ "src": "/shortcuts/settings.svg", "sizes": "96x96" }]
+    }
+  ]
 }
