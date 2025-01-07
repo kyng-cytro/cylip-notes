@@ -6,17 +6,17 @@
   viewBox="0 0 1086.000000 291.000000"
   preserveAspectRatio="xMidYMid meet"
 >
-  <style>
-    g{
-      fill: #000;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      g {
-        fill: #fff;
-      }
-    }
-  </style>
+  <!-- <style> -->
+  <!--   g{ -->
+  <!--     fill: #000; -->
+  <!--   } -->
+  <!---->
+  <!--   @media (prefers-color-scheme: dark) { -->
+  <!--     g { -->
+  <!--       fill: #fff; -->
+  <!--     } -->
+  <!--   } -->
+  <!-- </style> -->
   <g
     transform="translate(0.000000,291.000000) scale(0.100000,-0.100000)"
     stroke="none"
