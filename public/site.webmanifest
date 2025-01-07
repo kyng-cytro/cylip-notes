@@ -1,17 +1,30 @@
 {
+  "id": "/app",
   "display": "standalone",
   "name": "cylip|notes",
   "short_name": "cylip|notes",
   "description": "Snap, Note, Remember",
   "start_url": "/app",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "sizes": "any",
+      "src": "/logo.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "sizes": "96x96",
       "type": "image/svg",
       "src": "/logo-mini.svg"
     }
   ],
   "screenshots": [
+    {
+      "type": "image/png",
+      "label": "App",
+      "form_factor": "wide",
+      "src": "/screenshots/collage.png"
+    },
     {
       "type": "image/png",
       "label": "Landing Page",
