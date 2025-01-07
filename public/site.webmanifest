@@ -5,7 +5,7 @@
   "short_name": "cylip|notes",
   "description": "Snap, Note, Remember",
   "start_url": "/app",
-  "theme_color": "#ffffff",
+  "theme_color": "#000",
   "icons": [
     {
       "sizes": "any",
