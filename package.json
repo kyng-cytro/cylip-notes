@@ -19,6 +19,7 @@
     "@nuxt/image": "latest",
     "@nuxthub/core": "latest",
     "@nuxtjs/tailwindcss": "^6.12.2",
+    "@onesignal/onesignal-vue3": "^2.0.1",
     "@pinia/nuxt": "^0.9.0",
     "@radix-icons/vue": "^1.0.0",
     "@tailwindcss/typography": "^0.5.15",

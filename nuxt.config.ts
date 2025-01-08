@@ -57,6 +57,11 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
+      onsignal: {
+        url: process.env.NUXT_PUBLIC_ONSIGNAL_URL,
+        appId: process.env.NUXT_PUBLIC_ONSIGNAL_APP_ID,
+        safariWebId: process.env.NUXT_PUBLIC_ONSIGNAL_SAFARI_WEB_ID,
+      },
     },
     task: {
       apiKey: process.env.NUXT_TASK_API_KEY,
@@ -73,6 +78,9 @@ export default defineNuxtConfig({
     },
     serverSentEvents: {
       interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
+    },
+    onesignal: {
+      apiKey: process.env.NUXT_ONESIGNAL_API_KEY,
     },
   },
   routeRules: {
