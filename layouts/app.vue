@@ -2,7 +2,7 @@
 import { useOneSignal } from "@onesignal/onesignal-vue3";
 
 const onesignal = useOneSignal();
-const { appId, safariWebId } = useRuntimeConfig().public.onsignal;
+const { appId, safariWebId } = useRuntimeConfig().public.onesignal;
 
 onMounted(() => {
   // init Note Store

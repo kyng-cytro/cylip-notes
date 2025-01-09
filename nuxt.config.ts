@@ -57,10 +57,10 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
-      onsignal: {
-        url: process.env.NUXT_PUBLIC_ONSIGNAL_URL,
-        appId: process.env.NUXT_PUBLIC_ONSIGNAL_APP_ID,
-        safariWebId: process.env.NUXT_PUBLIC_ONSIGNAL_SAFARI_WEB_ID,
+      onesignal: {
+        url: process.env.NUXT_PUBLIC_ONESIGNAL_URL,
+        appId: process.env.NUXT_PUBLIC_ONESIGNAL_APP_ID,
+        safariWebId: process.env.NUXT_PUBLIC_ONESIGNAL_SAFARI_WEB_ID,
       },
     },
     task: {
