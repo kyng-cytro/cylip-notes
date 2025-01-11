@@ -87,5 +87,8 @@
     "unenv": "^1.10.0",
     "vue-tsc": "^2",
     "wrangler": "^3.99.0"
+  },
+  "patchedDependencies": {
+    "@onesignal/onesignal-vue3@2.0.1": "patches/@onesignal%2Fonesignal-vue3@2.0.1.patch"
   }
 }

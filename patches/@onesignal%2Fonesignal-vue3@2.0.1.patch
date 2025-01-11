@@ -1,0 +1,24 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index d347626ab0672021c9e0f7cc4cc707d12d6b3ccd..c21fb0663088e9c8c3ff436770142f2fe9e918fc 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -1,5 +1,5 @@
+ import { App } from 'vue';
+-declare module '@vue/runtime-core' {
++declare module 'vue' {
+     interface ComponentCustomProperties {
+         $OneSignal: IOneSignalOneSignal;
+     }
+diff --git a/index.ts b/index.ts
+index a074969026ab9cf58cb70c4818f92917e5a6c390..93f59a3e2aa1c2287dc3d5c14d12d662ac94f699 100644
+--- a/index.ts
++++ b/index.ts
+@@ -37,7 +37,7 @@ function addSDKScript() {
+ }
+ /* T Y P E   D E C L A R A T I O N S */
+ 
+-declare module '@vue/runtime-core' {
++declare module 'vue' {
+   export interface ComponentCustomProperties {
+     $OneSignal: IOneSignalOneSignal;
+   }
