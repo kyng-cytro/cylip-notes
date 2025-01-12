@@ -26,7 +26,7 @@ const onSubmit = async (values: Record<string, any>) => {
   <div class="-mt-16">
     <div class="flex items-center justify-center">
       <div class="relative isolate w-full max-w-6xl px-6 py-14 lg:px-8">
-        <Card class="mx-auto max-w-sm">
+        <Card class="mx-auto max-w-sm" v-motion-slide-in-top :duration="500">
           <CardHeader>
             <CardTitle class="text-2xl font-semibold leading-8">
               Lets Get You Started
@@ -59,8 +59,8 @@ const onSubmit = async (values: Record<string, any>) => {
                 class="w-full font-semibold"
                 :loading="loading"
               >
-                Sign In with Email
-                <span class="sr-only">Sign In with Email</span>
+                Sign in with email
+                <span class="sr-only">Sign in with email</span>
               </Button>
               <div class="relative">
                 <div class="absolute inset-0 flex items-center">
@@ -77,7 +77,7 @@ const onSubmit = async (values: Record<string, any>) => {
                 type="button"
                 @click="signIn({ type: 'google' })"
               >
-                Sign In with Google
+                Google
                 <span class="sr-only">Sign In with Google</span>
               </Button>
             </Form>
