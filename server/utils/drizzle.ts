@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/d1";
-export { sql, eq, and, or, gt, lt } from "drizzle-orm";
 import type { SerializeObject } from "nitropack";
+export { and, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
 
 import * as schema from "../database/schema";
 

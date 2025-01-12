@@ -1,31 +1,8 @@
 <script setup lang="ts">
-import { useOneSignal } from "@onesignal/onesignal-vue3";
-
-const onesignal = useOneSignal();
-const { appId, safariWebId } = useRuntimeConfig().public.onesignal;
-
 onMounted(() => {
   // init Note Store
   useNoteStore().initStore();
-
-  // init OneSignal
-  onesignal.init({
-    appId,
-    safari_web_id: safariWebId,
-    welcomeNotification: {
-      title: "Hey there 👋",
-      body: "Welcome to cylip|notes notifications. Future notifications will show up like this.",
-    },
-  });
-
-  // listen and login to OneSignal
-  onesignal.User.PushSubscription.addEventListener("change", (e) => {
-    if (e.current.token) {
-      const { user } = useUser();
-      if (!user.value?.id) return;
-      onesignal.login(user.value.id);
-    }
-  });
+  useOneSignalSetup().init();
 });
 
 onBeforeUnmount(() => {
