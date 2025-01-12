@@ -61,6 +61,7 @@ export default defineNuxtConfig({
       onesignal: {
         url: process.env.NUXT_PUBLIC_ONESIGNAL_URL,
         appId: process.env.NUXT_PUBLIC_ONESIGNAL_APP_ID,
+        sdkUrl: process.env.NUXT_PUBLIC_ONESIGNAL_SDK_URL,
         safariWebId: process.env.NUXT_PUBLIC_ONESIGNAL_SAFARI_WEB_ID,
       },
       motion: {

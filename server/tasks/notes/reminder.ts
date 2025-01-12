@@ -30,6 +30,6 @@ export default defineTask({
         },
       });
     }
-    return { result: "success" };
+    return { result: `Ran successfully for ${notes.length} notes` };
   },
 });
