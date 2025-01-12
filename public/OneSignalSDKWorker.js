@@ -1,1 +1,1 @@
-importScripts("/api/one-signal");
+importScripts("https://cdn.onesignal.com/sdks/OneSignalSDKWorker.js");
