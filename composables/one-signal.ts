@@ -40,5 +40,5 @@ export const useOneSignalSetup = () => {
     });
   };
 
-  return { init };
+  return { init, onesignal };
 };

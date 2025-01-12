@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useOneSignal } from "@onesignal/onesignal-vue3";
 import { BellPlusIcon } from "lucide-vue-next";
 defineProps<{
   reminderAt: string | null;
@@ -11,7 +10,7 @@ const emits = defineEmits<{
 const date = ref();
 const open = ref(false);
 
-const onesignal = useOneSignal();
+const { onesignal } = useOneSignalSetup();
 
 const handleSetReminder = () => {
   emits("set-reminder", date.value || null);
