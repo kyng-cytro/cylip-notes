@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Note } from "@/server/utils/drizzle";
-import { TagIcon } from "lucide-vue-next";
 
 const props = defineProps<{
   note: Note;
@@ -10,6 +9,7 @@ const noteStore = useNoteStore();
 
 const { layout } = storeToRefs(useLayoutStore());
 const { convertToHtml } = useEditorUtils();
+const { beforeEnter, enter, leave } = useHeightMotion();
 
 const openModal = () => {
   useModalRouter().push(`/app/notes/${props.note.id}`);
@@ -50,15 +50,24 @@ const isDark = computed(() => useColorMode().value === "dark");
         </div>
       </div>
       <!-- Content -->
-      <div
-        class="line-clamp-[18] max-h-96 overflow-hidden"
-        v-if="note.showPreview && content"
+      <transition
+        name="content"
+        mode="out-in"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @leave="leave"
       >
-        <p
-          v-html="content"
-          class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
-        />
-      </div>
+        <div
+          class="line-clamp-[18] max-h-96 overflow-hidden"
+          v-if="note.showPreview && content"
+          v-motion
+        >
+          <p
+            v-html="content"
+            class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
+          />
+        </div>
+      </transition>
     </template>
     <!-- Label & Reminder -->
     <div
@@ -82,3 +91,16 @@ const isDark = computed(() => useColorMode().value === "dark");
     </div>
   </Card>
 </template>
+
+<style scoped>
+.content-enter-active,
+.content-leave-active {
+  overflow: hidden; /* Prevent content from spilling out during animation */
+}
+
+.content-enter,
+.content-leave-to {
+  height: 0;
+  opacity: 0;
+}
+</style>

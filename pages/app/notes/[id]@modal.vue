@@ -35,6 +35,8 @@ const isDark = computed(() => useColorMode().value === "dark");
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
   >
     <Card
+      v-motion-slide-left
+      :duration="500"
       v-if="note"
       @click.stop
       tabindex="-1"

@@ -70,8 +70,6 @@ const createNote = async () => {
         <AppNoteContainer v-model:notes="notes" />
       </AppScrollContainer>
     </template>
-    <Transition name="modal">
-      <PlusModalPage name="modal" />
-    </Transition>
+    <PlusModalPage name="modal" />
   </AppMainContainer>
 </template>

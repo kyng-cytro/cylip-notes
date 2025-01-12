@@ -8,11 +8,19 @@ definePageMeta({
     <div class="flex items-center justify-center">
       <div class="relative isolate w-full max-w-6xl px-6 py-14 lg:px-8">
         <div class="text-center">
-          <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1
+            class="text-4xl font-bold tracking-tight sm:text-5xl"
+            v-motion-slide-in-top
+            :duration="500"
+          >
             Pricing Is Simple, As<br />
             We Put You First
           </h1>
-          <p class="mt-6 text-lg leading-8 text-muted-foreground">
+          <p
+            class="mt-6 text-lg leading-8 text-muted-foreground"
+            v-motion-slide-in-top
+            :duration="500"
+          >
             Choose from <span class="font-semibold">Free</span> basics,
             <span class="font-semibold">Pro-level</span> perks, or top up on AI
             <span class="font-semibold">Tokens</span> as you go.
@@ -22,6 +30,9 @@ definePageMeta({
           class="mt-10 flex flex-col items-center gap-y-6 sm:justify-center sm:gap-x-6 lg:flex-row"
         >
           <LandingPriceCard
+            v-motion-slide-left
+            :delay="200"
+            :duration="500"
             price="0"
             title="Freeloader"
             :perks="[
@@ -40,6 +51,9 @@ definePageMeta({
             description="All the basics, for free."
           />
           <LandingPriceCard
+            v-motion-slide-left
+            :delay="150"
+            :duration="500"
             price="9.99"
             title="Take My Money"
             :perks="[
@@ -57,6 +71,9 @@ definePageMeta({
             description="More tokens,  more productivity."
           />
           <LandingPriceCard
+            v-motion-slide-left
+            :delay="50"
+            :duration="500"
             onetime
             price="19.99"
             title="Token Junkie"

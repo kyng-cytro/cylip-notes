@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     "@nuxthub/core",
     "nuxt-pages-plus",
     "@nuxtjs/color-mode",
+    "@vueuse/motion/nuxt",
     "@nuxtjs/tailwindcss",
     "@pinia-plugin-persistedstate/nuxt",
   ],
@@ -61,6 +62,18 @@ export default defineNuxtConfig({
         url: process.env.NUXT_PUBLIC_ONESIGNAL_URL,
         appId: process.env.NUXT_PUBLIC_ONESIGNAL_APP_ID,
         safariWebId: process.env.NUXT_PUBLIC_ONESIGNAL_SAFARI_WEB_ID,
+      },
+      motion: {
+        directives: {
+          "slide-in-top": {
+            initial: { opacity: 0, y: -50 },
+            enter: { opacity: 1, y: 0 },
+          },
+          "slide-in-bottom": {
+            initial: { opacity: 0, y: 50 },
+            enter: { opacity: 1, y: 0 },
+          },
+        },
       },
     },
     task: {
