@@ -8,10 +8,13 @@ export const useOneSignalSetup = () => {
     // init OneSignal
     onesignal.init({
       appId,
+      persistNotification: true,
       safari_web_id: safariWebId,
+      autoResubscribe: !import.meta.dev,
       welcomeNotification: {
         title: "Hey there 👋",
-        body: "Welcome to cylip|notes notifications. Future notifications will show up like this.",
+        message:
+          "Welcome to cylip|notes notifications. Future notifications will show up like this.",
       },
     });
 
@@ -27,7 +30,7 @@ export const useOneSignalSetup = () => {
     onesignal.Notifications.addEventListener("click", async (e) => {
       if (e.result.actionId === "reminder-okay") {
         const id = e.result.url?.split("/").pop();
-        console.log("id", id);
+        console.log(e.notification.additionalData);
         if (!id) return;
         await $fetch(`/api/notes/${id}`, {
           method: "PATCH",

@@ -22,12 +22,12 @@ export default defineTask({
       await sendPushNotification({
         type: "template",
         recipients: [note.user.id],
+        template_name: "note-reminder",
         custom_data: {
           note_id: note.id,
           note_title: (note.title || "your note").toLocaleLowerCase(),
           name: capitalize(note.user.name.split(" ")[0] || "There"),
         },
-        template_id: "26946aef-dc53-4b90-af00-62a2eb4a43c3",
       });
     }
     return { result: "success" };
