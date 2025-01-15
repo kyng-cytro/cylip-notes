@@ -44,11 +44,17 @@ const handlePaste = async () => {
   </ContextMenuItem>
   <ContextMenuSeparator />
   <!--- Undo/Redo -->
-  <ContextMenuItem @click="editor.commands.undo()" inset
+  <ContextMenuItem
+    :disabled="disabled || !editor.can().undo()"
+    @click="editor.commands.undo()"
+    inset
     >Undo
     <ContextMenuShortcut>⌘Z</ContextMenuShortcut>
   </ContextMenuItem>
-  <ContextMenuItem @click="editor.commands.redo()" inset
+  <ContextMenuItem
+    :disabled="disabled || !editor.can().redo()"
+    @click="editor.commands.redo()"
+    inset
     >Redo
     <ContextMenuShortcut>⌘⇧Z</ContextMenuShortcut>
   </ContextMenuItem>
