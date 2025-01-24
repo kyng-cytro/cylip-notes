@@ -75,30 +75,36 @@ const getBg = computed(() => {
       />
     </template>
     <template v-else>
-      <div class="flex items-center justify-end gap-4">
-        <AppNoteActions
-          :note="note"
-          :editor="editor"
-          :cb="() => navigateTo(`/app`)"
-          :refresh="() => refreshAndRemount()"
+      <div class="mx-auto flex h-full w-full max-w-3xl flex-col gap-4 lg:gap-6">
+        <div class="flex items-center justify-end gap-4">
+          <AppNoteActions
+            :note="note"
+            :editor="editor"
+            :cb="() => navigateTo(`/app`)"
+            :refresh="() => refreshAndRemount()"
+          />
+        </div>
+        <!-- Editor -->
+        <AppNoteTitleInput
+          large
+          v-model="title"
+          :disabled="!editor.isEditable"
         />
-      </div>
-      <!-- Editor -->
-      <AppNoteTitleInput large v-model="title" :disabled="!editor.isEditable" />
-      <EditorToolbar :editor="editor" />
-      <div
-        class="relative -mx-6 max-h-[calc(100vh-22rem)] flex-1 overflow-hidden p-6"
-      >
-        <Editor :editor="editor" :initialized />
-      </div>
-      <!-- Footer -->
-      <div class="flex justify-end px-4 py-2">
-        <AppNoteLastEdited
-          :trashed="trashed"
-          :label="note.label"
-          :updated-at="note.updatedAt"
-          :reminder-at="note.reminderAt"
-        />
+        <EditorToolbar :editor="editor" />
+        <div
+          class="relative -mx-6 max-h-[calc(100vh-22rem)] flex-1 overflow-hidden p-6"
+        >
+          <Editor :editor="editor" :initialized />
+        </div>
+        <!-- Footer -->
+        <div class="flex justify-end px-4 py-2">
+          <AppNoteLastEdited
+            :trashed="trashed"
+            :label="note.label"
+            :updated-at="note.updatedAt"
+            :reminder-at="note.reminderAt"
+          />
+        </div>
       </div>
     </template>
   </AppMainContainer>
