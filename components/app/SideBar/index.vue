@@ -11,11 +11,12 @@ const { label } = storeToRefs(useLayoutStore());
       <div class="min-h-20 flex-1 overflow-y-auto scrollbar-thin">
         <nav class="grid items-start gap-y-2 px-2 text-sm font-medium lg:px-4">
           <AppSideBarItem
-            v-for="route in routes"
+            :to="route.path"
             :key="route.path"
             :icon="route.icon"
             :title="route.name"
-            :to="route.path"
+            v-for="route in routes"
+            @dblclick="route.path === '/app' ? (label = 'all-notes') : null"
           />
         </nav>
       </div>
