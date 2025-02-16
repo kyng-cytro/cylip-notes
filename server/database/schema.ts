@@ -79,7 +79,9 @@ export const label = sqliteTable(
       .references(() => user.id, {
         onDelete: "cascade",
       }),
-    options: text("options", { mode: "json" }).$type<LabelOptions>(),
+    options: text("options", { mode: "json" })
+      .default(null)
+      .$type<LabelOptions>(),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
       .$defaultFn(() => new Date()),
@@ -105,7 +107,9 @@ export const note = sqliteTable("notes", {
   slug: text("slug"),
   title: text("title"),
   content: text("content", { mode: "json" }).$type<JSONContent>(),
-  options: text("options", { mode: "json" }).$type<NoteOptions>(),
+  options: text("options", { mode: "json" })
+    .default({ preview: true })
+    .$type<NoteOptions>(),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),
   trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),

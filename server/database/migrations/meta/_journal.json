@@ -22,6 +22,13 @@
       "when": 1739730108936,
       "tag": "0002_quiet_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1739732709639,
+      "tag": "0003_serious_goblin_queen",
+      "breakpoints": true
     }
   ]
 }
