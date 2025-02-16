@@ -66,7 +66,7 @@ const runWithRefresh = async (action: () => Promise<void>) => {
     />
     <AppNoteActionsButton tooltip="Share note" :icon="Share2Icon" disabled />
     <AppNoteActionsBackgroundOptions
-      :settings="note.settings"
+      :background="note.options?.background"
       @set-background="
         runWithRefresh(() => noteStore.methods.setBackground(note, $event))
       "
@@ -94,7 +94,8 @@ const runWithRefresh = async (action: () => Promise<void>) => {
       "
       @toggle-show-preview="
         runWithRefresh(() =>
-          noteStore.methods.toggleNoteProp(note, 'showPreview'),
+          // TODO: fix this
+          noteStore.methods.toggleNoteProp(note, 'pinned'),
         )
       "
     />

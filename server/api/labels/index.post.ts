@@ -1,9 +1,12 @@
-import { generateId } from "lucia";
-import { slugify } from "@/utils/helpers";
 import { labelCreateSchema } from "@/schemas/label";
+import { slugify } from "@/utils/helpers";
+import { generateId } from "lucia";
 
 export default defineAuthenticatedEventHandler(async (event) => {
-  const { name } = await readValidatedBody(event, labelCreateSchema.parse);
+  const { name, ...rest } = await readValidatedBody(
+    event,
+    labelCreateSchema.parse,
+  );
   const db = useDrizzle();
 
   const { id, accountType } = event.context.user!;
@@ -21,17 +24,18 @@ export default defineAuthenticatedEventHandler(async (event) => {
   }
   try {
     const slug = slugify(name);
-    const label = await db
-      .insert(tables.label)
-      .values({
-        id: generateId(15),
-        name,
-        slug,
-        userId: id,
-      })
-      .returning();
-    if (!label.length || !label[0]) throw createError({ statusCode: 500 });
-    return label[0];
+    const labelId = generateId(15);
+
+    const label = await db.insert(tables.label).values({
+      name,
+      slug,
+      ...rest,
+      userId: id,
+      id: labelId,
+    });
+
+    if (!label) throw createError({ statusCode: 500 });
+    return label;
   } catch (e) {
     console.error({ e });
     throw createError({

@@ -1,5 +1,5 @@
-import { slugify } from "@/utils/helpers";
 import { notePutSchema } from "@/schemas/note";
+import { slugify } from "@/utils/helpers";
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const { id } = getRouterParams(event);
@@ -17,6 +17,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       ...(field === "content" && { content: value }),
       updatedAt: new Date(),
     };
+
     await db
       .update(tables.note)
       .set(data)
@@ -26,10 +27,15 @@ export default defineAuthenticatedEventHandler(async (event) => {
           eq(tables.note.userId, event.context.user!.id),
         ),
       );
+
     const note = await db.query.note.findFirst({
-      where: eq(tables.note.id, id),
-      with: { label: true, settings: true },
+      where: and(
+        eq(tables.note.id, id),
+        eq(tables.note.userId, event.context.user!.id),
+      ),
+      with: { label: true },
     });
+
     if (!note) {
       throw createError({
         statusCode: 404,
@@ -37,6 +43,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
           "Failed to modify note. Note may not exist, or you don't have access to it.",
       });
     }
+
     return note;
   } catch (e) {
     console.error({ e });

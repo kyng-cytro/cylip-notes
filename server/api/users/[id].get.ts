@@ -19,7 +19,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     return await db.query.user.findFirst({
       where: eq(tables.user.id, id),
       with: {
-        notes: { with: { label: true, settings: true } },
+        notes: { with: { label: true } },
         labels: {
           orderBy: (labels, { desc }) => [desc(labels.createdAt)],
         },

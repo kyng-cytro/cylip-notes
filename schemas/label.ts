@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+export const labelOptionsSchema = z.object({
+  preview: z.boolean().default(true),
+  background: z
+    .object({
+      type: z.enum(["image", "color"]).nullable(),
+      value: z.string().min(1).nullable(),
+    })
+    .optional(),
+});
+
+export type LabelOptions = z.infer<typeof labelOptionsSchema>;
+
 export const labelCreateSchema = z.object({
   name: z
     .string()
@@ -11,4 +23,5 @@ export const labelCreateSchema = z.object({
     )
     .trim()
     .toLowerCase(),
+  options: labelOptionsSchema,
 });

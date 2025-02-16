@@ -55,7 +55,7 @@ const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 const getBg = computed(() => {
   if (!note.value) return "";
-  return getBackgroundOptionCode(isDark.value, note.value.settings);
+  return getBackgroundOptionCode(isDark.value, note.value.options);
 });
 </script>
 <template>

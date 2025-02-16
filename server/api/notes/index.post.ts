@@ -13,7 +13,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     });
     const note = await db.query.note.findFirst({
       where: eq(tables.note.id, id),
-      with: { label: true, settings: true },
+      with: { label: true },
     });
     if (!note)
       throw createError({ statusCode: 500, message: "Failed to create note." });

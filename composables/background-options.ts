@@ -1,3 +1,5 @@
+import type { NoteOptions } from "@/schemas/note";
+
 export const useBackgroundOptions = () => {
   const colors = [
     { name: "mint-green", light: "#DFFFD6", dark: "#2C784D" },
@@ -19,16 +21,17 @@ export const useBackgroundOptions = () => {
   };
   const getBackgroundOptionCode = (
     isDark: boolean,
-    settings: NoteSettings | null,
+    options: NoteOptions | null,
   ) => {
-    if (!settings) return "";
-    const { backgroundType, backgroundValue } = settings;
-    if (backgroundType === "color") {
-      const color = colors.find(({ name }) => name === backgroundValue);
+    if (!options?.background) return "";
+    const { type, value } = options.background;
+    if (type === "color") {
+      const color = colors.find(({ name }) => name === value);
       if (!color) return "";
       return `background-color: ${isDark ? color.dark : color.light};`;
     }
     return "";
   };
-  return { colors: colorOptions, images, getBackgroundOptionCode };
+
+  return { images, colors: colorOptions, getBackgroundOptionCode };
 };

@@ -136,13 +136,16 @@ export const useNoteStore = defineStore("notes", () => {
     options: { type: "color" | "image"; value: string } | null,
   ) => {
     try {
-      const data = await $fetch(`/api/notes/${note.id}/settings`, {
+      const data = await $fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         body: {
-          field: "background",
+          field: "options",
           value: {
-            backgroundType: options?.type || null,
-            backgroundValue: options?.value || null,
+            ...note.options,
+            background: {
+              type: options?.type || null,
+              value: options?.value || null,
+            },
           },
         },
       });
@@ -172,7 +175,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   const toggleNoteProp = async (
     note: Note,
-    prop: "pinned" | "archived" | "trashed" | "showPreview",
+    prop: "pinned" | "archived" | "trashed",
     options?: { recursiveCall?: boolean },
   ) => {
     try {
@@ -186,7 +189,6 @@ export const useNoteStore = defineStore("notes", () => {
         pinned: note[prop] ? "unpinned" : "pinned",
         archived: note[prop] ? "unarchived" : "archived",
         trashed: note[prop] ? "restored" : "trashed",
-        showPreview: note[prop] ? "hide preview" : "show preview",
       };
       toast.success(`Note ${actionMap[prop]}.`, {
         action: {

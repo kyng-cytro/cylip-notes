@@ -29,8 +29,8 @@ const isDark = computed(() => useColorMode().value === "dark");
     :class="{
       'max-w-none': layout === 'list',
     }"
-    :style="getBackgroundOptionCode(isDark, note.settings)"
     @click="openModal"
+    :style="getBackgroundOptionCode(isDark, note.options)"
   >
     <!-- Empty note -->
     <template v-if="!note.title && !content">
@@ -59,7 +59,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       >
         <div
           class="line-clamp-[18] max-h-96 overflow-hidden"
-          v-if="note.showPreview && content"
+          v-if="note.options?.preview && content"
           v-motion
         >
           <p

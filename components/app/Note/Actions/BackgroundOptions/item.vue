@@ -9,6 +9,7 @@ defineProps<{
 <template>
   <TooltipWrapper :tooltip="capitalize(option.name)">
     <Toggle
+      type="button"
       :pressed="selected"
       :style="{ backgroundColor: option.value }"
       :class="{ 'border-2 border-blue-500': selected }"

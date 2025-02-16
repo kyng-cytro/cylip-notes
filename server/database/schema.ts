@@ -1,3 +1,5 @@
+import type { LabelOptions } from "@/schemas/label";
+import type { NoteOptions } from "@/schemas/note";
 import type { JSONContent } from "@tiptap/core";
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
@@ -77,6 +79,7 @@ export const label = sqliteTable(
       .references(() => user.id, {
         onDelete: "cascade",
       }),
+    options: text("options", { mode: "json" }).$type<LabelOptions>(),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
       .$defaultFn(() => new Date()),
@@ -101,15 +104,14 @@ export const note = sqliteTable("notes", {
   id: text("id").notNull().primaryKey(),
   slug: text("slug"),
   title: text("title"),
-  settingsId: text("settings_id").references(() => noteSettings.id),
   content: text("content", { mode: "json" }).$type<JSONContent>(),
-  showPreview: integer("show_preview", { mode: "boolean" })
-    .notNull()
-    .default(true),
+  options: text("options", { mode: "json" }).$type<NoteOptions>(),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),
   trashed: integer("trashed", { mode: "boolean" }).notNull().default(false),
-  labelId: text("label_id").references(() => label.id),
+  labelId: text("label_id").references(() => label.id, {
+    onDelete: "set null",
+  }),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, {
@@ -126,14 +128,6 @@ export const note = sqliteTable("notes", {
     .$onUpdateFn(() => new Date()),
 });
 
-export const noteSettings = sqliteTable("note_settings", {
-  id: text("id").notNull().primaryKey(),
-  backgroundType: text("background_type", {
-    enum: ["image", "color"],
-  }),
-  backgroundValue: text("background_value"),
-});
-
 export const notesRelations = relations(note, ({ one }) => ({
   user: one(user, {
     fields: [note.userId],
@@ -142,10 +136,6 @@ export const notesRelations = relations(note, ({ one }) => ({
   label: one(label, {
     fields: [note.labelId],
     references: [label.id],
-  }),
-  settings: one(noteSettings, {
-    fields: [note.settingsId],
-    references: [noteSettings.id],
   }),
 }));
 

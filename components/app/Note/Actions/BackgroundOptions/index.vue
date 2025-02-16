@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { NoteOptions } from "@/schemas/note";
 import { DropletOffIcon, PaletteIcon } from "lucide-vue-next";
-import type { NoteSettings } from "~/server/utils/drizzle";
 
 const props = defineProps<{
-  settings: NoteSettings | null;
+  background: NoteOptions["background"];
 }>();
 
 defineEmits<{
@@ -12,21 +12,7 @@ defineEmits<{
     value: { type: "color" | "image"; value: string } | null,
   ): void;
 }>();
-const isSelected = (
-  value: string | null,
-  type: NoteSettings["backgroundType"] | "default",
-) => {
-  if (
-    !props.settings ||
-    !props.settings.backgroundType ||
-    !props.settings.backgroundValue
-  )
-    return type === "default";
-  return (
-    props.settings.backgroundType === type &&
-    props.settings.backgroundValue === value
-  );
-};
+
 const { colors } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 </script>
@@ -46,27 +32,14 @@ const isDark = computed(() => useColorMode().value === "dark");
             label="no-background"
             :icon="DropletOffIcon"
             @select="$emit('set-background', null)"
-            :selected="isSelected(null, 'default')"
+            :selected="props.background?.value === null"
           />
           <template v-for="option in colors(isDark)" :key="option.name">
             <AppNoteActionsBackgroundOptionsItem
               :option="option"
-              :selected="isSelected(option.name, 'color')"
+              :selected="props.background?.value === option.name"
               @select="
                 $emit('set-background', { type: 'color', value: option.name })
-              "
-            />
-          </template>
-        </div>
-        <hr class="my-2 bg-muted" />
-        <!-- SVG Images -->
-        <div class="flex flex-wrap gap-2 sm:justify-between">
-          <template v-for="option in colors(isDark)" :key="option.name">
-            <AppNoteActionsBackgroundOptionsItem
-              :option="option"
-              :selected="isSelected(option.name, 'image')"
-              @select="
-                $emit('set-background', { type: 'image', value: option.name })
               "
             />
           </template>

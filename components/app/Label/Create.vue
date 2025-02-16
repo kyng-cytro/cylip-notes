@@ -23,6 +23,9 @@ const onSubmit = async (values: Record<string, any>) => {
     loading.value = false;
   }
 };
+
+const { colors } = useBackgroundOptions();
+const isDark = computed(() => useColorMode().value === "dark");
 </script>
 <template>
   <Dialog v-model:open="open">
@@ -37,11 +40,13 @@ const onSubmit = async (values: Record<string, any>) => {
         </DialogDescription>
       </DialogHeader>
       <Form
+        v-slot="{ values }"
         class="grid gap-4"
         :validation-schema="formSchema"
         :initial-values="{ name: value }"
         @submit="onSubmit"
       >
+        {{ values }}
         <FormField name="name" v-slot="{ componentField }">
           <FormItem>
             <FormLabel>Name</FormLabel>
@@ -60,7 +65,58 @@ const onSubmit = async (values: Record<string, any>) => {
             >
           </FormItem>
         </FormField>
-
+        <Accordion type="single" collapsible>
+          <AccordionItem key="more-options" value="more-options">
+            <AccordionTrigger>More options</AccordionTrigger>
+            <AccordionContent class="space-y-2">
+              <FormField name="showPreview" v-slot="{ value, handleChange }">
+                <FormItem
+                  class="flex flex-wrap items-center gap-2 rounded-lg border p-4 sm:justify-between"
+                >
+                  <div class="space-y-0.5">
+                    <FormLabel class="font-semibold">Show preview</FormLabel>
+                    <FormDescription>
+                      Show preview for notes created under this label.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch :checked="value" @update:checked="handleChange" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+              <FormField name="background" v-slot="{ value, setValue }">
+                <FormItem
+                  class="flex flex-wrap items-center gap-2 rounded-lg border p-4 sm:justify-between"
+                >
+                  <div class="space-y-0.5">
+                    <FormLabel class="font-semibold">Background</FormLabel>
+                    <FormDescription>
+                      Select default background for notes created under this
+                      label.
+                    </FormDescription>
+                  </div>
+                  <!-- Solid Colors -->
+                  <FormControl>
+                    <div class="flex flex-wrap justify-between gap-2">
+                      <template
+                        v-for="option in colors(isDark)"
+                        :key="option.name"
+                      >
+                        <AppNoteActionsBackgroundOptionsItem
+                          :option="option"
+                          :selected="value?.value === option.name"
+                          @select="
+                            setValue({ type: 'color', value: option.name })
+                          "
+                        />
+                      </template>
+                    </div>
+                  </FormControl>
+                </FormItem>
+              </FormField>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <Button type="submit" class="font-semibold" :loading="loading">
           Create Label
         </Button>
