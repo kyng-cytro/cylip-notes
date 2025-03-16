@@ -213,6 +213,18 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const clearTrash = async () => {
+    try {
+      await $fetch(`/api/users/${userId.value}/clear-trash`, {
+        method: "DELETE",
+      });
+      notes.value = notes.value.filter((n) => !n.trashed);
+      toast.success("Trash cleared successfully.");
+    } catch (e: any) {
+      toast.error("Error clearing trash.", { description: e.message });
+    }
+  };
+
   // SSE
   const { data, event } = useEventSource(
     `${baseUrl}/api/users/server-events/${userId.value}`,
@@ -233,6 +245,7 @@ export const useNoteStore = defineStore("notes", () => {
     labels,
     methods: {
       updateNote,
+      clearTrash,
       createNote,
       createLabel,
       assignLabel,
