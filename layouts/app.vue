@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
 
 /* blockquote styles */
 .tiptap blockquote {
-  border-left: 3px solid var(--gray-3);
+  @apply border-l-4 border-primary;
   margin: 1.5rem 0;
   padding-left: 1rem;
 }
@@ -122,9 +122,8 @@ onBeforeUnmount(() => {
 }
 
 .tiptap pre {
-  background: var(--black);
+  @apply bg-transparent/60 text-white;
   border-radius: 0.5rem;
-  color: var(--white);
   font-family: "JetBrainsMono", monospace;
   margin: 1.5rem 0;
   padding: 0.75rem 1rem;
