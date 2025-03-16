@@ -25,7 +25,7 @@ const notes = computed(() => {
     </template>
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-y-2">
           <p class="text-sm font-semibold text-muted-foreground">
             Notes will be deleted permanently after 7 days.
           </p>
@@ -39,10 +39,10 @@ const notes = computed(() => {
             @confirm="() => notesStore.methods.clearTrash()"
           >
             <Button
-              variant="ghost"
-              class="text-sm font-semibold text-muted-foreground"
+              variant="link"
+              class="p-0 text-sm font-semibold text-muted-foreground"
             >
-              Clear
+              Empty Trash
             </Button>
           </AppConfirmDialog>
         </div>
