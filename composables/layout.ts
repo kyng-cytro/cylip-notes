@@ -2,8 +2,8 @@ export const useLayout = () => {
   const { layout } = storeToRefs(useLayoutStore());
 
   const containerParentStyles = computed(() => ({
-    "scrollbar-thin pr-2 ": layout.value === "grid",
-    "scrollbar-thin w-full max-w-xl mx-auto pr-2 ": layout.value === "list",
+    "scrollbar-thin pr-2": layout.value === "grid",
+    "scrollbar-thin w-full max-w-xl mx-auto pr-2": layout.value === "list",
   }));
 
   const conatinerStyles = computed(() => ({
