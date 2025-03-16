@@ -27,29 +27,22 @@ const handleClearReminder = () => {
 };
 </script>
 <template>
-  <TooltipWrapper tooltip="Remind me">
-    <Popover v-model:open="open">
-      <PopoverTrigger>
-        <Button variant="ghost" size="xs">
-          <BellPlusIcon class="size-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent class="flex flex-col gap-4">
-        <AppNoteActionsReminderBadge
-          :date="reminderAt"
-          @clear-reminder="handleClearReminder"
-        />
-        <p class="text-sm">Remind me:</p>
-        <AppDatePicker v-model="date" />
-        <Button
-          variant="ghost"
-          size="xs"
-          class="mt-2"
-          @click="handleSetReminder"
-        >
-          Set Reminder
-        </Button>
-      </PopoverContent>
-    </Popover>
-  </TooltipWrapper>
+  <Popover v-model:open="open">
+    <PopoverTrigger as-child>
+      <Button variant="ghost" size="xs">
+        <BellPlusIcon class="size-4" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent class="flex flex-col gap-4">
+      <AppNoteActionsReminderBadge
+        :date="reminderAt"
+        @clear-reminder="handleClearReminder"
+      />
+      <p class="text-sm">Remind me:</p>
+      <AppDatePicker v-model="date" />
+      <Button variant="ghost" size="xs" class="mt-2" @click="handleSetReminder">
+        Set Reminder
+      </Button>
+    </PopoverContent>
+  </Popover>
 </template>

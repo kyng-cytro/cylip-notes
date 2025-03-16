@@ -149,8 +149,7 @@ export const changelog = sqliteTable("change_logs", {
     .notNull()
     .references(() => user.id, {
       onDelete: "cascade",
-    })
-    .unique(),
+    }),
   table_name: text("table_name").notNull(),
   operation: text("operation", {
     enum: ["insert", "update", "delete"],

@@ -6,11 +6,21 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const db = useDrizzle();
     const { labelId } = await readValidatedBody(event, notePostSchema.parse);
     const id = generateId(15);
+
+    const label =
+      labelId && labelId !== "all-notes"
+        ? await db.query.label.findFirst({
+            where: eq(tables.label.id, labelId),
+          })
+        : null;
+
     await db.insert(tables.note).values({
       id,
       userId: event.context.user!.id,
-      ...(labelId && labelId !== "all-notes" && { labelId }),
+      labelId: label?.id || null,
+      options: label?.options || { preview: true },
     });
+
     const note = await db.query.note.findFirst({
       where: eq(tables.note.id, id),
       with: { label: true },

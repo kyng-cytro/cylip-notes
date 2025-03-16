@@ -7,17 +7,14 @@ definePageMeta({
 });
 
 const { signIn } = useUser();
-const loading = ref(false);
 const formSchema = toTypedSchema(magicLinkLoginSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
-  loading.value = true;
   try {
     await signIn({ type: "magic-link", email: values.email });
   } catch (e: any) {
     toast.error("Something went wrong", { description: e.data.message });
   } finally {
-    loading.value = false;
   }
 };
 </script>
@@ -38,8 +35,9 @@ const onSubmit = async (values: Record<string, any>) => {
           <CardContent>
             <Form
               class="grid gap-4"
-              :validation-schema="formSchema"
               @submit="onSubmit"
+              v-slot="{ isSubmitting }"
+              :validation-schema="formSchema"
             >
               <FormField name="email" v-slot="{ componentField }">
                 <FormItem>
@@ -56,8 +54,8 @@ const onSubmit = async (values: Record<string, any>) => {
               </FormField>
               <Button
                 type="submit"
+                :loading="isSubmitting"
                 class="w-full font-semibold"
-                :loading="loading"
               >
                 Sign in with email
                 <span class="sr-only">Sign in with email</span>

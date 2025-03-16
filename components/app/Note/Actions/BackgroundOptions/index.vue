@@ -18,33 +18,31 @@ const isDark = computed(() => useColorMode().value === "dark");
 </script>
 
 <template>
-  <TooltipWrapper tooltip="Background options">
-    <Popover>
-      <PopoverTrigger>
-        <Button variant="ghost" size="xs">
-          <PaletteIcon class="size-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent class="sm:w-[450px]">
-        <!-- Solid Colors -->
-        <div class="flex flex-wrap gap-2 sm:justify-between">
-          <AppNoteActionsBackgroundOptionsPlaceholder
-            label="no-background"
-            :icon="DropletOffIcon"
-            @select="$emit('set-background', null)"
-            :selected="props.background?.value === null"
+  <Popover>
+    <PopoverTrigger>
+      <Button variant="ghost" size="xs">
+        <PaletteIcon class="size-4" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent class="sm:w-[450px]">
+      <!-- Solid Colors -->
+      <div class="flex flex-wrap gap-2 sm:justify-between">
+        <AppNoteActionsBackgroundOptionsPlaceholder
+          label="no-background"
+          :icon="DropletOffIcon"
+          @select="$emit('set-background', null)"
+          :selected="props.background?.value === null"
+        />
+        <template v-for="option in colors(isDark)" :key="option.name">
+          <AppNoteActionsBackgroundOptionsItem
+            :option="option"
+            :selected="props.background?.value === option.name"
+            @select="
+              $emit('set-background', { type: 'color', value: option.name })
+            "
           />
-          <template v-for="option in colors(isDark)" :key="option.name">
-            <AppNoteActionsBackgroundOptionsItem
-              :option="option"
-              :selected="props.background?.value === option.name"
-              @select="
-                $emit('set-background', { type: 'color', value: option.name })
-              "
-            />
-          </template>
-        </div>
-      </PopoverContent>
-    </Popover>
-  </TooltipWrapper>
+        </template>
+      </div>
+    </PopoverContent>
+  </Popover>
 </template>

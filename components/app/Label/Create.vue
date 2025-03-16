@@ -2,14 +2,13 @@
 import { toast } from "vue-sonner";
 import { toTypedSchema } from "@vee-validate/zod";
 import { labelCreateSchema } from "@/schemas/label";
+import { DropletOffIcon } from "lucide-vue-next";
 
 const open = ref(false);
-const loading = ref(false);
-const value = defineModel<string | undefined>("value", { default: undefined });
 const formSchema = toTypedSchema(labelCreateSchema);
+const value = defineModel<string | undefined>("value", { default: undefined });
 
 const onSubmit = async (values: Record<string, any>) => {
-  loading.value = true;
   try {
     await useNoteStore().methods.createLabel(values);
     toast.success("Label created successfully", {
@@ -19,8 +18,6 @@ const onSubmit = async (values: Record<string, any>) => {
     open.value = false;
   } catch (e: any) {
     toast.error("Could not create label", { description: e.data.message });
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -40,13 +37,12 @@ const isDark = computed(() => useColorMode().value === "dark");
         </DialogDescription>
       </DialogHeader>
       <Form
-        v-slot="{ values }"
+        @submit="onSubmit"
         class="grid gap-4"
+        v-slot="{ isSubmitting }"
         :validation-schema="formSchema"
         :initial-values="{ name: value }"
-        @submit="onSubmit"
       >
-        {{ values }}
         <FormField name="name" v-slot="{ componentField }">
           <FormItem>
             <FormLabel>Name</FormLabel>
@@ -69,7 +65,10 @@ const isDark = computed(() => useColorMode().value === "dark");
           <AccordionItem key="more-options" value="more-options">
             <AccordionTrigger>More options</AccordionTrigger>
             <AccordionContent class="space-y-2">
-              <FormField name="showPreview" v-slot="{ value, handleChange }">
+              <FormField
+                name="options.preview"
+                v-slot="{ value, handleChange }"
+              >
                 <FormItem
                   class="flex flex-wrap items-center gap-2 rounded-lg border p-4 sm:justify-between"
                 >
@@ -84,7 +83,7 @@ const isDark = computed(() => useColorMode().value === "dark");
                   </FormControl>
                 </FormItem>
               </FormField>
-              <FormField name="background" v-slot="{ value, setValue }">
+              <FormField name="options.background" v-slot="{ value, setValue }">
                 <FormItem
                   class="flex flex-wrap items-center gap-2 rounded-lg border p-4 sm:justify-between"
                 >
@@ -97,7 +96,13 @@ const isDark = computed(() => useColorMode().value === "dark");
                   </div>
                   <!-- Solid Colors -->
                   <FormControl>
-                    <div class="flex flex-wrap justify-between gap-2">
+                    <div class="flex flex-wrap justify-between gap-1">
+                      <AppNoteActionsBackgroundOptionsPlaceholder
+                        label="no-background"
+                        :icon="DropletOffIcon"
+                        @select="setValue(undefined)"
+                        :selected="value?.value === undefined"
+                      />
                       <template
                         v-for="option in colors(isDark)"
                         :key="option.name"
@@ -117,7 +122,7 @@ const isDark = computed(() => useColorMode().value === "dark");
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        <Button type="submit" class="font-semibold" :loading="loading">
+        <Button type="submit" class="font-semibold" :loading="isSubmitting">
           Create Label
         </Button>
       </Form>

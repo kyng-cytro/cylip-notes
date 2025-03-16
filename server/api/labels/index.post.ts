@@ -26,16 +26,19 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const slug = slugify(name);
     const labelId = generateId(15);
 
-    const label = await db.insert(tables.label).values({
-      name,
-      slug,
-      ...rest,
-      userId: id,
-      id: labelId,
-    });
+    const label = await db
+      .insert(tables.label)
+      .values({
+        name,
+        slug,
+        ...rest,
+        userId: id,
+        id: labelId,
+      })
+      .returning();
 
-    if (!label) throw createError({ statusCode: 500 });
-    return label;
+    if (!label.length || !label[0]) throw createError({ statusCode: 500 });
+    return label[0];
   } catch (e) {
     console.error({ e });
     throw createError({
