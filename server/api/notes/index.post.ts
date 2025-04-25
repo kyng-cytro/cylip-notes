@@ -18,7 +18,9 @@ export default defineAuthenticatedEventHandler(async (event) => {
       id,
       userId: event.context.user!.id,
       labelId: label?.id || null,
-      options: label?.options || { preview: true },
+      options: label?.options
+        ? { ...label.options, public: false }
+        : { preview: true, public: false },
     });
 
     const note = await db.query.note.findFirst({

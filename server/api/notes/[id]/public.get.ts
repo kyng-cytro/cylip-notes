@@ -1,4 +1,4 @@
-export default defineAuthenticatedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event);
   if (!id) {
     throw createError({ statusCode: 400, message: "Invalid or missing id." });
@@ -8,9 +8,8 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const note = await db.query.note.findFirst({
       where: and(
         eq(tables.note.id, id),
-        eq(tables.note.userId, event.context.user!.id),
+        sql`json_extract(options, '$.public') = true`,
       ),
-      with: { user: true, label: true },
     });
     if (!note) {
       throw createError({
@@ -18,7 +17,10 @@ export default defineAuthenticatedEventHandler(async (event) => {
         statusMessage: "Note not found.",
       });
     }
-    return note;
+    return {
+      title: note.title,
+      content: note.content,
+    };
   } catch (e) {
     console.error({ e });
     throw createError({

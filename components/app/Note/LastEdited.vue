@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const { formatToTimeAgo } = useDateUtils();
 defineProps<{
+  public?: boolean;
   trashed?: boolean;
-  label: Label | null;
   updatedAt: string;
+  label: Label | null;
   reminderAt: string | null;
 }>();
 </script>
@@ -11,6 +12,10 @@ defineProps<{
   <p
     class="flex items-center space-x-2 whitespace-nowrap text-sm font-medium leading-none"
   >
+    <template v-if="public">
+      <AppNoteActionsShareBadge />
+      <span>•</span>
+    </template>
     <template v-if="reminderAt">
       <AppNoteActionsReminderBadge :date="reminderAt" no-clear />
       <span>•</span>

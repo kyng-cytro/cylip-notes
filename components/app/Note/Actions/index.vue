@@ -64,7 +64,13 @@ const runWithRefresh = async (action: () => Promise<void>) => {
         runWithRefresh(() => noteStore.methods.setReminder(note, $event))
       "
     />
-    <AppNoteActionsButton tooltip="Share note" :icon="Share2Icon" disabled />
+    <AppNoteActionsShare
+      :note-id="note.id"
+      :public="note.options?.public"
+      @set-public="
+        runWithRefresh(() => noteStore.methods.toggleNoteProp(note, 'public'))
+      "
+    />
     <AppNoteActionsBackgroundOptions
       :background="note.options?.background"
       @set-background="

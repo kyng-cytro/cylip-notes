@@ -15,6 +15,7 @@ export const noteWebsocketPutSchema = z.object({
 
 export const noteOptionsSchema = z.object({
   preview: z.boolean().default(true),
+  public: z.boolean().default(false),
   background: z
     .object({
       type: z.enum(["image", "color"]).nullable(),

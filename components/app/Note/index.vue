@@ -74,6 +74,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       class="mt-3 flex flex-wrap items-center gap-4"
       v-if="note.label || note.reminderAt"
     >
+      <AppNoteActionsShareBadge v-if="note.options?.public" />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />
       <AppNoteActionsReminderBadge
         v-if="note.reminderAt"

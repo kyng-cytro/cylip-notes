@@ -41,33 +41,10 @@ export const useNoteStore = defineStore("notes", () => {
 
   const retrieveNotes = (
     status: "active" | "pinned" | "trashed" | "archived" | "reminders",
-    lableId?: string,
+    labelId?: string,
   ) => {
-    return notes.value.filter((note) => {
-      if (status === "active") {
-        if (lableId && lableId !== "all-notes") {
-          return (
-            !note.trashed &&
-            !note.archived &&
-            !note.pinned &&
-            note.labelId === lableId
-          );
-        }
-        return !note.trashed && !note.archived && !note.pinned;
-      }
-      if (status === "pinned") {
-        return !note.trashed && !note.archived && note.pinned;
-      }
-      if (status === "trashed") {
-        return note.trashed;
-      }
-      if (status === "archived") {
-        return note.archived;
-      }
-      if (status === "reminders") {
-        return note.reminderAt;
-      }
-    });
+    const filterConfig = getFilterConfig(status, labelId);
+    return notes.value.filter((note) => filterConfig(note));
   };
 
   const getNoteById = (id: string) => {
@@ -175,18 +152,10 @@ export const useNoteStore = defineStore("notes", () => {
 
   const toggleNoteProp = async (
     note: Note,
-    prop: "pinned" | "archived" | "trashed" | "preview",
+    prop: "pinned" | "archived" | "trashed" | "preview" | "public",
     options?: { recursiveCall?: boolean },
   ) => {
-    let body: Record<string, any> = {};
-    if (prop === "preview") {
-      body = {
-        field: "options",
-        value: { ...note.options, preview: !note.options?.preview },
-      };
-    } else {
-      body = { field: prop, value: !note[prop] };
-    }
+    const { body, message } = getToggleConfig(note, prop);
     try {
       const data = await $fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
@@ -194,13 +163,7 @@ export const useNoteStore = defineStore("notes", () => {
       });
       notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
       if (options?.recursiveCall) return;
-      const actionMap = {
-        pinned: note.pinned ? "unpinned" : "pinned",
-        trashed: note.trashed ? "restored" : "trashed",
-        archived: note.archived ? "unarchived" : "archived",
-        preview: note.options?.preview ? "preview disabled" : "preview enabled",
-      };
-      toast.success(`Note ${actionMap[prop]}.`, {
+      toast.success(`Note ${message}.`, {
         action: {
           label: "Undo",
           onClick: () => toggleNoteProp(data, prop, { recursiveCall: true }),
@@ -242,7 +205,6 @@ export const useNoteStore = defineStore("notes", () => {
   );
 
   // Watch for changes and refresh data
-
   watch(data, () => {
     if (event.value === "refresh") {
       refreshData();

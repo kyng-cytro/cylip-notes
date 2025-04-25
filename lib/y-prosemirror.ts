@@ -1,10 +1,10 @@
-import * as Y from "yjs";
-import { getSchema, type JSONContent } from "@tiptap/core";
 import { extensions } from "@/lib/tiptap";
+import { getSchema, type JSONContent } from "@tiptap/core";
 import {
-  yXmlFragmentToProseMirrorRootNode,
   prosemirrorJSONToYDoc,
+  yXmlFragmentToProseMirrorRootNode,
 } from "y-prosemirror";
+import * as Y from "yjs";
 
 export const getYdocFromJson = (doc: JSONContent) => {
   const schema = getSchema(extensions);
