@@ -20,6 +20,8 @@ export default defineEventHandler(async (event) => {
     return {
       title: note.title,
       content: note.content,
+      updatedAt: note.updatedAt,
+      createdAt: note.createdAt,
     };
   } catch (e) {
     console.error({ e });

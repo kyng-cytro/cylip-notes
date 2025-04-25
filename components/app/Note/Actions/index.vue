@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import type { Editor } from "@tiptap/vue-3";
-import {
-  ArchiveIcon,
-  Repeat2Icon,
-  Share2Icon,
-  Trash2Icon,
-} from "lucide-vue-next";
+import { ArchiveIcon, Repeat2Icon, Trash2Icon } from "lucide-vue-next";
 
 const props = defineProps<{
   note: Note;

@@ -21,10 +21,10 @@ export const useBackgroundOptions = () => {
   };
   const getBackgroundOptionCode = (
     isDark: boolean,
-    options: NoteOptions | null,
+    options: NoteOptions["background"],
   ) => {
-    if (!options?.background) return "";
-    const { type, value } = options.background;
+    if (!options) return "";
+    const { type, value } = options;
     if (type === "color") {
       const color = colors.find(({ name }) => name === value);
       if (!color) return "";

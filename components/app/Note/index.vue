@@ -30,7 +30,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       'max-w-none': layout === 'list',
     }"
     @click="openModal"
-    :style="getBackgroundOptionCode(isDark, note.options)"
+    :style="getBackgroundOptionCode(isDark, note.options?.background)"
   >
     <!-- Empty note -->
     <template v-if="!note.title && !content">
@@ -69,10 +69,10 @@ const isDark = computed(() => useColorMode().value === "dark");
         </div>
       </transition>
     </template>
-    <!-- Label & Reminder -->
+    <!-- Label, Reminder & Public -->
     <div
       class="mt-3 flex flex-wrap items-center gap-4"
-      v-if="note.label || note.reminderAt"
+      v-if="note.label || note.reminderAt || note.options?.public"
     >
       <AppNoteActionsShareBadge v-if="note.options?.public" />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />

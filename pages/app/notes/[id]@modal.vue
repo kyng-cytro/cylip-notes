@@ -40,7 +40,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       v-if="note"
       @click.stop
       tabindex="-1"
-      :style="getBackgroundOptionCode(isDark, note.options)"
+      :style="getBackgroundOptionCode(isDark, note.options?.background)"
       class="z-50 flex h-full w-full max-w-2xl flex-col transition-colors duration-300 ease-in-out lg:max-h-[80%]"
     >
       <CardHeader class="space-y-4">
