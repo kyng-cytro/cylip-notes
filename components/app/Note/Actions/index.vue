@@ -93,10 +93,7 @@ const runWithRefresh = async (action: () => Promise<void>) => {
           runWithRefresh(() => noteStore.methods.assignLabel(note, labelId))
       "
       @toggle-show-preview="
-        runWithRefresh(() =>
-          // TODO: fix this
-          noteStore.methods.toggleNoteProp(note, 'pinned'),
-        )
+        runWithRefresh(() => noteStore.methods.toggleNoteProp(note, 'preview'))
       "
     />
   </template>
