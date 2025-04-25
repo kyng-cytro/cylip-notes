@@ -28,6 +28,15 @@ const dragStart = () => {
   if (isSupported.value) vibrate(1);
   drag.value = true;
 };
+
+const setLeaveSize = (el: Element) => {
+  const { width, height } = el.getBoundingClientRect();
+  Object.assign((el as HTMLElement).style, {
+    width: `${width}px`,
+    height: `${height}px`,
+    position: "absolute",
+  });
+};
 </script>
 
 <template>
@@ -38,19 +47,32 @@ const dragStart = () => {
     @start="dragStart"
     @end="drag = false"
   >
-    <TransitionGroup :name="!drag ? 'flip-list' : undefined">
+    <TransitionGroup
+      @before-leave="setLeaveSize"
+      :name="!drag ? 'flip-list' : undefined"
+    >
       <AppNote :note="note" v-for="note in notes" :key="note.id" />
     </TransitionGroup>
   </VueDraggableNext>
 </template>
 
 <style scoped>
-.flip-list-move {
-  transition: transform 0.5s;
+.flip-list-move,
+.flip-list-enter-active,
+.flip-list-leave-active {
+  transition: all 0.5s ease;
 }
 
-.no-move {
-  transition: transform 0s;
+.flip-list-enter-from,
+.flip-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.flip-list-leave-active {
+  position: absolute;
+  width: auto;
+  max-width: 100%;
 }
 
 .ghost {
