@@ -5,7 +5,7 @@ const { data: note, pending } = await useFetch(`/api/notes/${id}/public`, {
   lazy: true,
 });
 useHead({
-  title: note.value?.title,
+  title: note.value?.title || "cylip|notes",
   meta: [
     {
       name: "description",
