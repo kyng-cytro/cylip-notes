@@ -40,11 +40,13 @@ const url = computed(() => {
             @update:checked="$emit('set-public', $event)"
           />
         </div>
-        <Badge
-          variant="secondary"
-          class="relative w-full text-ellipsis px-2 py-3"
-        >
-          {{ url }}
+        <Badge variant="secondary" class="relative w-full px-2 py-3">
+          <NuxtLink
+            :to="url"
+            target="_blank"
+            class="mr-8 truncate hover:underline"
+            >{{ url }}</NuxtLink
+          >
           <Button
             size="icon"
             variant="ghost"
