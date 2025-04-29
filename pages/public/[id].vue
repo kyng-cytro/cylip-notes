@@ -9,7 +9,7 @@ useHead({
   meta: [
     {
       name: "description",
-      content: "View a note on cylip|notes.",
+      content: "View this note on cylip|notes.",
     },
   ],
 });
