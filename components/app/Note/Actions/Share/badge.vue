@@ -2,7 +2,7 @@
 import { LockKeyholeOpen } from "lucide-vue-next";
 </script>
 <template>
-  <Badge class="bg-red-200">
+  <Badge class="bg-red-500 dark:bg-red-300">
     <LockKeyholeOpen class="mr-2 size-4" />
     <span> Public </span>
   </Badge>
