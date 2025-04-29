@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
       content: note.content,
       updatedAt: note.updatedAt,
       createdAt: note.createdAt,
+      background: note.options?.background,
     };
   } catch (e) {
     console.error({ e });

@@ -29,6 +29,10 @@ watchDebounced(
 );
 const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
+const background = computed(() => {
+  if (!note.value) return "";
+  return getBackgroundOptionCode(isDark.value, note.value.options?.background);
+});
 </script>
 <template>
   <div
@@ -40,7 +44,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       v-if="note"
       @click.stop
       tabindex="-1"
-      :style="getBackgroundOptionCode(isDark, note.options?.background)"
+      :style="background"
       class="z-50 flex h-full w-full max-w-2xl flex-col transition-colors duration-300 ease-in-out lg:max-h-[80%]"
     >
       <CardHeader class="space-y-4">

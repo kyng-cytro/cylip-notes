@@ -53,14 +53,14 @@ watchDebounced(
 
 const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
-const getBg = computed(() => {
-  if (!note.value) return "";
+const background = computed(() => {
+  if (!note.value || import.meta.server) return "";
   return getBackgroundOptionCode(isDark.value, note.value.options?.background);
 });
 </script>
 <template>
   <AppMainContainer
-    :style="getBg"
+    :style="background"
     class="transition-colors duration-300 ease-in-out"
   >
     <template v-if="pending || mouting">

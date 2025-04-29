@@ -13,7 +13,7 @@ defineEmits<{
   ): void;
 }>();
 
-const { colors } = useBackgroundOptions();
+const { options } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 </script>
 
@@ -33,12 +33,12 @@ const isDark = computed(() => useColorMode().value === "dark");
           @select="$emit('set-background', null)"
           :selected="props.background?.value === null"
         />
-        <template v-for="option in colors(isDark)" :key="option.name">
+        <template v-for="option in options(isDark)" :key="option.name">
           <AppNoteActionsBackgroundOptionsItem
             :option="option"
             :selected="props.background?.value === option.name"
             @select="
-              $emit('set-background', { type: 'color', value: option.name })
+              $emit('set-background', { type: option.type, value: option.name })
             "
           />
         </template>

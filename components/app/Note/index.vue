@@ -21,6 +21,10 @@ const content = computed(() => {
 
 const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
+const background = computed(() => {
+  if (!props.note.options?.background) return "";
+  return getBackgroundOptionCode(isDark.value, props.note.options?.background);
+});
 </script>
 <template>
   <Card
@@ -30,7 +34,7 @@ const isDark = computed(() => useColorMode().value === "dark");
       'max-w-none': layout === 'list',
     }"
     @click="openModal"
-    :style="getBackgroundOptionCode(isDark, note.options?.background)"
+    :style="background"
   >
     <!-- Empty note -->
     <template v-if="!note.title && !content">
