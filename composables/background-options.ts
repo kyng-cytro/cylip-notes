@@ -49,7 +49,7 @@ export const useBackgroundOptions = () => {
         return name === value && type === "image";
       });
       if (!image) return "";
-      return `background-image: url(${isDark ? image.dark : image.light});background-size: cover;`;
+      return `background-image: url(${isDark ? image.dark : image.light});background-size: cover;background-position: center top;`;
     }
     return "";
   };
