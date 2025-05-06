@@ -17,17 +17,13 @@ const content = ref("");
 const loaded = ref(false);
 const { copy } = useCustomClipboard();
 const { formatToTimeAgo } = useDateUtils();
-const { getBackgroundOptionCode } = useBackgroundOptions();
 onMounted(() => {
   if (!note.value?.content) return;
   const { convertToHtml } = useEditorUtils();
   content.value = convertToHtml(note.value.content);
   if (note.value.background && note.value.background.value) {
     useState("background", () =>
-      getBackgroundOptionCode(
-        useColorMode().value === "dark",
-        note.value!.background,
-      ),
+      applyBackground(useColorMode().value === "dark", note.value!.background),
     );
   }
   loaded.value = true;

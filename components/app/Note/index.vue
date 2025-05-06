@@ -19,11 +19,10 @@ const content = computed(() => {
   return convertToHtml(props.note.content);
 });
 
-const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 const background = computed(() => {
   if (!props.note.options?.background) return "";
-  return getBackgroundOptionCode(isDark.value, props.note.options?.background);
+  return applyBackground(isDark.value, props.note.options?.background);
 });
 </script>
 <template>

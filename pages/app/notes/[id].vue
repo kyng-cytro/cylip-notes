@@ -51,11 +51,10 @@ watchDebounced(
   { debounce: 1000 },
 );
 
-const { getBackgroundOptionCode } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 const background = computed(() => {
   if (!note.value || import.meta.server) return "";
-  return getBackgroundOptionCode(isDark.value, note.value.options?.background);
+  return applyBackground(isDark.value, note.value.options?.background);
 });
 </script>
 <template>

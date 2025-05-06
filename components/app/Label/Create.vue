@@ -21,7 +21,6 @@ const onSubmit = async (values: Record<string, any>) => {
   }
 };
 
-const { options } = useBackgroundOptions();
 const isDark = computed(() => useColorMode().value === "dark");
 </script>
 <template>
@@ -104,7 +103,7 @@ const isDark = computed(() => useColorMode().value === "dark");
                         :selected="value?.value === undefined"
                       />
                       <template
-                        v-for="option in options(isDark)"
+                        v-for="option in getBackgroundOptions(isDark)"
                         :key="option.name"
                       >
                         <AppNoteActionsBackgroundOptionsItem
