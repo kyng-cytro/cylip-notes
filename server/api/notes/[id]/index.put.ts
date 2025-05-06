@@ -24,6 +24,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       .where(
         and(
           eq(tables.note.id, id),
+          eq(tables.note.trashed, false),
           eq(tables.note.userId, event.context.user!.id),
         ),
       );

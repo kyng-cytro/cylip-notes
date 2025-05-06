@@ -23,6 +23,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         pinned: false,
         archived: false,
         trashedAt: value ? new Date() : null,
+        options: sql`json_set(options, '$.public', ${false})`,
       }),
       updatedAt: new Date(),
     };
@@ -34,6 +35,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         and(
           eq(tables.note.id, id),
           eq(tables.note.userId, event.context.user!.id),
+          ...(field !== "trashed" ? [eq(tables.note.trashed, false)] : []),
         ),
       );
 
