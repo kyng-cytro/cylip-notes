@@ -7,6 +7,8 @@ export type Background = {
   dark: string;
 };
 
+export const preloadRoutes = ["/app", "/public"];
+
 export const backgrounds: Background[] = [
   { type: "color", name: "mint-green", light: "#DFFFD6", dark: "#2C784D" },
   { type: "color", name: "lavender", light: "#EFEAFF", dark: "#624FA0" },
