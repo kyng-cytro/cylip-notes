@@ -1,5 +1,6 @@
 import lowlight from "@/lib/lowlight";
 import NodeRange from "@tiptap-pro/extension-node-range";
+import { Extension } from "@tiptap/core";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
@@ -23,9 +24,24 @@ const CustomCodeBlock = CodeBlockLowlight.extend({
   },
 });
 
+const CustomCopy = Extension.create({
+  name: "customCopy",
+  onCreate() {
+    const { editor } = this;
+    editor.view.dom.addEventListener("copy", (event) => {
+      const selection = window.getSelection();
+      const selectedText = selection?.toString();
+      if (!selectedText) return;
+      event.preventDefault();
+      event.clipboardData?.setData("text/plain", selectedText);
+    });
+  },
+});
+
 export const extensions = [
   TaskList,
   Underline,
+  CustomCopy,
   Highlight.configure({ multicolor: true }),
   TaskItem.configure({
     nested: true,
