@@ -65,7 +65,7 @@ export const useNoteStore = defineStore("notes", () => {
         method: "POST",
         body: { labelId },
       });
-      notes.value = [...notes.value, note];
+      notes.value = [note, ...notes.value];
       useModalRouter().push(`/app/notes/${note.id}`);
     } catch (e: any) {
       toast.error("Error creating note", {
