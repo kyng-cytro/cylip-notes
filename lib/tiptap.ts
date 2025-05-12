@@ -1,4 +1,5 @@
 import lowlight from "@/lib/lowlight";
+import { convertToMarkDown } from "@/lib/turndown";
 import NodeRange from "@tiptap-pro/extension-node-range";
 import { Extension } from "@tiptap/core";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -10,6 +11,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
+import { DOMSerializer } from "prosemirror-model";
 
 const CustomCodeBlock = CodeBlockLowlight.extend({
   addKeyboardShortcuts() {
@@ -24,16 +26,23 @@ const CustomCodeBlock = CodeBlockLowlight.extend({
   },
 });
 
-const CustomCopy = Extension.create({
-  name: "customCopy",
+const MarkDownCopy = Extension.create({
+  name: "markDownCopy",
   onCreate() {
     const { editor } = this;
     editor.view.dom.addEventListener("copy", (event) => {
-      const selection = window.getSelection();
-      const selectedText = selection?.toString();
-      if (!selectedText) return;
+      const { state } = editor;
+      const { selection } = state;
+      if (selection.empty) return;
       event.preventDefault();
-      event.clipboardData?.setData("text/plain", selectedText);
+      const slice = selection.content();
+      const fragment = DOMSerializer.fromSchema(state.schema).serializeFragment(
+        slice.content,
+      );
+      const div = document.createElement("div");
+      div.appendChild(fragment);
+      const html = div.innerHTML;
+      event.clipboardData?.setData("text/plain", convertToMarkDown(html));
     });
   },
 });
@@ -41,7 +50,7 @@ const CustomCopy = Extension.create({
 export const extensions = [
   TaskList,
   Underline,
-  CustomCopy,
+  MarkDownCopy,
   Highlight.configure({ multicolor: true }),
   TaskItem.configure({
     nested: true,
