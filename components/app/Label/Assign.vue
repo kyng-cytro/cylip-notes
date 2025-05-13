@@ -16,8 +16,8 @@ const query = defineModel<string>();
       <CommandEmpty class="flex flex-col items-center justify-center gap-2 p-4">
         <span>No label with the name "{{ query }}".</span>
         <AppLabelCreate v-model:value="query">
-          <template #trigger>
-            <Button variant="ghost" size="xs">
+          <template #trigger="{ disabled }">
+            <Button variant="ghost" size="xs" :disabled>
               <Plus class="h-5 w-5" />
               <span class="sr-only">Create a label with this name</span>
             </Button>

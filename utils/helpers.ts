@@ -4,6 +4,7 @@ export const CONSTANTS = {
     maxSizeMB: 0.01,
     maxWidthOrHeight: 1920,
   },
+  maxFreeLables: 3,
   maxImagePerNote: {
     free: 1,
     premium: 3,

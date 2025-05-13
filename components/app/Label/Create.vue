@@ -5,6 +5,7 @@ import { labelCreateSchema } from "@/schemas/label";
 import { DropletOffIcon } from "lucide-vue-next";
 
 const open = ref(false);
+const { isPremium } = useUser();
 const formSchema = toTypedSchema(labelCreateSchema);
 const value = defineModel<string | undefined>("value", { default: undefined });
 
@@ -22,11 +23,22 @@ const onSubmit = async (values: Record<string, any>) => {
 };
 
 const isDark = computed(() => useColorMode().value === "dark");
+
+const canCreateLabel = computed(
+  () => isPremium || useNoteStore().labels.length < CONSTANTS.maxFreeLables,
+);
 </script>
 <template>
   <Dialog v-model:open="open">
     <DialogTrigger as-child>
-      <slot name="trigger" />
+      <div class="group relative">
+        <slot name="trigger" :disabled="!canCreateLabel" />
+        <Badge
+          v-if="!canCreateLabel"
+          class="invisible absolute -right-2 -top-3 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
+          >Pro</Badge
+        >
+      </div>
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>

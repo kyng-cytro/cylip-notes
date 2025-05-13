@@ -1,5 +1,5 @@
 import { labelCreateSchema } from "@/schemas/label";
-import { slugify } from "@/utils/helpers";
+import { CONSTANTS, slugify } from "@/utils/helpers";
 import { generateId } from "lucia";
 
 export default defineAuthenticatedEventHandler(async (event) => {
@@ -15,10 +15,10 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const currentCount = await db.query.label.findMany({
       where: eq(tables.label.userId, id),
     });
-    if (currentCount.length >= 3) {
+    if (currentCount.length >= CONSTANTS.maxFreeLables) {
       throw createError({
         statusCode: 403,
-        message: "Freeloaders can only have 3  labels.",
+        message: "Freeloaders can only have 3 labels.",
       });
     }
   }

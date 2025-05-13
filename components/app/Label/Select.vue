@@ -21,8 +21,8 @@ const { labels, initialized } = storeToRefs(useNoteStore());
         </SelectGroup>
         <SelectGroup>
           <AppLabelCreate>
-            <template #trigger>
-              <Button variant="ghost" class="w-full" size="xs">
+            <template #trigger="{ disabled }">
+              <Button variant="ghost" class="w-full" size="xs" :disabled>
                 <Plus class="h-5 w-5" />
                 <span class="sr-only">Create new label</span>
               </Button>
