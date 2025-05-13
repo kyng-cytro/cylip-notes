@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import hljs from "highlight.js";
 import type { Note } from "@/server/utils/drizzle";
 
 const props = defineProps<{
@@ -6,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const noteStore = useNoteStore();
-
+const contentRef = ref<HTMLElement | null>(null);
 const { layout } = storeToRefs(useLayoutStore());
 const { convertToHtml } = useEditorUtils();
 const { beforeEnter, enter, leave } = useHeightMotion();
@@ -23,6 +24,13 @@ const isDark = computed(() => useColorMode().value === "dark");
 const background = computed(() => {
   if (!props.note.options?.background) return "";
   return applyBackground(isDark.value, props.note.options?.background);
+});
+
+onMounted(async () => {
+  await nextTick();
+  if (contentRef.value) {
+    hljs.highlightAll();
+  }
 });
 </script>
 <template>
@@ -66,6 +74,7 @@ const background = computed(() => {
           v-motion
         >
           <p
+            ref="contentRef"
             v-html="content"
             class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
           />

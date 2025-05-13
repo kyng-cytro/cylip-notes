@@ -81,7 +81,7 @@
 }
 
 .tiptap pre {
-  @apply bg-transparent/60 text-white;
+  @apply bg-transparent/60 text-white scrollbar-none;
   border-radius: 0.5rem;
   font-family: "JetBrainsMono", monospace;
   margin: 1.5rem 0;

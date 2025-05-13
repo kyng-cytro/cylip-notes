@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import hljs from "highlight.js";
 import { CopyIcon } from "lucide-vue-next";
 const { id } = useRoute("public-id").params;
+const contentRef = ref<HTMLElement | null>(null);
 const { data: note, pending } = await useFetch(`/api/notes/${id}/public`, {
   lazy: true,
 });
@@ -17,7 +19,7 @@ const content = ref("");
 const loaded = ref(false);
 const { copy } = useCustomClipboard();
 const { formatToTimeAgo } = useDateUtils();
-onMounted(() => {
+onMounted(async () => {
   if (!note.value?.content) return;
   const { convertToHtml } = useEditorUtils();
   content.value = convertToHtml(note.value.content);
@@ -27,6 +29,10 @@ onMounted(() => {
     );
   }
   loaded.value = true;
+  await nextTick();
+  if (contentRef.value) {
+    hljs.highlightAll();
+  }
 });
 </script>
 
@@ -61,7 +67,7 @@ onMounted(() => {
         <div class="flex h-[calc(100vh-12rem)] flex-col" v-if="!loaded">
           <EditorLoading />
         </div>
-        <p v-html="content" v-else />
+        <p ref="contentRef" v-html="content" v-else />
       </div>
       <div class="flex items-center justify-end gap-2 px-4 py-2">
         <span class="text-sm">⏳ {{ formatToTimeAgo(note.updatedAt) }} </span>
