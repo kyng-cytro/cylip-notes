@@ -83,6 +83,6 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped>
+<style>
 @import "@/assets/css/tiptap-default.css";
 </style>
