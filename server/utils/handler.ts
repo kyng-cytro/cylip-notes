@@ -1,11 +1,26 @@
-import type { EventHandler, EventHandlerRequest } from "h3";
-import { handler } from "tailwindcss-animate";
+import type {
+  EventHandler,
+  EventHandlerRequest,
+  H3Event,
+  H3EventContext,
+} from "h3";
+import type { Session, User } from "lucia";
+
+interface AuthenticatedEventContext {
+  user: User;
+  session: Session;
+}
+
+type AuthenticatedEvent<T extends EventHandlerRequest = EventHandlerRequest> =
+  H3Event<T> & {
+    context: H3EventContext & AuthenticatedEventContext;
+  };
 
 export const defineAuthenticatedEventHandler = <
   T extends EventHandlerRequest,
   D,
 >(
-  handler: EventHandler<T, D>,
+  handler: (event: AuthenticatedEvent<T>) => D | Promise<D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
     const user = event.context.user;
@@ -22,11 +37,11 @@ export const defineAuthenticatedEventHandler = <
         message: "You do not have permission to access this reasource.",
       });
     }
-    return handler(event);
+    return handler(event as AuthenticatedEvent<T>);
   });
 
 export const definePremiumEventHandler = <T extends EventHandlerRequest, D>(
-  handler: EventHandler<T, D>,
+  handler: (event: AuthenticatedEvent<T>) => D | Promise<D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
     const user = event.context.user;
@@ -43,7 +58,7 @@ export const definePremiumEventHandler = <T extends EventHandlerRequest, D>(
         message: "You do not have permission to access this reasource.",
       });
     }
-    return handler(event);
+    return handler(event as AuthenticatedEvent<T>);
   });
 
 export const defineTaskEventHandler = <T extends EventHandlerRequest, D>(
@@ -67,7 +82,7 @@ export const defineTaskEventHandler = <T extends EventHandlerRequest, D>(
   });
 
 export const defineWebsocketEventHandler = <T extends EventHandlerRequest, D>(
-  handler: EventHandler<T, D>,
+  handler: (event: AuthenticatedEvent<T>) => D | Promise<D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
     const { "x-api-key": apiKey, "x-session-id": sessionId } =
@@ -100,5 +115,5 @@ export const defineWebsocketEventHandler = <T extends EventHandlerRequest, D>(
     }
     event.context.user = user;
     event.context.session = session;
-    return handler(event);
+    return handler(event as AuthenticatedEvent<T>);
   });

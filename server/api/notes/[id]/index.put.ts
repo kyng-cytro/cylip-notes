@@ -25,14 +25,14 @@ export default defineAuthenticatedEventHandler(async (event) => {
         and(
           eq(tables.note.id, id),
           eq(tables.note.trashed, false),
-          eq(tables.note.userId, event.context.user!.id),
+          eq(tables.note.userId, event.context.user.id),
         ),
       );
 
     const note = await db.query.note.findFirst({
       where: and(
         eq(tables.note.id, id),
-        eq(tables.note.userId, event.context.user!.id),
+        eq(tables.note.userId, event.context.user.id),
       ),
       with: { label: true },
     });

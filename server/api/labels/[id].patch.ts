@@ -27,7 +27,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       .where(
         and(
           eq(tables.label.id, id),
-          eq(tables.label.userId, event.context.user!.id),
+          eq(tables.label.userId, event.context.user.id),
         ),
       );
 

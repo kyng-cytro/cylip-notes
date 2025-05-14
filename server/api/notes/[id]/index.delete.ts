@@ -11,7 +11,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       .where(
         and(
           eq(tables.note.id, id),
-          eq(tables.note.userId, event.context.user!.id),
+          eq(tables.note.userId, event.context.user.id),
         ),
       );
     return setResponseStatus(event, 200);

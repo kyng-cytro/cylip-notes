@@ -9,7 +9,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       message: "Invalid or missing id",
     });
   }
-  if (id !== event.context.user!.id) {
+  if (id !== event.context.user.id) {
     throw createError({
       statusCode: 403,
       message: "You are not authorized to access this resource",

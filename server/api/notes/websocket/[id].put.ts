@@ -25,7 +25,7 @@ export default defineWebsocketEventHandler(async (event) => {
         and(
           eq(tables.note.id, id),
           eq(tables.note.trashed, false),
-          eq(tables.note.userId, event.context.user!.id),
+          eq(tables.note.userId, event.context.user.id),
         ),
       )
       .returning();

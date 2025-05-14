@@ -9,7 +9,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
   );
   const db = useDrizzle();
 
-  const { id, accountType } = event.context.user!;
+  const { id, accountType } = event.context.user;
 
   if (accountType === "free") {
     const currentCount = await db.query.label.findMany({

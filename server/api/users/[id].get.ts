@@ -7,7 +7,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       statusMessage: "Missing or invalid id.",
     });
   }
-  if (id !== event.context.user!.id) {
+  if (id !== event.context.user.id) {
     throw createError({
       statusCode: 403,
       statusMessage:

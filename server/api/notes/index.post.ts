@@ -16,7 +16,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
 
     await db.insert(tables.note).values({
       id,
-      userId: event.context.user!.id,
+      userId: event.context.user.id,
       labelId: label?.id || null,
       options: label?.options
         ? { ...label.options, public: false }
