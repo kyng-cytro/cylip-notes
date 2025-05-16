@@ -2,6 +2,7 @@
 import { toast } from "vue-sonner";
 import { updateUserSchema } from "@/schemas/user";
 import { toTypedSchema } from "@vee-validate/zod";
+import { PlusIcon } from "lucide-vue-next";
 definePageMeta({
   layout: "app",
 });
@@ -28,7 +29,7 @@ const onSubmit = async (values: Record<string, string>) => {
       <hr class="my-2 bg-muted" />
     </div>
     <Form
-      class="grid max-w-lg gap-4"
+      class="mb-8 grid max-w-lg gap-4"
       v-slot="{ isSubmitting }"
       @submit="onSubmit"
       :initial-values="{
@@ -78,5 +79,23 @@ const onSubmit = async (values: Record<string, string>) => {
         >Update Account</Button
       >
     </Form>
+    <div class="flex flex-col gap-y-2">
+      <div class="flex items-end justify-between">
+        <div class="space-y-2">
+          <h3 class="text-xl font-bold">Label Management</h3>
+          <p class="text-muted-foreground">
+            Manage your labels, create new ones, update or delete existing ones.
+          </p>
+        </div>
+        <AppLabelCreate>
+          <template #trigger="{ disabled }">
+            <Button :disabled="disabled" size="icon" variant="ghost"
+              ><PlusIcon class="size-5"
+            /></Button>
+          </template>
+        </AppLabelCreate>
+      </div>
+      <hr class="my-2 bg-muted" />
+    </div>
   </AppMainContainer>
 </template>
