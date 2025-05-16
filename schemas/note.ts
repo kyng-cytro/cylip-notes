@@ -5,7 +5,7 @@ export const notePostSchema = z.object({
 });
 
 export const notePutSchema = z.discriminatedUnion("field", [
-  z.object({ field: z.literal("title"), value: z.string().min(1) }),
+  z.object({ field: z.literal("title"), value: z.string().trim().min(1) }),
   z.object({ field: z.literal("content"), value: z.any() }),
 ]);
 

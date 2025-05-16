@@ -32,5 +32,13 @@ export const useUser = () => {
     await navigateTo(authRoutes.login);
   }
 
-  return { loggedIn, isPremium, user, signIn, logout, getToken };
+  async function updateUser(body: Record<string, string>) {
+    const data = await $fetch("/api/user", {
+      method: "PATCH",
+      body,
+    });
+    user.value = data;
+  }
+
+  return { loggedIn, isPremium, user, signIn, logout, getToken, updateUser };
 };

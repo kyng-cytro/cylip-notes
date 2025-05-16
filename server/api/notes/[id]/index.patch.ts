@@ -25,7 +25,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
         trashedAt: value ? new Date() : null,
         options: sql`json_set(options, '$.public', ${false})`,
       }),
-      updatedAt: new Date(),
     };
 
     await db

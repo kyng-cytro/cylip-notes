@@ -15,7 +15,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const data = {
       ...(field === "title" && { title: value, slug: slugify(value) }),
       ...(field === "content" && { content: value }),
-      updatedAt: new Date(),
     };
 
     await db
