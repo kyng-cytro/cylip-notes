@@ -98,7 +98,6 @@ export default defineNuxtConfig({
   },
   routeRules: {
     "/": { prerender: true },
-    "/pricing": { prerender: true },
-    "/login": { prerender: true },    
+    "/pricing": { prerender: true },    
   },
 });
