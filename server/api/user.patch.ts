@@ -1,7 +1,7 @@
 import { updateUserSchema } from "@/schemas/user";
 
 export default defineAuthenticatedEventHandler(async (event) => {
-  const { name, email, picture } = await readValidatedBody(
+  const { name, picture } = await readValidatedBody(
     event,
     updateUserSchema.parse,
   );
@@ -11,7 +11,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
 
     const data = {
       name,
-      email,
       picture,
     };
 
