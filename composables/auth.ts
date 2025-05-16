@@ -32,10 +32,14 @@ export const useUser = () => {
     await navigateTo(authRoutes.login);
   }
 
-  async function updateUser(body: Record<string, string>) {
+  async function updateUser(values: Record<string, string | File>) {
+    const body = new FormData();
+    for (const [key, value] of Object.entries(values)) {
+      body.append(key, value);
+    }
     const data = await $fetch("/api/user", {
-      method: "PATCH",
       body,
+      method: "PATCH",
     });
     user.value = data;
   }

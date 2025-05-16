@@ -1,9 +1,20 @@
 export const CONSTANTS = {
   imageSizeLimit: 300000,
+  profileImageSizeLimit: 1000000,
   imageCompressionOptions: {
     maxSizeMB: 0.01,
     maxWidthOrHeight: 1920,
   },
+  imageFileTypes: [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/gif",
+    "video/mp4",
+    "video/webm",
+    "image/webp",
+    "image/svg+xml",
+  ],
   maxFreeLables: 3,
   maxImagePerNote: {
     free: 1,
@@ -27,6 +38,14 @@ export const capitalize = (text: string) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+};
+
+export const getTwoChars = (text: string) => {
+  const split = text.split(" ");
+  if (split[0] && split[1]) {
+    return split[0].charAt(0) + split[1].charAt(0);
+  }
+  return text.slice(0, 2);
 };
 
 export const getFilterConfig = (status: string, labelId?: string) => {

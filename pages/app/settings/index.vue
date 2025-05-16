@@ -8,7 +8,7 @@ definePageMeta({
 });
 const { user, updateUser } = useUser();
 const formSchema = toTypedSchema(updateUserSchema);
-const onSubmit = async (values: Record<string, string>) => {
+const onSubmit = async (values: Record<string, string | File>) => {
   if (!user.value) return;
   try {
     await updateUser(values);
@@ -16,6 +16,14 @@ const onSubmit = async (values: Record<string, string>) => {
   } catch (e: any) {
     toast.error("Something went wrong", { description: e.data.message });
   }
+};
+
+const getImage = (value?: File | string | null) => {
+  if (!value) return "";
+  if (value instanceof File) {
+    return URL.createObjectURL(value);
+  }
+  return value;
 };
 </script>
 <template>
@@ -29,7 +37,7 @@ const onSubmit = async (values: Record<string, string>) => {
       <hr class="my-2 bg-muted" />
     </div>
     <Form
-      class="mb-8 grid max-w-lg gap-4"
+      class="mb-8 grid max-w-lg gap-6"
       v-slot="{ isSubmitting }"
       @submit="onSubmit"
       :initial-values="{
@@ -39,11 +47,41 @@ const onSubmit = async (values: Record<string, string>) => {
       }"
       :validation-schema="formSchema"
     >
+      <FormField name="picture" v-slot="{ value, handleChange, handleBlur }">
+        <FormItem>
+          <FormLabel class="flex flex-col">
+            <span class="font-semibold">Display Picture</span>
+            <Avatar class="mt-3 size-24 cursor-pointer rounded-lg" tabindex="0">
+              <AvatarImage :src="getImage(value)" alt="Display Picture" />
+              <AvatarFallback
+                class="bg-muted text-lg font-semibold text-muted-foreground"
+              >
+                {{ user?.name ? getTwoChars(user.name) : "C|N" }}
+              </AvatarFallback>
+            </Avatar>
+          </FormLabel>
+          <FormControl>
+            <Input
+              type="file"
+              class="hidden"
+              accept="image/*"
+              @blur="handleBlur"
+              @change="handleChange"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
       <FormField name="name" v-slot="{ componentField }">
         <FormItem>
           <FormLabel class="font-semibold">Display Name</FormLabel>
           <FormControl>
-            <Input type="text" placeholder="Name" v-bind="componentField" />
+            <Input
+              type="text"
+              placeholder="Name"
+              v-bind="componentField"
+              autocomplete="name"
+            />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -53,10 +91,11 @@ const onSubmit = async (values: Record<string, string>) => {
           <FormLabel class="font-semibold">Email</FormLabel>
           <FormControl>
             <Input
+              disabled
               type="email"
+              autocomplete="email"
               placeholder="Email"
               v-bind="componentField"
-              disabled
             />
           </FormControl>
           <FormMessage />
