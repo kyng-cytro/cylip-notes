@@ -53,7 +53,12 @@ export default defineAuthenticatedEventHandler(async (event) => {
         message: "Failed to update user.",
       });
     }
-
+    // Invalidate cache if profile picture is updated
+    if (data.picture && data.picture instanceof File) {
+      await useStorage("cache").removeItem(
+        `nitro:functions:profile-picture-data:${id}.json`,
+      );
+    }
     return user;
   } catch (e) {
     console.error({ e });
