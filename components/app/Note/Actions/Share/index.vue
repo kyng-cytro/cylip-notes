@@ -36,7 +36,7 @@ const url = computed(() => {
             </p>
           </div>
           <Switch
-            :checked="public"
+            :checked="public?.enabled"
             @update:checked="$emit('set-public', $event)"
           />
         </div>

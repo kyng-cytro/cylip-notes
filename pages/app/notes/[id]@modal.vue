@@ -83,8 +83,8 @@ const background = computed(() => {
           :trashed="trashed"
           :label="note.label"
           :updated-at="note.updatedAt"
-          :public="note.options?.public"
           :reminder-at="note.reminderAt"
+          :public="note.options?.public"
         />
       </CardFooter>
     </Card>

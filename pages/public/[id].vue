@@ -72,6 +72,8 @@ onMounted(async () => {
       <div class="flex items-center justify-end gap-2 px-4 py-2">
         <span class="text-sm">⏳ {{ formatToTimeAgo(note.updatedAt) }} </span>
         <span>•</span>
+        <span class="text-sm">👀 {{ note.vists }} </span>
+        <span>•</span>
         <NuxtLink
           to="/"
           class="text-sm font-semibold no-underline hover:underline"

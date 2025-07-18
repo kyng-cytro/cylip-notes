@@ -84,9 +84,12 @@ onMounted(async () => {
     <!-- Label, Reminder & Public -->
     <div
       class="mt-3 flex flex-wrap items-center gap-4"
-      v-if="note.label || note.reminderAt || note.options?.public"
+      v-if="note.label || note.reminderAt || note.options?.public.enabled"
     >
-      <AppNoteActionsShareBadge v-if="note.options?.public" />
+      <AppNoteActionsShareBadge
+        :vists="note.options.public.vists"
+        v-if="note.options?.public.enabled"
+      />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />
       <AppNoteActionsReminderBadge
         v-if="note.reminderAt"

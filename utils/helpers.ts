@@ -84,7 +84,13 @@ export const getToggleConfig = (note: Note, prop: string) => {
     public: {
       body: {
         field: "options",
-        value: { ...note.options, public: !note.options?.public },
+        value: {
+          ...note.options,
+          public: {
+            ...note.options?.public,
+            enabled: !note.options?.public?.enabled,
+          },
+        },
       },
       message: note.options?.public ? "is now private" : "is now public",
     },
