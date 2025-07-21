@@ -57,6 +57,8 @@ const setLeaveSize = (el: Element) => {
 </template>
 
 <style scoped>
+@reference "@/assets/css/tailwind.css";
+
 .flip-list-move,
 .flip-list-enter-active,
 .flip-list-leave-active {
@@ -76,7 +78,7 @@ const setLeaveSize = (el: Element) => {
 }
 
 .ghost {
-  @apply border-2 bg-muted opacity-50;
+  @apply bg-muted border-2 opacity-50;
 }
 
 .chosen {

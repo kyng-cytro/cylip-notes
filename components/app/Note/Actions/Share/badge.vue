@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Badge } from "@/components/ui/badge";
 import { LockKeyholeOpen } from "lucide-vue-next";
 defineProps<{ vists: number }>();
 </script>

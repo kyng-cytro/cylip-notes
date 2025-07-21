@@ -1,3 +1,5 @@
+@reference "@/assets/css/tailwind.css";
+
 /* collaboration cursor */
 .collaboration-cursor__caret {
   border-left: 1px solid #0d0d0d;
@@ -26,7 +28,7 @@
 }
 
 .tiptap img.ProseMirror-selectednode {
-  @apply outline outline-ring;
+  @apply outline-ring outline;
 }
 
 .ProseMirror-noderangeselection *::selection {

@@ -1,4 +1,6 @@
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
   compatibilityDate: "2024-12-27",
   devtools: { enabled: true },
@@ -14,9 +16,15 @@ export default defineNuxtConfig({
     "nuxt-pages-plus",
     "@nuxtjs/color-mode",
     "@vueuse/motion/nuxt",
-    "@nuxtjs/tailwindcss",
-    "@pinia-plugin-persistedstate/nuxt",
+    "pinia-plugin-persistedstate/nuxt",
   ],
+  css: ["@/assets/css/tailwind.css"],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  shadcn: {
+    prefix: "",
+  },
   colorMode: {
     classSuffix: "",
   },
@@ -40,7 +48,6 @@ export default defineNuxtConfig({
       viewport: "width=device-width, initial-scale=1",
       meta: [
         {
-          hid: "description",
           name: "description",
           content: "Snap, Note, Remember",
         },
@@ -98,6 +105,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     "/": { prerender: true },
-    "/pricing": { prerender: true },    
+    "/pricing": { prerender: true },
   },
 });
+
