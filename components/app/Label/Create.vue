@@ -35,7 +35,7 @@ const canCreateLabel = computed(
         <slot name="trigger" :disabled="!canCreateLabel" />
         <Badge
           v-if="!canCreateLabel"
-          class="invisible absolute -right-2 -top-3 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
+          class="invisible absolute -top-3 -right-2 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
           >Pro</Badge
         >
       </div>
@@ -90,7 +90,10 @@ const canCreateLabel = computed(
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch :checked="value" @update:checked="handleChange" />
+                    <Switch
+                      :modelValue="value"
+                      @update:modelValue="handleChange"
+                    />
                   </FormControl>
                 </FormItem>
               </FormField>

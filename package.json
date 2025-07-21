@@ -85,7 +85,7 @@
     "@vueuse/nuxt": "^12.8.2",
     "concurrently": "^9.2.0",
     "drizzle-kit": "^0.30.6",
-    "nuxt-pages-plus": "^0.5.1",
+    "nuxt-pages-plus": "v0.8.0-beta.1",
     "partykit": "0.0.111",
     "tailwindcss-animate": "^1.0.7",
     "prettier-plugin-tailwindcss": "^0.6.14",
