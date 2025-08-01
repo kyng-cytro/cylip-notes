@@ -10,9 +10,14 @@ defineEmits<{
 const query = defineModel<string>();
 </script>
 <template>
-  <Command v-model:searchTerm="query">
-    <CommandInput id="group-filter" placeholder="Filter group..." auto-focus />
-    <CommandList>
+  <Command>
+    <CommandInput
+      v-model="query"
+      id="group-filter"
+      placeholder="Filter group..."
+      auto-focus
+    />
+    <CommandList class="max-w-[300px]">
       <CommandEmpty class="flex flex-col items-center justify-center gap-2 p-4">
         <span>No label with the name "{{ query }}".</span>
         <AppLabelCreate v-model:value="query">

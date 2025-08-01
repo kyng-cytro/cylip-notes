@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "app:dev": "nuxt dev",
+    "app:prod": "nuxt dev --remote=production",
     "deploy": "bunx nuxthub deploy",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

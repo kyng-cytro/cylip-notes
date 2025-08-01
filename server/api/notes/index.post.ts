@@ -20,7 +20,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       labelId: label?.id || null,
       options: label?.options
         ? { ...label.options, public: { enabled: false, vists: 0 } }
-        : { preview: true, public: { enabled: false, vists: 0 } },
+        : undefined,
     });
 
     const note = await db.query.note.findFirst({

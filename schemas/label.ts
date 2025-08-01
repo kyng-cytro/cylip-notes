@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const labelOptionsSchema = z.object({
-  preview: z.boolean().default(true),
+  preview: z.boolean(),
   background: z
     .object({
       type: z.enum(["image", "color"]).nullable(),

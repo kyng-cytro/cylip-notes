@@ -13,7 +13,7 @@ defineProps<{
       type="button"
       :pressed="selected"
       :class="[
-        'relative flex size-8 cursor-pointer items-center justify-center rounded-full p-1.5 hover:border-2 hover:border-blue-500',
+        'relative flex size-9 cursor-pointer items-center justify-center rounded-full p-1.5 hover:border-2 hover:border-blue-500',
         selected ? 'border-2 border-blue-500' : '',
       ]"
       @click="$emit('select')"

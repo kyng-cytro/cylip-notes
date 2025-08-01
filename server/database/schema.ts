@@ -80,7 +80,7 @@ export const label = sqliteTable(
         onDelete: "cascade",
       }),
     options: text("options", { mode: "json" })
-      .default(null)
+      .default({ preview: true })
       .$type<LabelOptions>(),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
@@ -108,7 +108,7 @@ export const note = sqliteTable("notes", {
   title: text("title"),
   content: text("content", { mode: "json" }).$type<JSONContent>(),
   options: text("options", { mode: "json" })
-    .default({ preview: true })
+    .default({ preview: true, public: { enabled: false, vists: 0 } })
     .$type<NoteOptions>(),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   archived: integer("archived", { mode: "boolean" }).notNull().default(false),

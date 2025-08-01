@@ -52,7 +52,7 @@ const canCreateLabel = computed(
         class="grid gap-4"
         v-slot="{ isSubmitting }"
         :validation-schema="formSchema"
-        :initial-values="{ name: value }"
+        :initial-values="{ name: value, options: { preview: true } }"
       >
         <FormField name="name" v-slot="{ componentField }">
           <FormItem>

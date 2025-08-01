@@ -23,7 +23,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         pinned: false,
         archived: false,
         trashedAt: value ? new Date() : null,
-        options: sql`json_set(options, '$.public', ${false})`,
+        options: sql`json_set(options, '$.public.enabled', false)`,
       }),
     };
 

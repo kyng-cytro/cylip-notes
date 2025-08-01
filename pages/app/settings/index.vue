@@ -48,8 +48,8 @@ const getImage = (value?: File | string | null) => {
       :validation-schema="formSchema"
     >
       <FormField name="picture" v-slot="{ value, handleChange, handleBlur }">
-        <FormItem class="flex-start">
-          <FormLabel class="flex flex-col">
+        <FormItem>
+          <FormLabel class="flex flex-col items-start">
             <span class="font-semibold">Display Picture</span>
             <Avatar class="mt-3 size-24 cursor-pointer rounded-lg" tabindex="0">
               <AvatarImage :src="getImage(value)" alt="Display Picture" />

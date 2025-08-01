@@ -36,6 +36,20 @@
       "when": 1742127037518,
       "tag": "0006_curved_ser_duncan",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1754008866076,
+      "tag": "0007_careless_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1754010524592,
+      "tag": "0008_past_meteorite",
+      "breakpoints": true
     }
   ]
 }
