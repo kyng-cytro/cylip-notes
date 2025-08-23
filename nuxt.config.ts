@@ -108,4 +108,3 @@ export default defineNuxtConfig({
     "/pricing": { prerender: true },
   },
 });
-
