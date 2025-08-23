@@ -14,7 +14,7 @@ const { copy } = useCustomClipboard();
 
 const url = computed(() => {
   return `${useRuntimeConfig().public.baseUrl}/public/${
-    !props.public ? "[...]" : props.noteId
+    !props.public?.enabled ? "[...]" : props.noteId
   }`;
 });
 </script>
@@ -31,20 +31,20 @@ const url = computed(() => {
         <div class="flex flex-wrap items-center gap-2 sm:justify-between">
           <div class="space-y-0.5">
             <Label class="font-semibold">Public Note</Label>
-            <p class="text-sm text-muted-foreground">
+            <p class="text-muted-foreground text-sm">
               Visible to anyone with the link.
             </p>
           </div>
           <Switch
-            :checked="public?.enabled"
-            @update:checked="$emit('set-public', $event)"
+            :modelValue="public?.enabled"
+            @update:modelValue="$emit('set-public', $event)"
           />
         </div>
         <Badge variant="secondary" class="relative w-full px-2 py-3">
           <NuxtLink
             :to="url"
             target="_blank"
-            class="mr-8 truncate hover:underline"
+            class="mr-8 w-full truncate hover:underline"
             >{{ url }}</NuxtLink
           >
           <Button

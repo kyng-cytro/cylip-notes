@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { toTypedSchema } from "@vee-validate/zod";
 import { magicLinkLoginSchema } from "@/schemas/user";
+import { toast } from "vue-sonner";
 definePageMeta({
   layout: "auth",
 });
 
 const { signIn } = useUser();
-const formSchema = toTypedSchema(magicLinkLoginSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
   try {
@@ -25,7 +23,7 @@ const onSubmit = async (values: Record<string, any>) => {
       <div class="relative isolate w-full max-w-6xl px-6 py-14 lg:px-8">
         <Card class="mx-auto max-w-sm" v-motion-slide-in-top :duration="500">
           <CardHeader>
-            <CardTitle class="text-2xl font-semibold leading-8">
+            <CardTitle class="text-2xl leading-8 font-semibold">
               Lets Get You Started
             </CardTitle>
             <CardDescription class="mt-1">
@@ -37,7 +35,7 @@ const onSubmit = async (values: Record<string, any>) => {
               class="grid gap-4"
               @submit="onSubmit"
               v-slot="{ isSubmitting }"
-              :validation-schema="formSchema"
+              :validation-schema="magicLinkLoginSchema"
             >
               <FormField name="email" v-slot="{ componentField }">
                 <FormItem>
@@ -65,7 +63,7 @@ const onSubmit = async (values: Record<string, any>) => {
                   <span class="w-full border-t" />
                 </div>
                 <div class="relative flex justify-center text-xs uppercase">
-                  <span class="bg-background px-2 text-muted-foreground">
+                  <span class="bg-background text-muted-foreground px-2">
                     Or continue with
                   </span>
                 </div>
@@ -80,18 +78,18 @@ const onSubmit = async (values: Record<string, any>) => {
               </Button>
             </Form>
             <div class="mt-4">
-              <p class="px-8 text-center text-sm text-muted-foreground">
+              <p class="text-muted-foreground px-8 text-center text-sm">
                 By clicking continue, you agree to our
                 <a
                   href="/terms"
-                  class="underline underline-offset-4 hover:text-primary"
+                  class="hover:text-primary underline underline-offset-4"
                 >
                   Terms of Service
                 </a>
                 and
                 <a
                   href="/privacy"
-                  class="underline underline-offset-4 hover:text-primary"
+                  class="hover:text-primary underline underline-offset-4"
                 >
                   Privacy Policy
                 </a>

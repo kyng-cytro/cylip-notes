@@ -36,7 +36,7 @@ onMounted(async () => {
 <template>
   <Card
     tabindex="0"
-    class="group mb-2 flex w-full cursor-pointer break-inside-avoid flex-col gap-3 rounded-lg p-4 ring-blue-500 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2"
+    class="group mb-2 flex w-full cursor-pointer break-inside-avoid flex-col gap-3 rounded-lg p-4 ring-blue-500 transition-colors duration-300 ease-in-out focus:ring-2 focus:outline-none"
     :class="{
       'max-w-none': layout === 'list',
     }"
@@ -45,12 +45,12 @@ onMounted(async () => {
   >
     <!-- Empty note -->
     <template v-if="!note.title && !content">
-      <CardTitle class="font-semibold leading-snug"> Empty note </CardTitle>
+      <CardTitle class="leading-snug font-semibold"> Empty note </CardTitle>
     </template>
     <template v-else>
       <!-- Header -->
       <div v-if="note.title" class="flex items-center justify-between gap-3">
-        <CardTitle class="line-clamp-2 font-semibold leading-snug">{{
+        <CardTitle class="line-clamp-2 leading-snug font-semibold">{{
           note.title
         }}</CardTitle>
         <div class="group-hover:visible group-focus:visible lg:invisible">
@@ -76,7 +76,7 @@ onMounted(async () => {
           <p
             ref="contentRef"
             v-html="content"
-            class="tiptap prose pointer-events-none relative max-w-none flex-1 text-sm text-primary dark:prose-invert"
+            class="tiptap prose text-primary dark:prose-invert pointer-events-none relative max-w-none flex-1 text-sm"
           />
         </div>
       </transition>
@@ -100,7 +100,7 @@ onMounted(async () => {
     </div>
     <!-- Actions -->
     <div
-      class="mt-3 flex items-center justify-between gap-3 overflow-y-auto scrollbar-none group-hover:visible group-focus:visible lg:invisible"
+      class="scrollbar-none mt-3 flex items-center justify-between gap-3 overflow-y-auto group-hover:visible group-focus:visible lg:invisible"
       @click.stop
     >
       <AppNoteActions :note="note" />

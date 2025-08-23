@@ -70,6 +70,7 @@ export const getFilterConfig = (status: string, labelId?: string) => {
 };
 
 export const getToggleConfig = (note: Note, prop: string) => {
+  const { pinned, trashed, archived, options } = note;
   const toggleMap: Record<
     string,
     { body: Record<string, any>; message: string }
@@ -77,7 +78,7 @@ export const getToggleConfig = (note: Note, prop: string) => {
     preview: {
       body: {
         field: "options",
-        value: { ...note.options, preview: !note.options?.preview },
+        value: { ...options, preview: !options?.preview },
       },
       message: note.options?.preview ? "preview disabled" : "preview enabled",
     },
@@ -85,26 +86,26 @@ export const getToggleConfig = (note: Note, prop: string) => {
       body: {
         field: "options",
         value: {
-          ...note.options,
+          ...options,
           public: {
-            ...note.options?.public,
-            enabled: !note.options?.public?.enabled,
+            ...options?.public,
+            enabled: !options?.public?.enabled,
           },
         },
       },
-      message: note.options?.public ? "is now private" : "is now public",
+      message: options?.public ? "is now private" : "is now public",
     },
     pinned: {
       body: { field: "pinned", value: !note.pinned },
-      message: note.pinned ? "unpinned" : "pinned",
+      message: pinned ? "unpinned" : "pinned",
     },
     trashed: {
       body: { field: "trashed", value: !note.trashed },
-      message: note.trashed ? "restored" : "trashed",
+      message: trashed ? "restored" : "trashed",
     },
     archived: {
       body: { field: "archived", value: !note.archived },
-      message: note.archived ? "unarchived" : "archived",
+      message: archived ? "unarchived" : "archived",
     },
   };
   return toggleMap[prop] || { body: {}, message: "" };

@@ -1,3 +1,5 @@
+@reference "@/assets/css/tailwind.css";
+
 /* basic editor styles */
 ::selection {
   @apply bg-secondary;
@@ -9,7 +11,7 @@
 
 /* blockquote styles */
 .tiptap blockquote {
-  @apply border-l-4 border-primary;
+  @apply border-primary border-l-4;
   margin: 1.5rem 0;
   padding-left: 1rem;
 }
@@ -29,7 +31,7 @@
 
 /* placeholder styles */
 .tiptap p.is-editor-empty:first-child::before {
-  @apply animate-pulse text-primary;
+  @apply text-primary animate-pulse;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -81,7 +83,7 @@
 }
 
 .tiptap pre {
-  @apply bg-transparent/60 text-white scrollbar-none;
+  @apply scrollbar-none bg-black/60 text-white;
   border-radius: 0.5rem;
   font-family: "JetBrainsMono", monospace;
   margin: 1.5rem 0;

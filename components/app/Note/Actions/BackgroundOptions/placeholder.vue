@@ -10,7 +10,7 @@ defineProps<{
     <Toggle
       type="button"
       :pressed="selected"
-      class="size-8 rounded-full border-2 p-1.5 hover:border-blue-500"
+      class="size-9 rounded-full border-2 p-1.5 hover:border-blue-500"
       :class="{ 'border-blue-500': selected }"
       @click="$emit('select')"
     >

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { toTypedSchema } from "@vee-validate/zod";
 import { labelCreateSchema } from "@/schemas/label";
 import { DropletOffIcon } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 
 const open = ref(false);
 const { isPremium } = useUser();
-const formSchema = toTypedSchema(labelCreateSchema);
 const value = defineModel<string | undefined>("value", { default: undefined });
 
 const onSubmit = async (values: Record<string, any>) => {
@@ -35,7 +33,7 @@ const canCreateLabel = computed(
         <slot name="trigger" :disabled="!canCreateLabel" />
         <Badge
           v-if="!canCreateLabel"
-          class="invisible absolute -right-2 -top-3 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
+          class="invisible absolute -top-3 -right-2 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
           >Pro</Badge
         >
       </div>
@@ -51,8 +49,8 @@ const canCreateLabel = computed(
         @submit="onSubmit"
         class="grid gap-4"
         v-slot="{ isSubmitting }"
-        :validation-schema="formSchema"
-        :initial-values="{ name: value }"
+        :validation-schema="labelCreateSchema"
+        :initial-values="{ name: value, options: { preview: true } }"
       >
         <FormField name="name" v-slot="{ componentField }">
           <FormItem>
@@ -90,7 +88,10 @@ const canCreateLabel = computed(
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch :checked="value" @update:checked="handleChange" />
+                    <Switch
+                      :modelValue="value"
+                      @update:modelValue="handleChange"
+                    />
                   </FormControl>
                 </FormItem>
               </FormField>

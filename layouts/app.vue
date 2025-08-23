@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "vue-sonner/style.css";
 onMounted(() => {
   // init Note Store
   useNoteStore().initStore();
@@ -15,7 +16,7 @@ onBeforeUnmount(() => {
   <NuxtLoadingIndicator />
   <NuxtRouteAnnouncer />
   <div
-    class="grid min-h-screen w-full bg-background text-foreground scrollbar-track-background scrollbar-thumb-muted lg:grid-cols-[280px_1fr]"
+    class="bg-background text-foreground scrollbar-track-background scrollbar-thumb-muted grid min-h-screen w-full lg:grid-cols-[280px_1fr]"
   >
     <AppSideBar />
     <div class="flex flex-col">

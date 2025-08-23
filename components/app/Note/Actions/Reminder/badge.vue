@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Badge } from "@/components/ui/badge";
 import { BellRingIcon, XIcon } from "lucide-vue-next";
 const { formatToTimeAgo } = useDateUtils();
 defineProps<{
@@ -11,7 +12,7 @@ defineEmits<{
 </script>
 <template>
   <Transition name="modal">
-    <Badge variant="secondary" v-if="date" class="bg-transparent/10 pr-0">
+    <Badge variant="secondary" v-if="date" class="bg-black/30 pr-0">
       <BellRingIcon class="mr-2 size-4" />
       <span class="mr-2">
         {{ formatToTimeAgo(date, { sentence: true }) }}

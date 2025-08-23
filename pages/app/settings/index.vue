@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
 import { updateUserSchema } from "@/schemas/user";
-import { toTypedSchema } from "@vee-validate/zod";
 import { PlusIcon } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 definePageMeta({
   layout: "app",
 });
 const { user, updateUser } = useUser();
-const formSchema = toTypedSchema(updateUserSchema);
 const onSubmit = async (values: Record<string, string | File>) => {
   if (!user.value) return;
   try {
@@ -34,7 +32,7 @@ const getImage = (value?: File | string | null) => {
         Manage your account information, including your display name, profile
         picture, and current plan.
       </p>
-      <hr class="my-2 bg-muted" />
+      <hr class="bg-muted my-2" />
     </div>
     <Form
       class="mb-8 grid max-w-lg gap-6"
@@ -45,16 +43,16 @@ const getImage = (value?: File | string | null) => {
         email: user?.email,
         picture: user?.picture,
       }"
-      :validation-schema="formSchema"
+      :validation-schema="updateUserSchema"
     >
       <FormField name="picture" v-slot="{ value, handleChange, handleBlur }">
         <FormItem>
-          <FormLabel class="flex flex-col">
+          <FormLabel class="flex flex-col items-start">
             <span class="font-semibold">Display Picture</span>
             <Avatar class="mt-3 size-24 cursor-pointer rounded-lg" tabindex="0">
               <AvatarImage :src="getImage(value)" alt="Display Picture" />
               <AvatarFallback
-                class="bg-muted text-lg font-semibold text-muted-foreground"
+                class="bg-muted text-muted-foreground text-lg font-semibold"
               >
                 {{ user?.name ? getTwoChars(user.name) : "C|N" }}
               </AvatarFallback>
@@ -109,7 +107,7 @@ const getImage = (value?: File | string | null) => {
           plan.
           <NuxtLink
             to="/pricing"
-            class="underline underline-offset-4 hover:text-primary"
+            class="hover:text-primary underline underline-offset-4"
             >Switch to a different plan</NuxtLink
           >
         </p>
@@ -134,7 +132,7 @@ const getImage = (value?: File | string | null) => {
           </template>
         </AppLabelCreate>
       </div>
-      <hr class="my-2 bg-muted" />
+      <hr class="bg-muted my-2" />
     </div>
   </AppMainContainer>
 </template>

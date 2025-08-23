@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "vue-sonner/style.css";
 const background = useState<string>("background");
 const animate = ref(false);
 
@@ -16,7 +17,7 @@ watch(background, () => {
   <div
     :style="background"
     :class="[
-      'min-h-screen text-foreground transition-colors duration-700 ease-in-out scrollbar-track-background scrollbar-thumb-muted',
+      'text-foreground scrollbar-track-background scrollbar-thumb-muted min-h-screen transition-colors duration-700 ease-in-out',
       { 'animate-bg-reveal': animate },
     ]"
   >

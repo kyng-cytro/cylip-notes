@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue";
 import { Loader2 } from "lucide-vue-next";
-import { Primitive, type PrimitiveProps } from "radix-vue";
-import { type ButtonVariants, buttonVariants } from ".";
+import type { HTMLAttributes } from "vue";
+import { Primitive, type PrimitiveProps } from "reka-ui";
 import { cn } from "@/lib/utils";
+import { type ButtonVariants, buttonVariants } from ".";
 
 interface Props extends PrimitiveProps {
   to?: string;
@@ -28,9 +28,9 @@ const props = withDefaults(defineProps<Props>(), {
     <slot />
   </NuxtLink>
   <Primitive
+    data-slot="button"
     :as="as"
     :as-child="asChild"
-    :disabled="loading"
     :class="cn(buttonVariants({ variant, size }), props.class)"
     v-else
   >
@@ -40,7 +40,6 @@ const props = withDefaults(defineProps<Props>(), {
         :class="{ 'mr-2': size !== 'icon' }"
       />
       <span v-if="size !== 'icon'">Loading...</span>
-      <span class="sr-only">Loading...</span>
     </template>
     <slot v-else />
   </Primitive>

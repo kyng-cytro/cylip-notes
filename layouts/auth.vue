@@ -1,8 +1,11 @@
+<script setup lang="ts">
+import "vue-sonner/style.css";
+</script>
 <template>
   <Toaster class="pointer-events-auto" />
   <NuxtLoadingIndicator />
   <div
-    class="pattern flex h-full min-h-screen flex-col justify-center bg-background text-foreground"
+    class="pattern bg-background text-foreground flex h-full min-h-screen flex-col justify-center"
   >
     <main class="py-8">
       <NuxtPage />
