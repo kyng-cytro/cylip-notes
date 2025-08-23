@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { toTypedSchema } from "@vee-validate/zod";
 import { magicLinkLoginSchema } from "@/schemas/user";
+import { toast } from "vue-sonner";
 definePageMeta({
   layout: "auth",
 });
 
 const { signIn } = useUser();
-const formSchema = toTypedSchema(magicLinkLoginSchema);
 
 const onSubmit = async (values: Record<string, any>) => {
   try {
@@ -37,7 +35,7 @@ const onSubmit = async (values: Record<string, any>) => {
               class="grid gap-4"
               @submit="onSubmit"
               v-slot="{ isSubmitting }"
-              :validation-schema="formSchema"
+              :validation-schema="magicLinkLoginSchema"
             >
               <FormField name="email" v-slot="{ componentField }">
                 <FormItem>

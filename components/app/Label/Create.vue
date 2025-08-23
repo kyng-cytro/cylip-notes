@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { toTypedSchema } from "@vee-validate/zod";
 import { labelCreateSchema } from "@/schemas/label";
 import { DropletOffIcon } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 
 const open = ref(false);
 const { isPremium } = useUser();
-const formSchema = toTypedSchema(labelCreateSchema);
 const value = defineModel<string | undefined>("value", { default: undefined });
 
 const onSubmit = async (values: Record<string, any>) => {
@@ -51,7 +49,7 @@ const canCreateLabel = computed(
         @submit="onSubmit"
         class="grid gap-4"
         v-slot="{ isSubmitting }"
-        :validation-schema="formSchema"
+        :validation-schema="labelCreateSchema"
         :initial-values="{ name: value, options: { preview: true } }"
       >
         <FormField name="name" v-slot="{ componentField }">

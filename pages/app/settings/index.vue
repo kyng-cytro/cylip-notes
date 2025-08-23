@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
 import { updateUserSchema } from "@/schemas/user";
-import { toTypedSchema } from "@vee-validate/zod";
 import { PlusIcon } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 definePageMeta({
   layout: "app",
 });
 const { user, updateUser } = useUser();
-const formSchema = toTypedSchema(updateUserSchema);
 const onSubmit = async (values: Record<string, string | File>) => {
   if (!user.value) return;
   try {
@@ -45,7 +43,7 @@ const getImage = (value?: File | string | null) => {
         email: user?.email,
         picture: user?.picture,
       }"
-      :validation-schema="formSchema"
+      :validation-schema="updateUserSchema"
     >
       <FormField name="picture" v-slot="{ value, handleChange, handleBlur }">
         <FormItem>
