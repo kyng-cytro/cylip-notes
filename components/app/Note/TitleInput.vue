@@ -12,7 +12,7 @@ defineProps<{
       id="title"
       type="text"
       placeholder="Title"
-      class="placeholder:text-primary border-none px-0 text-xl font-semibold placeholder:font-normal focus-visible:ring-0 dark:bg-transparent"
+      class="placeholder:text-primary border-none px-0 text-xl! font-semibold placeholder:font-normal focus-visible:ring-0 dark:bg-transparent"
       :class="{ 'py-6': large }"
       v-model="text"
       :disabled="disabled"
