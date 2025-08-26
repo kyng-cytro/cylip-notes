@@ -9,7 +9,7 @@ const closeMobileMenu = () => {
 </script>
 <template>
   <header
-    class="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6"
+    class="bg-muted/40 flex h-14 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6"
   >
     <Sheet v-model:open="mobileMenuOpen">
       <SheetTrigger as-child>
@@ -18,7 +18,7 @@ const closeMobileMenu = () => {
           <span class="sr-only">Toggle navigation menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" class="flex flex-col">
+      <SheetContent side="left" class="flex flex-col p-4">
         <SheetTitle class="mb-4">
           <Logo
             class="-mx-4"
@@ -31,7 +31,7 @@ const closeMobileMenu = () => {
           >Snap, Note, Remember</SheetDescription
         >
         <nav
-          class="grid min-h-20 gap-y-3 overflow-y-auto font-medium scrollbar-thin"
+          class="scrollbar-thin grid min-h-20 gap-y-3 overflow-y-auto font-medium"
         >
           <AppHeaderItem
             @click="closeMobileMenu"

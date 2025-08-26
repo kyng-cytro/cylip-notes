@@ -40,7 +40,12 @@ const handleClearReminder = () => {
       />
       <p class="text-sm">Remind me:</p>
       <AppDatePicker v-model="date" />
-      <Button variant="ghost" size="xs" class="mt-2" @click="handleSetReminder">
+      <Button
+        variant="outline"
+        size="xs"
+        class="mt-2"
+        @click="handleSetReminder"
+      >
         Set Reminder
       </Button>
     </PopoverContent>
