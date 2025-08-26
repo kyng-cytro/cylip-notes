@@ -63,7 +63,7 @@ const minDate = computed(() => {
         placeholder="Tomorrow at 9pm..."
         :class="
           cn(
-            'h-[36px] justify-start text-left font-normal',
+            'h-[36px] justify-start text-left text-sm font-normal',
             !inputString && 'text-muted-foreground',
           )
         "
