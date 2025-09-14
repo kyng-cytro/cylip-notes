@@ -58,6 +58,38 @@ const handlePaste = async () => {
     >Redo
     <ContextMenuShortcut>⌘⇧Z</ContextMenuShortcut>
   </ContextMenuItem>
+  <ContextMenuSub>
+    <ContextMenuSubTrigger inset> AI Tools </ContextMenuSubTrigger>
+    <ContextMenuSubContent class="w-48">
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.suggest()"
+        :disabled="disabled || !editor.can().suggest()"
+        >Suggest
+        <ContextMenuShortcut>⌘Space</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.accept()"
+        :disabled="disabled || !editor.can().accept()"
+        >Accept
+        <ContextMenuShortcut>Tab</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.discard()"
+        :disabled="disabled || !editor.can().discard()"
+        >Discard
+        <ContextMenuShortcut>Esc</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('formal')"
+        :disabled="disabled || !editor.can().refine('formal')"
+        >Refine › Formal
+      </ContextMenuCheckboxItem>
+    </ContextMenuSubContent>
+  </ContextMenuSub>
   <ContextMenuSeparator />
   <!-- Formatting -->
   <ContextMenuSub>
