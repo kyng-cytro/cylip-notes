@@ -58,8 +58,8 @@ export const extensions = [
         });
         return "totally new text";
       },
-      onError(action, message) {
-        toast.error(`[${action}] ${message}`);
+      onError(feature, message) {
+        toast.error(`[${feature}] ${message}`);
       },
     },
   }),

@@ -84,9 +84,27 @@ const handlePaste = async () => {
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
+        @click="editor.ai.refine('refine')"
+        :disabled="disabled || !editor.can().refine('refine')"
+        >Refine
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
         @click="editor.ai.refine('formal')"
         :disabled="disabled || !editor.can().refine('formal')"
         >Refine › Formal
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('shorten')"
+        :disabled="disabled || !editor.can().refine('shorten')"
+        >Refine › Shorten
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('lengthen')"
+        :disabled="disabled || !editor.can().refine('lengthen')"
+        >Refine › Lengthen
       </ContextMenuCheckboxItem>
     </ContextMenuSubContent>
   </ContextMenuSub>
