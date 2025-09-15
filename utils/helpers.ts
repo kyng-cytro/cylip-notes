@@ -15,6 +15,10 @@ export const CONSTANTS = {
     "image/webp",
     "image/svg+xml",
   ],
+  rates: {
+    refine: 5,
+    suggest: 3,
+  },
   maxFreeLables: 3,
   maxImagePerNote: {
     free: 1,

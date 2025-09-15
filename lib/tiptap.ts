@@ -1,5 +1,5 @@
 import lowlight from "@/lib/lowlight";
-import { AI, CodeBlock, MarkDownCopy } from "@/lib/tiptap/custom-extensions";
+import { CodeBlock, MarkDownCopy } from "@/lib/tiptap/custom-extensions";
 import NodeRange from "@tiptap-pro/extension-node-range";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
@@ -9,7 +9,6 @@ import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
-import { toast } from "vue-sonner";
 
 export const extensions = [
   TaskList,
@@ -39,28 +38,5 @@ export const extensions = [
   }),
   NodeRange.configure({
     key: null,
-  }),
-  AI.configure({
-    provider: {
-      async getSuggestion(text) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve("");
-          }, 5000);
-        });
-        return " sample suggestion";
-      },
-      async refine(text, mode) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve("");
-          }, 5000);
-        });
-        return "totally new text";
-      },
-      onError(action, message) {
-        toast.error(`[${action}] ${message}`);
-      },
-    },
   }),
 ];

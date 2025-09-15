@@ -9,7 +9,7 @@ export interface AIProvider {
   };
   onError?: (action: string, message: string) => void;
   getSuggestion: (text: string) => Promise<string | null>;
-  refine: (text: string, mode: string) => Promise<string>;
+  refine: (text: string, mode: string) => Promise<string | null>;
 }
 
 declare module "@tiptap/core" {
@@ -64,37 +64,45 @@ const safeCall = async ({
   action,
   provider,
   run,
+  clearDecorations,
 }: {
   action: string;
   provider: AIProvider;
   run: () => Promise<void>;
+  clearDecorations?: () => void;
 }) => {
   try {
     await run();
   } catch (e: any) {
     provider.onError?.(action, e.message ?? String(e));
+    clearDecorations?.();
   }
 };
 
-const createLoadingInline = ({ from, to }: { from: number; to: number }) => {
-  return Decoration.inline(from, to, {
-    nodeName: "span",
-    class: "opacity-50 rainbow-animation",
-  });
-};
-
-const createLoadingWidget = ({ from }: { from: number }) => {
-  return Decoration.widget(from, () => {
-    const span = document.createElement("span");
-    span.innerText = "getting suggestion...";
-    span.classList.add(
-      "ml-.5",
-      "opacity-50",
-      "rainbow-animation",
-      "pointer-events-none",
-    );
-    return span;
-  });
+const createLoadingWidget = (
+  opts:
+    | { type: "inline"; from: number; to: number }
+    | { type: "widget"; from: number },
+) => {
+  switch (opts.type) {
+    case "inline":
+      return Decoration.inline(opts.from, opts.to, {
+        nodeName: "span",
+        class: "opacity-50 rainbow-animation",
+      });
+    case "widget":
+      return Decoration.widget(opts.from, () => {
+        const span = document.createElement("span");
+        span.innerText = "getting suggestion...";
+        span.classList.add(
+          "ml-.5",
+          "opacity-50",
+          "rainbow-animation",
+          "pointer-events-none",
+        );
+        return span;
+      });
+  }
 };
 
 const createSuggestionWidget = ({
@@ -115,8 +123,8 @@ const createSuggestionWidget = ({
 export const AI = Extension.create<{ provider: AIProvider }>({
   name: "ai",
   addStorage: () => ({
-    suggestion: "",
     loading: false,
+    suggestion: "",
     key: new PluginKey("ai"),
     decorations: DecorationSet.empty,
   }),
@@ -143,7 +151,7 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           setDecorations({
             editor,
             storage: this.storage,
-            decorations: [createLoadingWidget({ from })],
+            decorations: [createLoadingWidget({ type: "widget", from })],
           });
           safeCall({
             action: "suggest",
@@ -154,6 +162,10 @@ export const AI = Extension.create<{ provider: AIProvider }>({
               if (!suggestion) {
                 this.storage.suggestion = "";
                 clearDecorations({ editor, storage: this.storage });
+                this.options.provider.onError?.(
+                  "suggest",
+                  "Couldn't suggest a continuation. Keep typing for more context.",
+                );
                 return;
               }
               this.storage.suggestion = suggestion;
@@ -165,6 +177,8 @@ export const AI = Extension.create<{ provider: AIProvider }>({
                 ],
               });
             },
+            clearDecorations: () =>
+              clearDecorations({ editor, storage: this.storage }),
           }).finally(() => {
             this.storage.loading = false;
             editor.commands.focus();
@@ -180,6 +194,7 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           const suggestion = this.storage.suggestion;
           this.storage.suggestion = "";
           clearDecorations({ editor, storage: this.storage });
+          // HACK: to make sure it's set in the next tick
           setTimeout(
             () => editor.chain().focus().insertContent(suggestion).run(),
             0,
@@ -211,13 +226,19 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           setDecorations({
             editor,
             storage: this.storage,
-            decorations: [createLoadingInline({ from, to })],
+            decorations: [createLoadingWidget({ type: "inline", from, to })],
           });
           safeCall({
             action: "refine",
             provider: this.options.provider,
             run: async () => {
               const refined = await this.options.provider.refine(text, mode);
+              if (!refined) {
+                return this.options.provider.onError?.(
+                  "refine",
+                  "Couldn't refine the text. Please try again.",
+                );
+              }
               editor.chain().focus().insertContent(refined).run();
             },
           }).finally(() => {

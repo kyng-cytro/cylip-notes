@@ -57,21 +57,3 @@
   border-radius: 0.2rem;
   @apply bg-secondary;
 }
-
-.rainbow-animation {
-  @apply bg-gradient-to-r from-red-500 via-blue-500 via-green-500 via-yellow-500 to-purple-500 bg-clip-text text-transparent;
-  background-size: 300% 300%;
-  animation: rainbow 4s linear infinite;
-}
-
-@keyframes rainbow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
