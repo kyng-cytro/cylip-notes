@@ -16,6 +16,7 @@ export const CONSTANTS = {
     "image/svg+xml",
   ],
   rates: {
+    title: 1,
     refine: 5,
     suggest: 3,
   },
