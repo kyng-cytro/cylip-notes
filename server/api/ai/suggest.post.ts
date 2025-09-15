@@ -1,7 +1,7 @@
-import system from "../../utils/ai/suggestions-system-prompt.md";
 import { aiSuggestSchema } from "@/schemas/ai";
+import { decrement } from "@/server/utils/drizzle";
 import { CONSTANTS } from "@/utils/helpers";
-import { decrement } from "~/server/utils/drizzle";
+import system from "../../utils/ai/suggestions-system-prompt.md";
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const { user } = event.context;
@@ -19,9 +19,12 @@ export default defineAuthenticatedEventHandler(async (event) => {
       return { suggestion: null };
     }
     const db = useDrizzle();
-    await db.update(tables.user).set({
-      tokens: decrement(tables.user.tokens, CONSTANTS.rates.suggest),
-    });
+    await db
+      .update(tables.user)
+      .set({
+        tokens: decrement(tables.user.tokens, CONSTANTS.rates.suggest),
+      })
+      .where(eq(tables.user.id, user.id));
     return { suggestion };
   } catch (e) {
     console.error({ e });

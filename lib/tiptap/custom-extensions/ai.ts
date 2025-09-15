@@ -74,7 +74,7 @@ const safeCall = async ({
   try {
     await run();
   } catch (e: any) {
-    provider.onError?.(action, e.message ?? String(e));
+    provider.onError?.(action, e.data.message ?? String(e));
     clearDecorations?.();
   }
 };
