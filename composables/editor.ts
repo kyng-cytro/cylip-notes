@@ -1,12 +1,13 @@
-import * as Y from "yjs";
-import { toast } from "vue-sonner";
-import { extensions } from "@/lib/tiptap";
-import YPartyKitProvider from "y-partykit/provider";
-import Collaboration from "@tiptap/extension-collaboration";
-import FileHandler from "@tiptap-pro/extension-file-handler";
 import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
-import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
+import { extensions } from "@/lib/tiptap";
+import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
+import FileHandler from "@tiptap-pro/extension-file-handler";
+import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
+import { toast } from "vue-sonner";
+import YPartyKitProvider from "y-partykit/provider";
+import * as Y from "yjs";
 
 type EditorOpts = {
   roomId: string;
@@ -52,6 +53,34 @@ const proccessImage = async (editor: Editor, file: File, pos: number) => {
         .focus()
         .run();
     });
+};
+
+const getAIProvider = (): AIProvider => {
+  const user = useUser().user.value;
+  const tokens = user?.tokens ?? 0;
+  return {
+    permissions: {
+      refine: tokens >= CONSTANTS.rates.refine,
+      suggest: tokens >= CONSTANTS.rates.suggest,
+    },
+    async getSuggestion(text) {
+      const { suggestion } = await $fetch("/api/ai/suggest", {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      });
+      return suggestion;
+    },
+    async refine(text, mode) {
+      const { refined } = await $fetch("/api/ai/refine", {
+        method: "POST",
+        body: JSON.stringify({ text, mode }),
+      });
+      return refined;
+    },
+    onError(action, message) {
+      toast.error(`Failed to ${action}`, { description: message });
+    },
+  };
 };
 
 export const useEditorUtils = () => {
@@ -137,6 +166,9 @@ export const useEditor = async ({
               .end(),
           );
         },
+      }),
+      AI.configure({
+        provider: getAIProvider(),
       }),
     ],
     onFocus: ({ event }) => {

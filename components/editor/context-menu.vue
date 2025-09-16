@@ -58,6 +58,56 @@ const handlePaste = async () => {
     >Redo
     <ContextMenuShortcut>⌘⇧Z</ContextMenuShortcut>
   </ContextMenuItem>
+  <ContextMenuSub>
+    <ContextMenuSubTrigger inset> AI Tools </ContextMenuSubTrigger>
+    <ContextMenuSubContent class="w-48">
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.suggest()"
+        :disabled="disabled || !editor.can().suggest()"
+        >Suggest
+        <ContextMenuShortcut>⌘Space</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.accept()"
+        :disabled="disabled || !editor.can().accept()"
+        >Accept
+        <ContextMenuShortcut>Tab</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.discard()"
+        :disabled="disabled || !editor.can().discard()"
+        >Discard
+        <ContextMenuShortcut>Esc</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('refine')"
+        :disabled="disabled || !editor.can().refine('refine')"
+        >Refine
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('formal')"
+        :disabled="disabled || !editor.can().refine('formal')"
+        >Refine › Formal
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('shorten')"
+        :disabled="disabled || !editor.can().refine('shorten')"
+        >Refine › Shorten
+      </ContextMenuCheckboxItem>
+      <ContextMenuCheckboxItem
+        inset
+        @click="editor.ai.refine('lengthen')"
+        :disabled="disabled || !editor.can().refine('lengthen')"
+        >Refine › Lengthen
+      </ContextMenuCheckboxItem>
+    </ContextMenuSubContent>
+  </ContextMenuSub>
   <ContextMenuSeparator />
   <!-- Formatting -->
   <ContextMenuSub>

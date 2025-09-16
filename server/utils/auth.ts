@@ -19,6 +19,7 @@ export function initializeLucia() {
         id: attributes.id,
         name: attributes.name,
         email: attributes.email,
+        tokens: attributes.tokens,
         picture: attributes.picture,
         googleId: attributes.googleId,
         accountType: attributes.accountType,

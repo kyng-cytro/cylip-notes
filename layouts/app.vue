@@ -15,17 +15,19 @@ onBeforeUnmount(() => {
   <Toaster class="pointer-events-auto" />
   <NuxtLoadingIndicator />
   <NuxtRouteAnnouncer />
-  <div
-    class="bg-background text-foreground scrollbar-track-background scrollbar-thumb-muted grid min-h-screen w-full lg:grid-cols-[280px_1fr]"
-  >
-    <AppSideBar />
-    <div class="flex flex-col">
-      <AppHeader />
-      <PlusModalNuxtPage v-slot="{ route }">
-        <NuxtPage :route="route" />
-      </PlusModalNuxtPage>
+  <TooltipProvider>
+    <div
+      class="bg-background text-foreground scrollbar-track-background scrollbar-thumb-muted grid min-h-screen w-full lg:grid-cols-[280px_1fr]"
+    >
+      <AppSideBar />
+      <div class="flex flex-col">
+        <AppHeader />
+        <PlusModalNuxtPage v-slot="{ route }">
+          <NuxtPage :route="route" />
+        </PlusModalNuxtPage>
+      </div>
     </div>
-  </div>
+  </TooltipProvider>
 </template>
 
 <style>

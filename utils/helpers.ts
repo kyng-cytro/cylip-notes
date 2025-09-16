@@ -15,11 +15,22 @@ export const CONSTANTS = {
     "image/webp",
     "image/svg+xml",
   ],
+  rates: {
+    title: 1,
+    refine: 5,
+    suggest: 3,
+  },
+  minContentLength: 100,
   maxFreeLables: 3,
   maxImagePerNote: {
     free: 1,
     premium: 3,
   },
+};
+
+export const hasEnoughContent = (content: string | null) => {
+  if (!content) return false;
+  return content.length >= CONSTANTS.minContentLength;
 };
 
 export const slugify = (text: string) => {

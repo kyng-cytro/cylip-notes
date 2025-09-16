@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: { typedPages: true, viewTransition: false },
   future: { compatibilityVersion: 4 },
-  hub: { database: true, cache: true, blob: true },
+  hub: { blob: true, cache: true, database: true },
   modules: [
     "@nuxt/image",
     "@pinia/nuxt",
@@ -88,6 +88,7 @@ export default defineNuxtConfig({
     },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
+      aiApiKey: process.env.NUXT_GOOGLE_AI_API_KEY,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
     },
     resend: {

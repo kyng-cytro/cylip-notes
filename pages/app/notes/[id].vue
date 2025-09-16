@@ -41,6 +41,16 @@ const refreshAndRemount = () => {
   initializeEditor();
 };
 
+const suggestTitle = async () => {
+  const text = editor.value?.getText();
+  if (!text) return [];
+  const { titles } = await $fetch("/api/ai/title", {
+    method: "POST",
+    body: { text: text.slice(0, 200) },
+  });
+  return titles;
+};
+
 watchDebounced(
   title,
   async () => {
@@ -88,6 +98,11 @@ const background = computed(() => {
           large
           v-model="title"
           :disabled="!editor.isEditable"
+          :suggest="{
+            fn: () => suggestTitle(),
+            enabled:
+              editor.isEditable && !title && hasEnoughContent(editor.getText()),
+          }"
         />
         <EditorToolbar :editor="editor" />
         <div
