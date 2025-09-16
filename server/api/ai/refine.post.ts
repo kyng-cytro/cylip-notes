@@ -14,7 +14,9 @@ export default defineAuthenticatedEventHandler(async (event) => {
   const { text, mode } = await readValidatedBody(event, aiRefineSchema.parse);
   try {
     const { generateText } = getAISDK();
-    const { text: refined } = await generateText(`[${mode}]: ${text}`, system);
+    const { text: refined } = await generateText(`[${mode}]: ${text}`, system, {
+      temperature: 0.2,
+    });
     if (!refined || refined.includes("<NO-TEXT>")) {
       return { refined: null };
     }

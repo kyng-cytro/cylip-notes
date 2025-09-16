@@ -14,7 +14,9 @@ export default defineAuthenticatedEventHandler(async (event) => {
   const { text } = await readValidatedBody(event, aiSuggestSchema.parse);
   try {
     const { generateText } = getAISDK();
-    const { text: suggestion } = await generateText(text, system);
+    const { text: suggestion } = await generateText(text, system, {
+      temperature: 0.3,
+    });
     if (!suggestion || suggestion.includes("<NO-SUGGESTION>")) {
       return { suggestion: null };
     }
