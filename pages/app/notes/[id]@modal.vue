@@ -18,6 +18,16 @@ const refresh = () => {
   note.value = noteStore.methods.getNoteById(id);
 };
 
+const suggestTitle = async () => {
+  const text = editor.getText();
+  if (!text) return [];
+  const { titles } = await $fetch("/api/ai/title", {
+    method: "POST",
+    body: { text: text.slice(0, 200) },
+  });
+  return titles;
+};
+
 watchDebounced(
   title,
   async () => {
@@ -51,7 +61,7 @@ const background = computed(() => {
           <TooltipWrapper tooltip="Close note">
             <Button
               variant="link"
-              class="-ml-3 hover:text-secondary"
+              class="hover:text-secondary -ml-3"
               size="xs"
               @click="useModalRouter().close()"
             >
@@ -70,8 +80,12 @@ const background = computed(() => {
         </div>
         <AppNoteTitleInput
           v-model="title"
-          can-open
           :disabled="!editor.isEditable"
+          :suggest="{
+            fn: () => suggestTitle(),
+            enabled:
+              editor.isEditable && !title && hasEnoughContent(editor.getText()),
+          }"
         />
         <EditorToolbar :editor="editor" />
       </CardHeader>

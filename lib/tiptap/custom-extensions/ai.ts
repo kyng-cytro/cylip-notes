@@ -144,9 +144,15 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           const text = editor.state.doc.textBetween(0, from, " ");
           const can =
             !!this.options.provider.permissions?.suggest &&
-            text.trim().length > 0;
+            hasEnoughContent(text);
           if (!dispatch) return can;
-          if (!can) return false;
+          if (!can) {
+            this.options.provider.onError?.(
+              "suggest",
+              "Suggestion is disabled or the content is too short",
+            );
+            return false;
+          }
           this.storage.loading = true;
           setDecorations({
             editor,
@@ -219,9 +225,15 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           const can =
             !!this.options.provider.permissions?.refine &&
             from !== to &&
-            text.trim().length > 0;
+            hasEnoughContent(text);
           if (!dispatch) return can;
-          if (!can) return false;
+          if (!can) {
+            this.options.provider.onError?.(
+              "refine",
+              "Refinement is disabled or the content is too short",
+            );
+            return false;
+          }
           this.storage.loading = true;
           setDecorations({
             editor,

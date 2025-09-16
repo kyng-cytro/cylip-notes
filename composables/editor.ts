@@ -78,7 +78,7 @@ const getAIProvider = (): AIProvider => {
       return refined;
     },
     onError(action, message) {
-      toast.error(`[${action}] ${message}`);
+      toast.error(`Failed to ${action}`, { description: message });
     },
   };
 };

@@ -1,6 +1,7 @@
 import { aiTitleSchema } from "@/schemas/ai";
 import { decrement } from "@/server/utils/drizzle";
 import { CONSTANTS } from "@/utils/helpers";
+import z from "zod";
 import system from "../../utils/ai/title-system-prompt.md";
 
 export default defineAuthenticatedEventHandler(async (event) => {
@@ -13,10 +14,12 @@ export default defineAuthenticatedEventHandler(async (event) => {
   }
   const { text } = await readValidatedBody(event, aiTitleSchema.parse);
   try {
-    const { generateText } = getAISDK();
-    const { text: content } = await generateText(text, system);
-    if (!content || content.includes("<NO-TITLE>")) {
-      return { title: null };
+    const { generateObject } = getAISDK();
+    const { object } = await generateObject(text, z.string().array(), system, {
+      temperature: 0.3,
+    });
+    if (!object || !Array.isArray(object)) {
+      return { titles: [] };
     }
     const db = useDrizzle();
     await db
@@ -25,7 +28,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         tokens: decrement(tables.user.tokens, CONSTANTS.rates.title),
       })
       .where(eq(tables.user.id, user.id));
-    return { titles: content.split("\n").map((line) => line.trim()) };
+    return { titles: object as string[] };
   } catch (e) {
     console.error({ e });
     throw createError({
