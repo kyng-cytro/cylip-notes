@@ -1,7 +1,7 @@
 import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
 import { extensions } from "@/lib/tiptap";
 import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
-import FileHandler from "@tiptap-pro/extension-file-handler";
+import FileHandler from "@tiptap/extension-file-handler";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
