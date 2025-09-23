@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const aiTitleSchema = z.object({
-  text: z.string().trim().min(1).max(200),
+  text: z.string().trim().min(1),
 });
 
 export const aiSuggestSchema = z.object({
