@@ -42,6 +42,7 @@
 .ProseMirror-selectednode,
 .ProseMirror-selectednoderange {
   position: relative;
+  z-index: 1;
 }
 
 .ProseMirror-selectednode::before,

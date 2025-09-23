@@ -1,6 +1,7 @@
+import { Editor, Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
-import { Extension, Editor } from "@tiptap/core";
+import { convertToEditorJSON } from "~/lib/marked";
 
 export interface AIProvider {
   permissions?: {
@@ -202,7 +203,12 @@ export const AI = Extension.create<{ provider: AIProvider }>({
           clearDecorations({ editor, storage: this.storage });
           // HACK: to make sure it's set in the next tick
           setTimeout(
-            () => editor.chain().focus().insertContent(suggestion).run(),
+            () =>
+              editor
+                .chain()
+                .focus()
+                .insertContent(convertToEditorJSON(suggestion))
+                .run(),
             0,
           );
           return true;
@@ -251,7 +257,11 @@ export const AI = Extension.create<{ provider: AIProvider }>({
                   "Couldn't refine the text. Please try again.",
                 );
               }
-              editor.chain().focus().insertContent(refined).run();
+              editor
+                .chain()
+                .focus()
+                .insertContent(convertToEditorJSON(refined))
+                .run();
             },
           }).finally(() => {
             this.storage.loading = false;
