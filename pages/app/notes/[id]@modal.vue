@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { extensions } from "@/lib/tiptap";
+import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
 import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
@@ -19,11 +21,11 @@ const refresh = () => {
 };
 
 const suggestTitle = async () => {
-  const text = editor.getText();
+  const text = renderToMarkdown({ extensions, content: editor.getJSON() });
   if (!text) return [];
   const { titles } = await $fetch("/api/ai/title", {
     method: "POST",
-    body: { text: text.slice(0, 200) },
+    body: { text },
   });
   return titles;
 };

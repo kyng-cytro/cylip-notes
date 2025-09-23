@@ -3,7 +3,7 @@ import { extensions } from "@/lib/tiptap";
 import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
 import FileHandler from "@tiptap-pro/extension-file-handler";
 import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 import YPartyKitProvider from "y-partykit/provider";
@@ -135,7 +135,7 @@ export const useEditor = async ({
     extensions: [
       ...extensions,
       Collaboration.configure({ document: yDoc }),
-      CollaborationCursor.configure({
+      CollaborationCaret.configure({
         provider: provider,
         user: {
           name: `${useUser().user.value?.name || "Guest"}`,

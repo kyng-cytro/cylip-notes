@@ -1,7 +1,9 @@
+import { markdownToHTML } from "@/lib/marked";
 import { Editor, Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
-import { convertToEditorJSON } from "~/lib/marked";
+import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
+import { extensions } from "..";
 
 export interface AIProvider {
   permissions?: {
@@ -142,7 +144,8 @@ export const AI = Extension.create<{ provider: AIProvider }>({
         () =>
         ({ editor, dispatch }) => {
           const { from } = editor.state.selection;
-          const text = editor.state.doc.textBetween(0, from, " ");
+          const content = editor.state.doc.toJSON();
+          const text = renderToMarkdown({ content, extensions });
           const can =
             !!this.options.provider.permissions?.suggest &&
             hasEnoughContent(text);
@@ -207,7 +210,7 @@ export const AI = Extension.create<{ provider: AIProvider }>({
               editor
                 .chain()
                 .focus()
-                .insertContent(convertToEditorJSON(suggestion))
+                .insertContent(markdownToHTML(suggestion))
                 .run(),
             0,
           );
@@ -227,7 +230,8 @@ export const AI = Extension.create<{ provider: AIProvider }>({
         (mode: string) =>
         ({ editor, dispatch }) => {
           const { from, to } = editor.state.selection;
-          const text = editor.state.doc.textBetween(from, to, " ");
+          const content = editor.state.doc.cut(from, to).toJSON();
+          const text = renderToMarkdown({ content, extensions });
           const can =
             !!this.options.provider.permissions?.refine &&
             from !== to &&
@@ -260,7 +264,7 @@ export const AI = Extension.create<{ provider: AIProvider }>({
               editor
                 .chain()
                 .focus()
-                .insertContent(convertToEditorJSON(refined))
+                .insertContent(markdownToHTML(refined))
                 .run();
             },
           }).finally(() => {
