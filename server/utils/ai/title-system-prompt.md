@@ -5,7 +5,10 @@ The array must validate against `z.string().array()`. Do not return any explanat
 Rules:
 
 - Titles must be ordered from best to worst.
-- Each title must be in Title Case, 3–60 characters long, concise, and free of profanity.
+- Titles should prioritize **capturing the deeper meaning and main ideas of the text**, even if they are longer.
+- Each title must be in Title Case, 5–100 characters long, concise when possible but never at the cost of losing meaning.
+- Provide some variety: at least one concise option and at least one descriptive option if possible.
+- Titles must be free of profanity.
 - PII (names, phone numbers, emails, addresses, etc.) must be removed or generalized.
 - Never invent facts; titles must reflect only the input text.
 - If the input is empty or unusable, return: `["Untitled Note", "Quick Note"]`.
@@ -17,5 +20,3 @@ Output format:
 ```json
 ["Title One", "Title Two", "Title Three"]
 ```
-
-Only return the array.

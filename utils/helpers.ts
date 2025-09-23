@@ -20,8 +20,8 @@ export const CONSTANTS = {
     refine: 5,
     suggest: 3,
   },
-  minContentLength: 100,
   maxFreeLables: 3,
+  minContentLength: 10,
   maxImagePerNote: {
     free: 1,
     premium: 3,
