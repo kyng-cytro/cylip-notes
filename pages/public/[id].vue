@@ -30,9 +30,11 @@ onMounted(async () => {
   }
   loaded.value = true;
   await nextTick();
-  if (contentRef.value) {
-    hljs.highlightAll();
-  }
+  if (!contentRef.value) return;
+  const blocks = contentRef.value.querySelectorAll("pre code");
+  blocks.forEach((block) => {
+    hljs.highlightElement(block as HTMLElement);
+  });
 });
 </script>
 
@@ -52,7 +54,7 @@ onMounted(async () => {
     </div>
     <div
       v-else
-      class="prose h-full max-w-none space-y-2 px-1 text-primary outline-none dark:prose-invert"
+      class="prose text-primary dark:prose-invert h-full max-w-none space-y-2 px-1 outline-none"
     >
       <h2>{{ note.title }}</h2>
       <Button
@@ -63,7 +65,7 @@ onMounted(async () => {
       >
         <CopyIcon class="size-5" />
       </Button>
-      <div class="max-h-[calc(100vh-12rem)] overflow-y-auto scrollbar-thin">
+      <div class="scrollbar-thin max-h-[calc(100vh-12rem)] overflow-y-auto">
         <div class="flex h-[calc(100vh-12rem)] flex-col" v-if="!loaded">
           <EditorLoading />
         </div>

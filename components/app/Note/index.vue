@@ -28,9 +28,11 @@ const background = computed(() => {
 
 onMounted(async () => {
   await nextTick();
-  if (contentRef.value) {
-    hljs.highlightAll();
-  }
+  if (!contentRef.value) return;
+  const blocks = contentRef.value.querySelectorAll("pre code");
+  blocks.forEach((block) => {
+    hljs.highlightElement(block as HTMLElement);
+  });
 });
 </script>
 <template>
