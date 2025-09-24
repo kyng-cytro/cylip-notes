@@ -16,7 +16,7 @@ import { Search } from "lucide-vue-next";
               spellcheck="false"
               autocomplete="off"
               placeholder="Search notes..."
-              class="bg-background w-full appearance-none pl-8 shadow-none sm:w-2/3"
+              class="bg-background w-full appearance-none pl-8 shadow-none md:w-2/3 lg:w-1/3"
             />
           </div>
         </form>
