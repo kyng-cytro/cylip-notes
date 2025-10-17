@@ -62,9 +62,9 @@ const background = computed(() => {
         <div class="flex items-center justify-between">
           <TooltipWrapper tooltip="Close note">
             <Button
-              variant="link"
-              class="hover:text-secondary -ml-3"
-              size="xs"
+              size="icon"
+              class="-ml-2"
+              variant="ghost"
               @click="useModalRouter().close()"
             >
               <XCircle class="size-5" />
