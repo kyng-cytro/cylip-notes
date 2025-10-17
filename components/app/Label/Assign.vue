@@ -17,7 +17,9 @@ const query = defineModel<string>();
       placeholder="Filter group..."
       auto-focus
     />
-    <CommandList class="max-w-[300px]">
+    <CommandList
+      class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary max-w-[300px]"
+    >
       <CommandEmpty class="flex flex-col items-center justify-center gap-2 p-4">
         <span>No label with the name "{{ query }}".</span>
         <AppLabelCreate v-model:value="query">
