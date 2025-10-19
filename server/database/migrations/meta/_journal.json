@@ -50,6 +50,13 @@
       "when": 1754010524592,
       "tag": "0008_past_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1760878921074,
+      "tag": "0009_add_note_fts",
+      "breakpoints": true
     }
   ]
 }

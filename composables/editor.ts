@@ -129,7 +129,7 @@ export const useEditor = async ({
     editorProps: {
       attributes: {
         class:
-          "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary",
+          "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary",
       },
     },
     extensions: [

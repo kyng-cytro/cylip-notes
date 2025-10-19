@@ -2,7 +2,7 @@
 
 /* basic editor styles */
 ::selection {
-  @apply bg-secondary;
+  @apply bg-secondary text-primary;
 }
 
 .tiptap :first-child {

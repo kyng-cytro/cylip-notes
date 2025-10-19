@@ -33,7 +33,7 @@ const canCreateLabel = computed(
         <slot name="trigger" :disabled="!canCreateLabel" />
         <Badge
           v-if="!canCreateLabel"
-          class="invisible absolute -top-3 -right-2 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
+          class="invisible absolute -top-3 -right-1 z-10 rounded-full px-1.5 transition-all duration-300 group-hover:visible"
           >Pro</Badge
         >
       </div>

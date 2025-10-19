@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { saveDoc, getEnvs, getParam, getDoc } from "./utils";
+import { saveDoc, getEnvs, getParam, getDoc, updateFTS } from "./utils";
 import { onConnect } from "y-partykit";
 import type * as Party from "partykit/server";
 
@@ -22,6 +22,13 @@ export default class YjsServer implements Party.Server {
         debounceWait: 5000,
       },
     });
+  }
+  onClose(connection: Party.Connection): void | Promise<void> {
+    const roomId = this.room.id;
+    const { apiKey, baseUrl } = getEnvs(this.room.env);
+    const sessionToken = getParam(connection.uri, "auth_session");
+    if (!apiKey || !baseUrl || !sessionToken) return;
+    return updateFTS({ roomId, apiKey, baseUrl, sessionToken });
   }
 }
 

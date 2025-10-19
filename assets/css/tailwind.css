@@ -160,6 +160,16 @@
   animation: rainbow 4s linear infinite;
 }
 
+.no-clear::-webkit-search-cancel-button {
+  @apply hidden;
+}
+
+.no-clear::-webkit-search-decoration,
+.no-clear::-webkit-search-results-button,
+.no-clear::-webkit-search-results-decoration {
+  @apply hidden;
+}
+
 @keyframes rainbow {
   0% {
     background-position: 0% 50%;
