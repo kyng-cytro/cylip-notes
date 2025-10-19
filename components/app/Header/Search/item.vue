@@ -1,8 +1,12 @@
 <script setup lang="ts">
-defineProps<{ item: { id: string; title: string; snippet: string } }>();
+defineProps<{
+  item: { id: string; title: string; snippet: string };
+  replace?: boolean;
+}>();
 </script>
 <template>
   <PlusModalLink
+    :replace
     :to="`/app/notes/${item.id}`"
     class="hover:bg-muted flex w-full flex-col gap-1 rounded-md p-2"
   >

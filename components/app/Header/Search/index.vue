@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Search, LoaderCircle } from "lucide-vue-next";
+import { LoaderCircle, Search } from "lucide-vue-next";
+import { PopoverClose } from "reka-ui";
 const results = ref<
   {
     id: string;
@@ -25,6 +26,11 @@ watchDebounced(
   },
   { debounce: 500 },
 );
+
+const replace = computed(() => {
+  const path = useRoute().path;
+  return path !== "/app" && !["reminders", "archive", "trash"].includes(path);
+});
 </script>
 <template>
   <ClientOnly>
@@ -49,7 +55,7 @@ watchDebounced(
           />
         </div>
       </PopoverTrigger>
-      <PopoverContent align="start" class="p-2 pb-4 md:w-[450px]">
+      <PopoverContent align="start" class="p-2 md:w-[450px]">
         <div class="flex h-full flex-col items-center justify-center gap-4">
           <template v-if="!results?.length">
             <h3 class="text-muted-foreground p-4 text-sm">
@@ -57,11 +63,11 @@ watchDebounced(
             </h3>
           </template>
           <template v-else>
-            <AppHeaderSearchItem
-              :item="result"
-              :key="result.id"
-              v-for="result in results"
-            />
+            <template :key="result.id" v-for="result in results">
+              <PopoverClose as-child>
+                <AppHeaderSearchItem :replace :item="result" />
+              </PopoverClose>
+            </template>
           </template>
         </div>
         <!-- Arrow -->

@@ -4,7 +4,8 @@ CREATE VIRTUAL TABLE note_fts USING fts5(
   user_id UNINDEXED,
   title,
   content,
-  tokenize = 'porter'
+  tokenize = 'porter',
+  prefix = '2 3'
 );
 
 CREATE TRIGGER IF NOT EXISTS note_fts_delete_trigger
