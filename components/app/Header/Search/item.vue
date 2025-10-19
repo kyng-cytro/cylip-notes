@@ -4,7 +4,7 @@ defineProps<{ item: { id: string; title: string; snippet: string } }>();
 <template>
   <PlusModalLink
     :to="`/app/notes/${item.id}`"
-    class="hover:bg-muted flex flex-col gap-1 rounded-md p-2"
+    class="hover:bg-muted flex w-full flex-col gap-1 rounded-md p-2"
   >
     <h3 class="text-sm font-semibold">
       {{ item.title }}
