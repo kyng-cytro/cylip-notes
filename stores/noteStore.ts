@@ -198,6 +198,15 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const searchNotes = async (query: string) => {
+    try {
+      const data = await $fetch(`/api/search/notes?q=${query}`);
+      return data;
+    } catch (e: any) {
+      toast.error("Error searching notes.", { description: e.message });
+    }
+  };
+
   // SSE
   const { data, event } = useEventSource(
     `${baseUrl}/api/users/server-events/${userId.value}`,
@@ -220,6 +229,7 @@ export const useNoteStore = defineStore("notes", () => {
       clearTrash,
       createNote,
       createLabel,
+      searchNotes,
       assignLabel,
       refreshData,
       setReminder,
