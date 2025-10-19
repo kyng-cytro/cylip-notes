@@ -15,17 +15,19 @@ export const getEnvs = (env: Record<string, unknown>) => {
   return { apiKey, baseUrl };
 };
 
+type Params = {
+  roomId: string;
+  apiKey: string;
+  baseUrl: string;
+  sessionToken: string;
+};
+
 export const getDoc = async ({
   roomId,
   apiKey,
   baseUrl,
   sessionToken,
-}: {
-  roomId: string;
-  apiKey: string;
-  baseUrl: string;
-  sessionToken: string;
-}) => {
+}: Params) => {
   try {
     const res = await ofetch<{ id: string; content: JSONContent | null }>(
       `${baseUrl}/api/notes/websocket/${roomId}`,
@@ -50,12 +52,8 @@ export const saveDoc = async ({
   apiKey,
   baseUrl,
   sessionToken,
-}: {
+}: Params & {
   doc: Y.Doc;
-  roomId: string;
-  apiKey: string;
-  baseUrl: string;
-  sessionToken: string;
 }) => {
   try {
     const content = getJsonFromDoc(doc);
@@ -67,6 +65,25 @@ export const saveDoc = async ({
         "x-session-id": sessionToken,
       },
       body: data,
+    });
+  } catch (e) {
+    console.error({ e });
+  }
+};
+
+export const updateFTS = async ({
+  roomId,
+  apiKey,
+  baseUrl,
+  sessionToken,
+}: Params) => {
+  try {
+    await ofetch(`${baseUrl}/api/notes/websocket/${roomId}/fts`, {
+      method: "PUT",
+      headers: {
+        "x-api-key": apiKey,
+        "x-session-id": sessionToken,
+      },
     });
   } catch (e) {
     console.error({ e });

@@ -6,3 +6,9 @@ CREATE VIRTUAL TABLE note_fts USING fts5(
   content,
   tokenize = 'porter'
 );
+
+CREATE TRIGGER IF NOT EXISTS note_fts_delete_trigger
+AFTER DELETE ON notes
+BEGIN
+    DELETE FROM note_fts WHERE note_id = OLD.id;
+END;

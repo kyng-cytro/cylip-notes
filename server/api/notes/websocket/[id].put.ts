@@ -1,6 +1,4 @@
-import { extensions } from "@/lib/tiptap";
 import { noteWebsocketPutSchema } from "@/schemas/note";
-import { renderToHTMLString } from "@tiptap/static-renderer";
 
 export default defineWebsocketEventHandler(async (event) => {
   const { id } = getRouterParams(event);
@@ -39,15 +37,6 @@ export default defineWebsocketEventHandler(async (event) => {
       });
     }
 
-    // Update the fts table
-    if (note.content) {
-      const html = renderToHTMLString({ content: note.content, extensions });
-      await db.run(sql`DELETE FROM note_fts WHERE note_id = ${note.id}`);
-      await db.run(sql`
-        INSERT INTO note_fts (note_id, user_id,title, content)
-        VALUES (${note.id}, ${note.userId}, ${note.title}, ${html})
-      `);
-    }
     return setResponseStatus(event, 200);
   } catch (e) {
     console.error({ e });
