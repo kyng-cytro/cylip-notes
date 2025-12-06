@@ -59,7 +59,7 @@ const replace = computed(() => {
         align="start"
         class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary max-h-96 overflow-y-auto p-2 md:w-[450px]"
       >
-        <div class="flex h-full flex-col items-center justify-center gap-4">
+        <div class="flex h-full flex-col items-center gap-4">
           <template v-if="!results?.length">
             <h3 class="text-muted-foreground p-4 text-sm">
               {{ q ? "No results found." : "Search notes..." }}
