@@ -43,3 +43,19 @@ export const notePatchSchema = z.discriminatedUnion("field", [
     value: z.string().min(1).nullable(),
   }),
 ]);
+
+export const noteReorderSchema = z
+  .object({
+    scope: z.enum(["all", "label"]),
+    labelId: z.string().min(1).optional(),
+    orderedIds: z.array(z.string().min(1)).min(1),
+  })
+  .superRefine((data, ctx) => {
+    if (data.scope === "label" && !data.labelId) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["labelId"],
+        message: "labelId is required when scope is label.",
+      });
+    }
+  });

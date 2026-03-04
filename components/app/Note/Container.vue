@@ -2,31 +2,43 @@
 import { VueDraggableNext } from "vue-draggable-next";
 import type { Note } from "@/server/utils/drizzle";
 
-const { disabled } = defineProps<{
+const props = defineProps<{
+  notes: Note[];
   disabled?: boolean;
 }>();
 
-const notes = defineModel<Note[]>("notes", { default: [] });
+const emit = defineEmits<{
+  reorder: [orderedIds: string[]];
+}>();
 
-const dragOptions = {
-  disabled,
+const dragOptions = computed(() => ({
+  disabled: props.disabled,
   animation: 200,
   delay: 150,
   delayOnTouchOnly: true,
   ghostClass: "ghost",
   chosenClass: "chosen",
   dragClass: "dragging",
-};
+}));
 
 const { conatinerStyles: layoutStyles } = useLayout();
 
 const drag = ref(false);
+const localNotes = ref<Note[]>([]);
 
 const { vibrate, isSupported } = useVibrate();
 
 const dragStart = () => {
   if (isSupported.value) vibrate(1);
   drag.value = true;
+};
+
+const dragEnd = () => {
+  drag.value = false;
+  emit(
+    "reorder",
+    localNotes.value.map((note) => note.id),
+  );
 };
 
 const setLeaveSize = (el: Element) => {
@@ -37,21 +49,30 @@ const setLeaveSize = (el: Element) => {
     position: "absolute",
   });
 };
+
+watch(
+  () => props.notes,
+  (value) => {
+    if (drag.value) return;
+    localNotes.value = [...value];
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
   <VueDraggableNext
     :class="layoutStyles"
     v-bind="dragOptions"
-    v-model="notes"
+    v-model="localNotes"
     @start="dragStart"
-    @end="drag = false"
+    @end="dragEnd"
   >
     <TransitionGroup
       @before-leave="setLeaveSize"
       :name="!drag ? 'flip-list' : undefined"
     >
-      <AppNote :note="note" v-for="note in notes" :key="note.id" />
+      <AppNote :note="note" v-for="note in localNotes" :key="note.id" />
     </TransitionGroup>
   </VueDraggableNext>
 </template>

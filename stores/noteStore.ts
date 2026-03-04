@@ -44,7 +44,19 @@ export const useNoteStore = defineStore("notes", () => {
     labelId?: string,
   ) => {
     const filterConfig = getFilterConfig(status, labelId);
-    return notes.value.filter((note) => filterConfig(note));
+    const isLabelScope = !!labelId && labelId !== "all-notes";
+
+    return notes.value
+      .filter((note) => filterConfig(note))
+      .sort((a, b) => {
+        const primaryOrder = isLabelScope
+          ? (b.labelOrder || 0) - (a.labelOrder || 0)
+          : (b.globalOrder || 0) - (a.globalOrder || 0);
+
+        if (primaryOrder !== 0) return primaryOrder;
+
+        return +new Date(b.createdAt) - +new Date(a.createdAt);
+      });
   };
 
   const getNoteById = (id: string) => {
@@ -207,6 +219,43 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
+  const reorderNotes = async (params: {
+    scope: "all" | "label";
+    labelId?: string;
+    orderedIds: string[];
+  }) => {
+    const { scope, labelId, orderedIds } = params;
+    if (orderedIds.length < 2) return;
+
+    const rankMap = new Map(
+      orderedIds.map((id, index) => [id, orderedIds.length - index]),
+    );
+
+    const previousNotes = [...notes.value];
+
+    notes.value = notes.value.map((note) => {
+      const rank = rankMap.get(note.id);
+      if (!rank) return note;
+
+      return {
+        ...note,
+        ...(scope === "label"
+          ? { labelOrder: rank }
+          : { globalOrder: rank }),
+      };
+    });
+
+    try {
+      await $fetch("/api/notes/reorder/list", {
+        method: "PATCH",
+        body: { scope, labelId, orderedIds },
+      });
+    } catch (e: any) {
+      notes.value = previousNotes;
+      toast.error("Error reordering notes.", { description: e.message });
+    }
+  };
+
   // SSE
   const { data, event } = useEventSource(
     `${baseUrl}/api/users/server-events/${userId.value}`,
@@ -232,6 +281,7 @@ export const useNoteStore = defineStore("notes", () => {
       searchNotes,
       assignLabel,
       refreshData,
+      reorderNotes,
       setReminder,
       getNoteById,
       retrieveNotes,

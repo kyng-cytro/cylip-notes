@@ -14,11 +14,19 @@ const notes = computed(() => {
 });
 
 const pinnedNotes = computed(() => {
-  return notesStore.methods.retrieveNotes("pinned");
+  return notesStore.methods.retrieveNotes("pinned", label.value);
 });
 
 const createNote = async () => {
   await notesStore.methods.createNote(label.value);
+};
+
+const reorderNotes = async (orderedIds: string[]) => {
+  await notesStore.methods.reorderNotes({
+    scope: label.value === "all-notes" ? "all" : "label",
+    labelId: label.value === "all-notes" ? undefined : label.value,
+    orderedIds,
+  });
 };
 </script>
 
@@ -58,8 +66,9 @@ const createNote = async () => {
           Pinned
         </p>
         <AppNoteContainer
-          v-model:notes="pinnedNotes"
+          :notes="pinnedNotes"
           v-if="pinnedNotes.length"
+          @reorder="reorderNotes"
         />
         <p
           class="text-sm font-semibold text-muted-foreground"
@@ -67,7 +76,7 @@ const createNote = async () => {
         >
           Others
         </p>
-        <AppNoteContainer v-model:notes="notes" />
+        <AppNoteContainer :notes="notes" @reorder="reorderNotes" />
       </AppScrollContainer>
     </template>
     <PlusModalPage name="modal" />

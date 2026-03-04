@@ -26,7 +26,7 @@ const notes = computed(() => {
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
         <p class="text-sm font-semibold text-muted-foreground">Archived</p>
-        <AppNoteContainer v-model:notes="notes" :disabled="true" />
+        <AppNoteContainer :notes="notes" :disabled="true" />
       </AppScrollContainer>
     </template>
     <PlusModalPage name="modal" />

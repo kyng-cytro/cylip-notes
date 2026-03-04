@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import type { SerializeObject } from "nitropack";
 export { and, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
+export { inArray } from "drizzle-orm";
 
 import type { AnyColumn } from "drizzle-orm";
 import * as schema from "../database/schema";
