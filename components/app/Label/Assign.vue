@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { ClientLabel } from "@/lib/types";
 import { Check, Plus } from "lucide-vue-next";
 defineProps<{
   labelId: string | null;
-  labels: Label[];
+  labels: ClientLabel[];
 }>();
 defineEmits<{
   (e: "assign-label", labelId: string | null): void;

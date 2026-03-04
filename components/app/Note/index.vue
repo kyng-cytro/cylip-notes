@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import hljs from "highlight.js";
-import type { Note } from "@/server/utils/drizzle";
+import type { ClientNote } from "@/lib/types";
 
 const props = defineProps<{
-  note: Note;
+  note: ClientNote;
 }>();
 
 const noteStore = useNoteStore();

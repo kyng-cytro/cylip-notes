@@ -1,12 +1,14 @@
-import type { Label, Note } from "@/server/utils/drizzle";
+import type { ClientLabel, ClientNote } from "@/lib/types";
 import type { JSONContent } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 
 export const useNoteStore = defineStore("notes", () => {
+  type UserData = { notes: ClientNote[]; labels: ClientLabel[] };
+
   // Getters
   const { user } = useUser();
-  const notes = ref<Note[]>([]);
-  const labels = ref<Label[]>([]);
+  const notes = ref<ClientNote[]>([]);
+  const labels = ref<ClientLabel[]>([]);
   const initialized = ref(false);
   const fetching = ref(false);
   const { baseUrl } = useRuntimeConfig().public;
@@ -23,12 +25,12 @@ export const useNoteStore = defineStore("notes", () => {
   // Actions
   const loadData = async (id: string) => {
     fetching.value = true;
-    const data = await $fetch(`/api/users/${id}`);
+    const data = await $fetch<UserData>(`/api/users/${id}`);
     fetching.value = false;
     return data;
   };
 
-  const updateData = (data: { notes: Note[]; labels: Label[] }) => {
+  const updateData = (data: UserData) => {
     notes.value = data.notes;
     labels.value = data.labels;
   };
@@ -64,7 +66,7 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   const createLabel = async (values: Record<string, any>) => {
-    const label = await $fetch("/api/labels", {
+    const label = await $fetch<ClientLabel>("/api/labels", {
       method: "POST",
       body: values,
     });
@@ -73,7 +75,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   const createNote = async (labelId?: string) => {
     try {
-      const note = await $fetch("/api/notes", {
+      const note = await $fetch<ClientNote>("/api/notes", {
         method: "POST",
         body: { labelId },
       });
@@ -92,7 +94,7 @@ export const useNoteStore = defineStore("notes", () => {
     newValue: string | JSONContent,
   ) => {
     try {
-      const data = await $fetch(`/api/notes/${noteId}`, {
+      const data = await $fetch<ClientNote>(`/api/notes/${noteId}`, {
         method: "PUT",
         body: { field: prop, value: newValue },
       });
@@ -104,10 +106,10 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
-  const assignLabel = async (note: Note, labelId: string | null) => {
+  const assignLabel = async (note: ClientNote, labelId: string | null) => {
     if (labelId === note.labelId) return;
     try {
-      const data = await $fetch(`/api/notes/${note.id}`, {
+      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
         method: "PATCH",
         body: { field: "label", value: labelId },
       });
@@ -121,11 +123,11 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   const setBackground = async (
-    note: Note,
+    note: ClientNote,
     options: { type: "color" | "image"; value: string } | null,
   ) => {
     try {
-      const data = await $fetch(`/api/notes/${note.id}`, {
+      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
         method: "PATCH",
         body: {
           field: "options",
@@ -147,9 +149,9 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
-  const setReminder = async (note: Note, reminderAt: Date | null) => {
+  const setReminder = async (note: ClientNote, reminderAt: Date | null) => {
     try {
-      const data = await $fetch(`/api/notes/${note.id}`, {
+      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
         method: "PATCH",
         body: { field: "reminder_at", value: reminderAt },
       });
@@ -163,13 +165,13 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   const toggleNoteProp = async (
-    note: Note,
+    note: ClientNote,
     prop: "pinned" | "archived" | "trashed" | "preview" | "public",
     options?: { recursiveCall?: boolean },
   ) => {
     const { body, message } = getToggleConfig(note, prop);
     try {
-      const data = await $fetch(`/api/notes/${note.id}`, {
+      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
         method: "PATCH",
         body,
       });
@@ -188,7 +190,7 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
-  const permenentlyDeleteNote = async (note: Note) => {
+  const permenentlyDeleteNote = async (note: ClientNote) => {
     try {
       await $fetch(`/api/notes/${note.id}`, { method: "DELETE" });
       notes.value = notes.value.filter((n) => n.id !== note.id);
@@ -212,7 +214,9 @@ export const useNoteStore = defineStore("notes", () => {
 
   const searchNotes = async (query: string) => {
     try {
-      const data = await $fetch(`/api/search/notes?q=${query}`);
+      const data = await $fetch<
+        { id: string; title: string; score: number; snippet: string }[]
+      >(`/api/search/notes?q=${query}`);
       return data;
     } catch (e: any) {
       toast.error("Error searching notes.", { description: e.message });

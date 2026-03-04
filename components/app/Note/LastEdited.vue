@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { ClientLabel } from "@/lib/types";
 import type { NoteOptions } from "@/schemas/note";
 
 const { formatToTimeAgo } = useDateUtils();
 defineProps<{
   trashed?: boolean;
   updatedAt: string;
-  label: Label | null;
+  label: ClientLabel | null;
   reminderAt: string | null;
   public?: NoteOptions["public"];
 }>();

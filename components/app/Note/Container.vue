@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { VueDraggableNext } from "vue-draggable-next";
-import type { Note } from "@/server/utils/drizzle";
+import type { ClientNote } from "@/lib/types";
 
 const props = defineProps<{
-  notes: Note[];
+  notes: ClientNote[];
   disabled?: boolean;
 }>();
 
@@ -24,7 +24,7 @@ const dragOptions = computed(() => ({
 const { conatinerStyles: layoutStyles } = useLayout();
 
 const drag = ref(false);
-const localNotes = ref<Note[]>([]);
+const localNotes = ref<ClientNote[]>([]);
 
 const { vibrate, isSupported } = useVibrate();
 
