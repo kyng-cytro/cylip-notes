@@ -123,6 +123,8 @@ export const note = sqliteTable("notes", {
     }),
   reminderAt: integer("reminder_at", { mode: "timestamp_ms" }),
   trashedAt: integer("trashed_at", { mode: "timestamp_ms" }),
+  globalOrder: integer("global_order").notNull().default(0),
+  labelOrder: integer("label_order"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

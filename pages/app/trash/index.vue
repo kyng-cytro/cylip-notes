@@ -46,7 +46,7 @@ const notes = computed(() => {
             </Button>
           </AppConfirmDialog>
         </div>
-        <AppNoteContainer v-model:notes="notes" :disabled="true" />
+        <AppNoteContainer :notes="notes" :disabled="true" />
       </AppScrollContainer>
     </template>
     <PlusModalPage name="modal" />

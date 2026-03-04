@@ -21,7 +21,10 @@ export default defineAuthenticatedEventHandler(async (event) => {
       with: {
         notes: {
           with: { label: true },
-          orderBy: (notes, { desc }) => [desc(notes.createdAt)],
+          orderBy: (notes, { desc }) => [
+            desc(notes.globalOrder),
+            desc(notes.createdAt),
+          ],
         },
         labels: {
           orderBy: (labels, { desc }) => [desc(labels.createdAt)],

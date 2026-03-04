@@ -72,7 +72,17 @@ export const getFilterConfig = (status: string, labelId?: string) => {
       }
       return !note.trashed && !note.archived && !note.pinned;
     },
-    pinned: (note) => !note.trashed && !note.archived && note.pinned,
+    pinned: (note) => {
+      if (labelId && labelId !== "all-notes") {
+        return (
+          !note.trashed &&
+          !note.archived &&
+          note.pinned &&
+          note.labelId === labelId
+        );
+      }
+      return !note.trashed && !note.archived && note.pinned;
+    },
     trashed: (note) => note.trashed,
     archived: (note) => note.archived,
     reminders: (note) => !!note.reminderAt,
