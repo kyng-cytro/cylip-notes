@@ -1,6 +1,5 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateObject, generateText } from "ai";
-import z from "zod";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText } from "ai";
 
 type Options = {
   topP?: number;
@@ -11,9 +10,9 @@ type Options = {
 };
 
 export const getAISDK = () => {
-  const { aiApiKey } = useRuntimeConfig().google;
-  const google = createGoogleGenerativeAI({
-    apiKey: aiApiKey,
+  const { apiKey } = useRuntimeConfig().openai;
+  const openai = createOpenAI({
+    apiKey,
   });
   return {
     generateText: (prompt: string, system?: string, opts?: Options) => {
@@ -21,21 +20,21 @@ export const getAISDK = () => {
         system,
         prompt,
         ...opts,
-        model: google("gemini-2.0-flash"),
+        model: openai("gpt-4.1-mini"),
       });
     },
     generateObject: (
       prompt: string,
-      schema: z.ZodType,
+      schema: any,
       system?: string,
       opts?: Options,
     ) => {
-      return generateObject({
+      return generateText({
         system,
         prompt,
-        schema,
         ...opts,
-        model: google("gemini-2.0-flash"),
+        output: schema,
+        model: openai("gpt-4.1-mini"),
       });
     },
   };

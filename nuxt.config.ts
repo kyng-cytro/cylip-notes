@@ -88,8 +88,10 @@ export default defineNuxtConfig({
     },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
-      aiApiKey: process.env.NUXT_GOOGLE_AI_API_KEY,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
+    },
+    openai: {
+      apiKey: process.env.NUXT_OPENAI_API_KEY,
     },
     resend: {
       apiKey: process.env.NUXT_RESEND_API_KEY,
