@@ -1,4 +1,4 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import z from "zod";
 
@@ -11,9 +11,9 @@ type Options = {
 };
 
 export const getAISDK = () => {
-  const { aiApiKey } = useRuntimeConfig().google;
-  const google = createGoogleGenerativeAI({
-    apiKey: aiApiKey,
+  const { apiKey } = useRuntimeConfig().openai;
+  const openai = createOpenAI({
+    apiKey,
   });
   return {
     generateText: (prompt: string, system?: string, opts?: Options) => {
@@ -21,7 +21,7 @@ export const getAISDK = () => {
         system,
         prompt,
         ...opts,
-        model: google("gemini-2.0-flash"),
+        model: openai("gpt-3.5-turbo"),
       });
     },
     generateObject: (
@@ -35,7 +35,7 @@ export const getAISDK = () => {
         prompt,
         schema,
         ...opts,
-        model: google("gemini-2.0-flash"),
+        model: openai("gpt-3.5-turbo"),
       });
     },
   };

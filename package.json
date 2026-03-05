@@ -16,7 +16,7 @@
     "dev": "concurrently \"bun app:dev\" \"bun partykit:dev\""
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.14",
+    "@ai-sdk/openai": "^3.0.40",
     "@floating-ui/dom": "^1.6.0",
     "@libsql/client": "^0.17.0",
     "@lucia-auth/adapter-drizzle": "^1.1.0",
@@ -50,7 +50,7 @@
     "@vue-email/render": "^0.0.9",
     "@vueuse/core": "^13.5.0",
     "@vueuse/motion": "^2.2.6",
-    "ai": "^5.0.44",
+    "ai": "^6.0.115",
     "arctic": "^2.3.4",
     "browser-image-compression": "^2.0.2",
     "chrono-node": "^2.8.3",
