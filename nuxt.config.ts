@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: { typedPages: true, viewTransition: false },
   future: { compatibilityVersion: 4 },
-  hub: { db: "sqlite", blob: true, cache: true },
+  hub: { db: "sqlite", blob: true },
   modules: [
     "@nuxt/image",
     "@pinia/nuxt",
