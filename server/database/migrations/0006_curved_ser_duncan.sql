@@ -1,1 +1,0 @@
-DROP INDEX `change_logs_user_id_unique`;

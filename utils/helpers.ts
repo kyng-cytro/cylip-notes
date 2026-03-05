@@ -1,3 +1,5 @@
+import type { ClientNote } from "@/lib/types";
+
 export const CONSTANTS = {
   imageSizeLimit: 300000,
   profileImageSizeLimit: 1000000,
@@ -60,7 +62,7 @@ export const getTwoChars = (text: string) => {
 };
 
 export const getFilterConfig = (status: string, labelId?: string) => {
-  const filterMap: Record<string, (note: Note) => boolean> = {
+  const filterMap: Record<string, (note: ClientNote) => boolean> = {
     active: (note) => {
       if (labelId && labelId !== "all-notes") {
         return (
@@ -90,7 +92,7 @@ export const getFilterConfig = (status: string, labelId?: string) => {
   return filterMap[status] || (() => false);
 };
 
-export const getToggleConfig = (note: Note, prop: string) => {
+export const getToggleConfig = (note: ClientNote, prop: string) => {
   const { pinned, trashed, archived, options } = note;
   const toggleMap: Record<
     string,

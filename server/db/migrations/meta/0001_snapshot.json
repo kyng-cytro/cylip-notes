@@ -1,8 +1,8 @@
 {
+  "id": "f1b7d055-e258-4859-ac21-ab0d9485fc5c",
+  "prevId": "33fafd31-bec4-4c73-90e6-974e3a194738",
   "version": "6",
   "dialect": "sqlite",
-  "id": "163959f2-2127-4170-b8cf-03a1dff536c2",
-  "prevId": "c90fdceb-d68a-465f-9a5b-4f2394955201",
   "tables": {
     "change_logs": {
       "name": "change_logs",
@@ -41,15 +41,15 @@
         "change_logs_user_id_users_id_fk": {
           "name": "change_logs_user_id_users_id_fk",
           "tableFrom": "change_logs",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -86,15 +86,15 @@
         "email_verification_tokens_user_id_users_id_fk": {
           "name": "email_verification_tokens_user_id_users_id_fk",
           "tableFrom": "email_verification_tokens",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -138,7 +138,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'null'"
+          "default": "'{\"preview\":true}'"
         },
         "created_at": {
           "name": "created_at",
@@ -169,15 +169,15 @@
         "labels_user_id_users_id_fk": {
           "name": "labels_user_id_users_id_fk",
           "tableFrom": "labels",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -221,7 +221,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"preview\":true}'"
+          "default": "'{\"preview\":true,\"public\":{\"enabled\":false,\"vists\":0}}'"
         },
         "pinned": {
           "name": "pinned",
@@ -275,6 +275,21 @@
           "notNull": false,
           "autoincrement": false
         },
+        "global_order": {
+          "name": "global_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "label_order": {
+          "name": "label_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
@@ -295,28 +310,28 @@
         "notes_label_id_labels_id_fk": {
           "name": "notes_label_id_labels_id_fk",
           "tableFrom": "notes",
-          "tableTo": "labels",
           "columnsFrom": [
             "label_id"
           ],
+          "tableTo": "labels",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "notes_user_id_users_id_fk": {
           "name": "notes_user_id_users_id_fk",
           "tableFrom": "notes",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -353,15 +368,15 @@
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -469,9 +484,9 @@
   "views": {},
   "enums": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   },
   "internal": {
     "indexes": {}

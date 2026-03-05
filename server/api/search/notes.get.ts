@@ -7,7 +7,12 @@ export default defineAuthenticatedEventHandler(async (event) => {
   );
   const db = useDrizzle();
   try {
-    const { results } = (await db.run(sql`
+    const results = await db.all<{
+      id: string;
+      title: string;
+      score: number;
+      snippet: string;
+    }>(sql`
       WITH fts_results AS (
         SELECT
           n.id,
@@ -38,14 +43,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
       UNION ALL
       SELECT * FROM fallback
       LIMIT 10;
-    `)) as {
-      results: {
-        id: string;
-        title: string;
-        score: number;
-        snippet: string;
-      }[];
-    };
+    `);
     return results;
   } catch (e) {
     console.error({ e });

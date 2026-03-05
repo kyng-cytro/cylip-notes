@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type { ClientNote } from "@/lib/types";
 import type { Editor } from "@tiptap/vue-3";
 import { ArchiveIcon, Repeat2Icon, Trash2Icon } from "lucide-vue-next";
 
 const props = defineProps<{
-  note: Note;
+  note: ClientNote;
   editor?: Editor;
   canOpen?: boolean;
   cb?: () => void;

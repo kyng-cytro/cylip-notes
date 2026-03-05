@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5acb0f81-07da-456a-b074-6c3022443e33",
-  "prevId": "adc2dfe2-beb9-43f7-a2a1-c9e8461509df",
+  "id": "33fafd31-bec4-4c73-90e6-974e3a194738",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "change_logs": {
       "name": "change_logs",
@@ -36,15 +36,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "change_logs_user_id_unique": {
-          "name": "change_logs_user_id_unique",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "change_logs_user_id_users_id_fk": {
           "name": "change_logs_user_id_users_id_fk",
@@ -146,7 +138,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'null'"
+          "default": "'{\"preview\":true}'"
         },
         "created_at": {
           "name": "created_at",
@@ -229,7 +221,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"preview\":true}'"
+          "default": "'{\"preview\":true,\"public\":{\"enabled\":false,\"vists\":0}}'"
         },
         "pinned": {
           "name": "pinned",
@@ -278,6 +270,21 @@
         },
         "trashed_at": {
           "name": "trashed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "global_order": {
+          "name": "global_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "label_order": {
+          "name": "label_order",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,

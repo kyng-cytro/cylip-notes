@@ -1,13 +1,15 @@
+import { blob } from "hub:blob";
+
 const getCachedImage = defineCachedFunction(
   async (id: string) => {
-    const blob = await hubBlob().get(`profile-pictures/${id}`);
-    if (!blob) {
+    const data = await blob.get(`profile-pictures/${id}`);
+    if (!data) {
       return null;
     }
-    const arrayBuffer = await blob.arrayBuffer();
+    const arrayBuffer = await data.arrayBuffer();
     return {
-      type: blob.type,
-      size: blob.size,
+      type: data.type,
+      size: data.size,
       data: Array.from(new Uint8Array(arrayBuffer)),
     };
   },

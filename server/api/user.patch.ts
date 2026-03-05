@@ -1,4 +1,6 @@
 import { updateUserSchema } from "@/schemas/user";
+import { blob } from "hub:blob";
+
 export default defineAuthenticatedEventHandler(async (event) => {
   const form = await readFormData(event);
   const name = form.get("name");
@@ -20,7 +22,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         maxSize: "1MB",
         types: ["image"],
       });
-      await hubBlob().put(event.context.user.id, data.picture, {
+      await blob.put(event.context.user.id, data.picture, {
         addRandomSuffix: false,
         prefix: "profile-pictures",
       });
