@@ -21,8 +21,8 @@ export default defineAuthenticatedEventHandler(async (event) => {
 
   // check for changes every interval
   const t0 = setInterval(async () => {
-    const { chanaged, newId } = await checkForChanges(id, previousId);
-    if (chanaged) {
+    const { changed, newId } = await checkForChanges(id, previousId);
+    if (changed) {
       previousId = newId;
       eventStream.push({ id: `${counter++}`, event: "refresh", data: newId });
     }
