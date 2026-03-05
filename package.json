@@ -45,6 +45,7 @@
     "@tiptap/static-renderer": "^3.5.1",
     "@tiptap/vue-3": "^3.5.1",
     "@types/turndown": "^5.0.5",
+    "@vercel/blob": "^2.3.1",
     "@vue-email/components": "^0.0.21",
     "@vue-email/render": "^0.0.9",
     "@vueuse/core": "^13.5.0",
