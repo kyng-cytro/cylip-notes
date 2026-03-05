@@ -1,6 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject, generateText } from "ai";
-import z from "zod";
+import { generateText } from "ai";
 
 type Options = {
   topP?: number;
@@ -21,21 +20,21 @@ export const getAISDK = () => {
         system,
         prompt,
         ...opts,
-        model: openai("gpt-3.5-turbo"),
+        model: openai("gpt-4.1-mini"),
       });
     },
     generateObject: (
       prompt: string,
-      schema: z.ZodType,
+      schema: any,
       system?: string,
       opts?: Options,
     ) => {
-      return generateObject({
+      return generateText({
         system,
         prompt,
-        schema,
         ...opts,
-        model: openai("gpt-3.5-turbo"),
+        output: schema,
+        model: openai("gpt-4.1-mini"),
       });
     },
   };
