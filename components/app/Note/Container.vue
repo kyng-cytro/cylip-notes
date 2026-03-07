@@ -59,7 +59,6 @@ watch(
   { immediate: true },
 );
 </script>
-
 <template>
   <VueDraggableNext
     :class="layoutStyles"

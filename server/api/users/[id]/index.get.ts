@@ -27,7 +27,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
           ],
         },
         labels: {
-          orderBy: (labels, { desc }) => [desc(labels.createdAt)],
+          orderBy: (labels, { desc }) => [desc(labels.order), desc(labels.createdAt)],
         },
       },
     });

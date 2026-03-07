@@ -73,6 +73,36 @@ export const useNoteStore = defineStore("notes", () => {
     labels.value = [label, ...labels.value];
   };
 
+  const updateLabel = async (labelId: string, values: Record<string, any>) => {
+    const label = await $fetch<ClientLabel>(`/api/labels/${labelId}`, {
+      method: "PATCH",
+      body: values,
+    });
+    labels.value = labels.value.map((item) =>
+      item.id === labelId ? label : item,
+    );
+    notes.value = notes.value.map((note) => {
+      if (note.labelId !== labelId) return note;
+      return { ...note, label };
+    });
+  };
+
+  const deleteLabel = async (labelId: string) => {
+    const layoutStore = useLayoutStore();
+    await $fetch(`/api/labels/${labelId}`, {
+      method: "DELETE" as any,
+    });
+
+    labels.value = labels.value.filter((label) => label.id !== labelId);
+    if (layoutStore.label === labelId) {
+      layoutStore.label = "all-notes";
+    }
+    notes.value = notes.value.map((note) => {
+      if (note.labelId !== labelId) return note;
+      return { ...note, labelId: null, label: null, labelOrder: null };
+    });
+  };
+
   const createNote = async (labelId?: string) => {
     try {
       const note = await $fetch<ClientNote>("/api/notes", {
@@ -230,25 +260,18 @@ export const useNoteStore = defineStore("notes", () => {
   }) => {
     const { scope, labelId, orderedIds } = params;
     if (orderedIds.length < 2) return;
-
     const rankMap = new Map(
       orderedIds.map((id, index) => [id, orderedIds.length - index]),
     );
-
     const previousNotes = [...notes.value];
-
     notes.value = notes.value.map((note) => {
       const rank = rankMap.get(note.id);
       if (!rank) return note;
-
       return {
         ...note,
-        ...(scope === "label"
-          ? { labelOrder: rank }
-          : { globalOrder: rank }),
+        ...(scope === "label" ? { labelOrder: rank } : { globalOrder: rank }),
       };
     });
-
     try {
       await $fetch("/api/notes/reorder/list", {
         method: "PATCH",
@@ -257,6 +280,31 @@ export const useNoteStore = defineStore("notes", () => {
     } catch (e: any) {
       notes.value = previousNotes;
       toast.error("Error reordering notes.", { description: e.message });
+    }
+  };
+
+  const reorderLabels = async (orderedIds: string[]) => {
+    if (orderedIds.length < 2) return;
+    const rankMap = new Map(
+      orderedIds.map((id, index) => [id, orderedIds.length - index]),
+    );
+    const previousLabels = [...labels.value];
+    const labelMap = new Map(labels.value.map((label) => [label.id, label]));
+    labels.value = orderedIds
+      .map((id) => {
+        const current = labelMap.get(id);
+        if (!current) return null;
+        return { ...current, order: rankMap.get(id) || current.order };
+      })
+      .filter((label): label is ClientLabel => !!label);
+    try {
+      await $fetch("/api/labels/reorder/list", {
+        method: "PATCH",
+        body: { orderedIds },
+      });
+    } catch (e: any) {
+      labels.value = previousLabels;
+      toast.error("Error reordering labels.", { description: e.message });
     }
   };
 
@@ -276,16 +324,20 @@ export const useNoteStore = defineStore("notes", () => {
   return {
     fetching,
     initialized,
+    notes,
     labels,
     methods: {
       updateNote,
       clearTrash,
       createNote,
       createLabel,
+      updateLabel,
+      deleteLabel,
       searchNotes,
       assignLabel,
       refreshData,
       reorderNotes,
+      reorderLabels,
       setReminder,
       getNoteById,
       retrieveNotes,
