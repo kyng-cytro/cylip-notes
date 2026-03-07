@@ -74,6 +74,7 @@ export const label = sqliteTable(
     id: text("id").notNull().primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
+    order: integer("order").notNull().default(0),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, {

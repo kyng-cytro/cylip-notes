@@ -8,9 +8,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
     labelCreateSchema.parse,
   );
   const db = useDrizzle();
-
   const { id, accountType } = event.context.user;
-
   if (accountType === "free") {
     const currentCount = await db.query.label.findMany({
       where: eq(tables.label.userId, id),
@@ -25,7 +23,12 @@ export default defineAuthenticatedEventHandler(async (event) => {
   try {
     const slug = slugify(name);
     const labelId = generateId(15);
-
+    const [maxOrder] = await db
+      .select({
+        value: sql<number>`coalesce(max(${tables.label.order}), 0)`,
+      })
+      .from(tables.label)
+      .where(eq(tables.label.userId, id));
     const label = await db
       .insert(tables.label)
       .values({
@@ -34,6 +37,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         ...rest,
         userId: id,
         id: labelId,
+        order: (maxOrder?.value || 0) + 1,
       })
       .returning();
 

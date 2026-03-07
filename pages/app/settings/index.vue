@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import type { ClientLabel } from "@/lib/types";
 import { updateUserSchema } from "@/schemas/user";
 import { PlusIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
+
 definePageMeta({
   layout: "app",
 });
+
 const { user, updateUser } = useUser();
+const noteStore = useNoteStore();
+const { labels } = storeToRefs(noteStore);
+
 const onSubmit = async (values: Record<string, string | File>) => {
   if (!user.value) return;
   try {
@@ -22,6 +28,23 @@ const getImage = (value?: File | string | null) => {
     return URL.createObjectURL(value);
   }
   return value;
+};
+
+const reorderLabels = async (orderedIds: string[]) => {
+  await noteStore.methods.reorderLabels(orderedIds);
+};
+
+const deleteLabel = async (label: ClientLabel) => {
+  try {
+    await noteStore.methods.deleteLabel(label.id);
+    toast.success("Label deleted successfully", {
+      description: `${capitalize(label.name)} has been deleted.`,
+    });
+  } catch (e: any) {
+    toast.error("Could not delete label", {
+      description: e.data?.message || e.message,
+    });
+  }
 };
 </script>
 <template>
@@ -117,11 +140,12 @@ const getImage = (value?: File | string | null) => {
       >
     </Form>
     <div class="flex flex-col gap-y-2">
-      <div class="flex items-end justify-between">
+      <div class="flex items-end justify-between gap-4">
         <div class="space-y-2">
           <h3 class="text-xl font-bold">Label Management</h3>
           <p class="text-muted-foreground">
-            Manage your labels, create new ones, update or delete existing ones.
+            Manage your labels, create new ones, update, delete, and reorder
+            them.
           </p>
         </div>
         <AppLabelCreate>
@@ -134,5 +158,6 @@ const getImage = (value?: File | string | null) => {
       </div>
       <hr class="bg-muted my-2" />
     </div>
+    <AppLabelContainer :labels @reorder="reorderLabels" @delete="deleteLabel" />
   </AppMainContainer>
 </template>

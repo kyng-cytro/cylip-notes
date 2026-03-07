@@ -25,3 +25,7 @@ export const labelCreateSchema = z.object({
     .toLowerCase(),
   options: labelOptionsSchema,
 });
+
+export const labelReorderSchema = z.object({
+  orderedIds: z.array(z.string().min(1)).min(1),
+});
