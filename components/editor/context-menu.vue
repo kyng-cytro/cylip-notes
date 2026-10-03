@@ -43,7 +43,6 @@ const handlePaste = async () => {
     <ContextMenuShortcut>⌘A</ContextMenuShortcut>
   </ContextMenuItem>
   <ContextMenuSeparator />
-  <!--- Undo/Redo -->
   <ContextMenuItem
     :disabled="disabled || !editor.can().undo()"
     @click="editor.commands.undo()"
@@ -63,53 +62,52 @@ const handlePaste = async () => {
     <ContextMenuSubContent class="w-48">
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.suggest()"
+        @click="editor.commands.suggest()"
         :disabled="disabled || !editor.can().suggest()"
         >Suggest
         <ContextMenuShortcut>⌘Space</ContextMenuShortcut>
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.accept()"
+        @click="editor.commands.accept()"
         :disabled="disabled || !editor.can().accept()"
         >Accept
         <ContextMenuShortcut>Tab</ContextMenuShortcut>
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.discard()"
+        @click="editor.commands.discard()"
         :disabled="disabled || !editor.can().discard()"
         >Discard
         <ContextMenuShortcut>Esc</ContextMenuShortcut>
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.refine('refine')"
+        @click="editor.commands.refine('refine')"
         :disabled="disabled || !editor.can().refine('refine')"
         >Refine
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.refine('formal')"
+        @click="editor.commands.refine('formal')"
         :disabled="disabled || !editor.can().refine('formal')"
         >Refine › Formal
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.refine('shorten')"
+        @click="editor.commands.refine('shorten')"
         :disabled="disabled || !editor.can().refine('shorten')"
         >Refine › Shorten
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
-        @click="editor.ai.refine('lengthen')"
+        @click="editor.commands.refine('lengthen')"
         :disabled="disabled || !editor.can().refine('lengthen')"
         >Refine › Lengthen
       </ContextMenuCheckboxItem>
     </ContextMenuSubContent>
   </ContextMenuSub>
   <ContextMenuSeparator />
-  <!-- Formatting -->
   <ContextMenuSub>
     <ContextMenuSubTrigger inset> Formatting </ContextMenuSubTrigger>
     <ContextMenuSubContent class="w-48">
@@ -147,7 +145,6 @@ const handlePaste = async () => {
       </ContextMenuCheckboxItem>
     </ContextMenuSubContent>
   </ContextMenuSub>
-  <!-- Listing -->
   <ContextMenuSub>
     <ContextMenuSubTrigger inset> Listing </ContextMenuSubTrigger>
     <ContextMenuSubContent class="w-48">
@@ -177,7 +174,6 @@ const handlePaste = async () => {
       </ContextMenuCheckboxItem>
     </ContextMenuSubContent>
   </ContextMenuSub>
-  <!-- More Tools -->
   <ContextMenuSub>
     <ContextMenuSubTrigger inset> More Tools </ContextMenuSubTrigger>
     <ContextMenuSubContent class="w-48">

@@ -1,3 +1,4 @@
+import { SYNC_TIMING } from "./constants";
 import { ref, shallowRef } from "vue";
 import * as Y from "yjs";
 import { uploadInlineImages } from "./inline-images";
@@ -7,6 +8,8 @@ import {
   fromBase64,
   getMeta,
   toBase64,
+  writeMap,
+  type NoteMeta,
   type WorkspaceSnapshot,
 } from "./protocol";
 import { SyncApi } from "./sync-api";
@@ -22,11 +25,6 @@ type Options = {
   uploadImage: (file: Blob) => Promise<string>;
 };
 
-const SYNC_DELAY = 1000;
-const SYNC_INTERVAL = 60_000;
-const VIEW_DELAY = 150;
-const UPDATED_AT_THROTTLE = 30_000;
-
 const sameVector = (a: Uint8Array, b: Uint8Array) =>
   a.length === b.length && a.every((byte, i) => byte === b[i]);
 
@@ -36,8 +34,8 @@ export class SyncEngine {
   readonly ready = ref(false);
   readonly status = ref<SyncStatus>("synced");
 
-  readonly docs: NoteDocs;
   readonly workspaceDoc: Workspace;
+  private docs: NoteDocs;
   private state: SyncState;
   private api: SyncApi;
 
@@ -76,7 +74,7 @@ export class SyncEngine {
     window.addEventListener("online", this.requestSync);
     window.addEventListener("offline", this.markOffline);
     document.addEventListener("visibilitychange", this.requestSync);
-    this.syncInterval = setInterval(this.requestSync, SYNC_INTERVAL);
+    this.syncInterval = setInterval(this.requestSync, SYNC_TIMING.syncInterval);
     this.requestSync();
   }
 
@@ -92,6 +90,15 @@ export class SyncEngine {
       await Promise.all([this.docs.removeAll(), this.state.clear()]);
   }
 
+  loadNoteDoc(noteId: string) {
+    return this.docs.load(noteId);
+  }
+
+  updateNoteMeta(noteId: string, values: Partial<NoteMeta>) {
+    writeMap(getMeta(this.docs.get(noteId)), values);
+    this.flushViews();
+  }
+
   syncNow() {
     clearTimeout(this.syncTimer);
     return this.sync();
@@ -99,7 +106,7 @@ export class SyncEngine {
 
   requestSync = () => {
     clearTimeout(this.syncTimer);
-    this.syncTimer = setTimeout(() => this.sync(), SYNC_DELAY);
+    this.syncTimer = setTimeout(() => this.sync(), SYNC_TIMING.syncDelay);
   };
 
   private markOffline = () => {
@@ -187,9 +194,11 @@ export class SyncEngine {
   }
 
   private async localVector(noteId: string) {
+    const doc = this.docs.get(noteId);
+    const hasLocalState = doc.store.clients.size > 0;
     const hasServerState = !!(await this.state.getServerVector(noteId));
-    return hasServerState
-      ? toBase64(Y.encodeStateVector(this.docs.get(noteId)))
+    return hasLocalState && hasServerState
+      ? toBase64(Y.encodeStateVector(doc))
       : "";
   }
 
@@ -223,7 +232,10 @@ export class SyncEngine {
     if (!this.docs.has(noteId)) return;
     const meta = getMeta(this.docs.get(noteId));
     const now = Date.now();
-    if (now - ((meta.get("updatedAt") as number) ?? 0) > UPDATED_AT_THROTTLE) {
+    if (
+      now - ((meta.get("updatedAt") as number) ?? 0) >
+      SYNC_TIMING.updatedAtThrottle
+    ) {
       meta.set("updatedAt", now);
     }
   }
@@ -231,10 +243,14 @@ export class SyncEngine {
   private scheduleViewRefresh(noteId: string) {
     this.staleViews.add(noteId);
     clearTimeout(this.viewTimer);
-    this.viewTimer = setTimeout(() => this.refreshViews(), VIEW_DELAY);
+    this.viewTimer = setTimeout(
+      () => this.flushViews(),
+      SYNC_TIMING.viewRefreshDelay,
+    );
   }
 
-  private refreshViews() {
+  private flushViews() {
+    clearTimeout(this.viewTimer);
     const fresh = [...this.staleViews]
       .filter((id) => this.docs.has(id))
       .map((id) => [id, readNoteView(id, this.docs.get(id))]);

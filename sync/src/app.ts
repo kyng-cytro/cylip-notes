@@ -1,3 +1,4 @@
+import { APP_ROUTES, HEADERS, toPath } from "@/lib/sync/constants";
 import type { NoteRole, WorkspaceSnapshot } from "@/lib/sync/protocol";
 import type { Env, Identity } from "./env";
 
@@ -16,7 +17,7 @@ const callApp = async <T>(
     method: body === undefined ? "GET" : "POST",
     headers: {
       "content-type": "application/json",
-      "x-sync-secret": env.SYNC_SECRET,
+      [HEADERS.syncSecret]: env.SYNC_SECRET,
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -42,12 +43,7 @@ export type BatchAccess = {
 export const authorize = (
   env: Env,
   body: { token: string; kind: "note" | "workspace"; id: string },
-) =>
-  callApp<Identity & { created: boolean }>(
-    env,
-    "/api/internal/sync/authorize",
-    body,
-  );
+) => callApp<Identity & { created: boolean }>(env, APP_ROUTES.authorize, body);
 
 export const authorizeBatch = (
   env: Env,
@@ -57,11 +53,11 @@ export const authorizeBatch = (
     create: boolean;
     since?: number | null;
   },
-) => callApp<BatchAccess>(env, "/api/internal/sync/authorize-batch", body);
+) => callApp<BatchAccess>(env, APP_ROUTES.authorizeBatch, body);
 
 export const fetchNoteSeed = async (env: Env, noteId: string) => {
   const seed = await orNullWhenMissing(
-    callApp<{ state: string }>(env, `/api/internal/sync/notes/${noteId}/seed`),
+    callApp<{ state: string }>(env, toPath(APP_ROUTES.noteSeed, { noteId })),
   );
   return seed?.state ?? null;
 };
@@ -69,21 +65,16 @@ export const fetchNoteSeed = async (env: Env, noteId: string) => {
 export const projectNote = (env: Env, noteId: string, state: string) =>
   callApp<{ audience: string[] }>(
     env,
-    `/api/internal/sync/notes/${noteId}/project`,
-    {
-      state,
-    },
+    toPath(APP_ROUTES.noteProject, { noteId }),
+    { state },
   );
 
 export const fetchWorkspaceSeed = (env: Env, userId: string) =>
-  callApp<WorkspaceSnapshot>(
-    env,
-    `/api/internal/sync/workspaces/${userId}/seed`,
-  );
+  callApp<WorkspaceSnapshot>(env, toPath(APP_ROUTES.workspaceSeed, { userId }));
 
 export const projectWorkspace = (
   env: Env,
   userId: string,
   snapshot: WorkspaceSnapshot,
 ) =>
-  callApp(env, `/api/internal/sync/workspaces/${userId}/project`, { snapshot });
+  callApp(env, toPath(APP_ROUTES.workspaceProject, { userId }), { snapshot });

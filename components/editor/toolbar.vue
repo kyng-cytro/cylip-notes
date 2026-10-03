@@ -58,7 +58,7 @@ const disabled = computed(() => !props.editor.isEditable);
       @toggled="editor.chain().focus().toggleUnderline().run()"
       :disabled="disabled"
     />
-    <div class="h-5 w-px bg-border" />
+    <div class="bg-border h-5 w-px" />
     <EditorButton
       label="Undo"
       tooltip="Undo"
@@ -75,13 +75,13 @@ const disabled = computed(() => !props.editor.isEditable);
       @toggled="editor.chain().focus().redo().run()"
       :disabled="disabled"
     />
-    <div class="h-5 w-px bg-border" />
+    <div class="bg-border h-5 w-px" />
     <EditorButton
       label="Image"
       tooltip="Image"
       :icon="ImagePlus"
       :active="false"
-      @toggled="() => useEditorUtils().addImage(editor)"
+      @toggled="pickImage(editor)"
       :disabled="disabled"
     />
     <EditorButton
@@ -110,7 +110,7 @@ const disabled = computed(() => !props.editor.isEditable);
       "
       :disabled="disabled"
     />
-    <div class="h-5 w-px bg-border" />
+    <div class="bg-border h-5 w-px" />
     <EditorButton
       label="Task List"
       tooltip="Task List"

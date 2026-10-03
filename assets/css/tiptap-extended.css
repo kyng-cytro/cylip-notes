@@ -1,6 +1,5 @@
 @reference "@/assets/css/tailwind.css";
 
-/* collaboration cursor */
 .collaboration-carets__caret {
   border-left: 1px solid #0d0d0d;
   border-right: 1px solid #0d0d0d;
@@ -11,7 +10,6 @@
   word-break: normal;
 }
 
-/* render the username above the caret */
 .collaboration-carets__label {
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;

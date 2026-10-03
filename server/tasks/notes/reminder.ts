@@ -40,15 +40,10 @@ export default defineTask({
       endOfMinute(now),
     );
     for (const { note, user } of reminders) {
-      await sendPushNotification({
-        type: "template",
-        recipients: [user.id],
-        template_name: "note-reminder",
-        custom_data: {
-          note_id: note.id,
-          note_title: (note.title || "your note").toLocaleLowerCase(),
-          name: capitalize(user.name.split(" ")[0] || "There"),
-        },
+      await sendReminderNotification(user.id, {
+        note_id: note.id,
+        note_title: (note.title || "your note").toLocaleLowerCase(),
+        name: capitalize(user.name.split(" ")[0] || "There"),
       });
     }
     return { result: `Sent ${reminders.length} reminders` };

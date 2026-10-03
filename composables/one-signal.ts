@@ -30,7 +30,7 @@ export const useOneSignalSetup = () => {
     onesignal.Notifications.addEventListener("click", (e) => {
       if (e.result.actionId !== "reminder-okay") return;
       const id = e.result.url?.split("/").pop();
-      if (id) useNoteStore().methods.setReminder(id, null);
+      if (id) useNoteStore().setReminder(id, null);
     });
   };
 

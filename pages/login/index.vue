@@ -5,7 +5,7 @@ definePageMeta({
   layout: "auth",
 });
 
-const { signIn } = useUser();
+const { signInWithEmail, signInWithGoogle } = useUser();
 const route = useRoute();
 
 onMounted(() => {
@@ -15,21 +15,16 @@ onMounted(() => {
   });
 });
 
-const onSubmit = async (values: Record<string, any>) => {
+const withErrorToast = async (action: () => Promise<void>) => {
   try {
-    await signIn({ type: "magic-link", email: values.email });
+    await action();
   } catch (e: any) {
     toast.error("Something went wrong", { description: e.message });
   }
 };
 
-const signInWithGoogle = async () => {
-  try {
-    await signIn({ type: "google" });
-  } catch (e: any) {
-    toast.error("Something went wrong", { description: e.message });
-  }
-};
+const onSubmit = (values: Record<string, any>) =>
+  withErrorToast(() => signInWithEmail(values.email));
 </script>
 
 <template>
@@ -86,7 +81,7 @@ const signInWithGoogle = async () => {
               <Button
                 variant="outline"
                 type="button"
-                @click="signInWithGoogle"
+                @click="withErrorToast(signInWithGoogle)"
               >
                 Google
                 <span class="sr-only">Sign In with Google</span>

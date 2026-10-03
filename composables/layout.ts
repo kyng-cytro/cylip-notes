@@ -7,13 +7,13 @@ export const useNoteLayout = () => {
       layout.value === "list",
   }));
 
-  const conatinerStyles = computed(() => ({
+  const containerStyles = computed(() => ({
     "gap-2 columns-[150px] sm:columns-[250px]": layout.value === "grid",
     "flex gap-4 flex-col": layout.value === "list",
   }));
 
   return {
-    conatinerStyles,
+    containerStyles,
     containerParentStyles,
   };
 };

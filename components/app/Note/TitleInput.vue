@@ -22,7 +22,9 @@ const generate = async () => {
     if (!titles || !titles.length) return;
     suggestions.value = titles;
   } catch (e: any) {
-    toast.error("Failed to generate title", { description: e.data.message });
+    toast.error("Failed to generate title", {
+      description: e.data?.message ?? e.message,
+    });
   } finally {
     loading.value = false;
   }

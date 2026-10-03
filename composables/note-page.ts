@@ -1,3 +1,4 @@
+import { canEdit as canEditRole } from "@/lib/sync/protocol";
 import { extensions } from "@/lib/tiptap";
 import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
 
@@ -5,13 +6,11 @@ export const useNotePage = async (noteId: string) => {
   const noteStore = useNoteStore();
   await noteStore.ensureStarted();
 
-  const note = computed(() => noteStore.methods.getNoteById(noteId));
+  const note = computed(() => noteStore.getNoteById(noteId));
   const canEdit = computed(
-    () => !!note.value && note.value.role !== "viewer" && !note.value.trashed,
+    () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
-  const editor = note.value
-    ? await useNoteEditor({ noteId, editable: canEdit.value })
-    : null;
+  const editor = note.value ? await useNoteEditor(noteId, canEdit.value) : null;
   watch(canEdit, (editable) => editor?.setEditable(editable));
 
   const title = ref(note.value?.title ?? "");
@@ -25,7 +24,7 @@ export const useNotePage = async (noteId: string) => {
     title,
     (value) => {
       if (canEdit.value && value !== note.value?.title) {
-        noteStore.methods.updateTitle(noteId, value);
+        noteStore.updateTitle(noteId, value);
       }
     },
     { debounce: 500 },

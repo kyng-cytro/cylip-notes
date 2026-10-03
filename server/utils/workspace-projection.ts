@@ -36,10 +36,10 @@ export const workspaceSnapshotSchema = z.object({
 });
 
 type Snapshot = z.infer<typeof workspaceSnapshotSchema>;
-type Label = z.infer<typeof labelSchema>;
+type SnapshotLabel = z.infer<typeof labelSchema>;
 type NoteEntry = z.infer<typeof noteEntrySchema>;
 
-const uniqueBySlug = (labels: [string, Label][]) => {
+const uniqueBySlug = (labels: [string, SnapshotLabel][]) => {
   const seen = new Set<string>();
   return labels.filter(([, label]) => {
     if (seen.has(label.slug)) return false;
@@ -59,13 +59,10 @@ const allowedLabels = async (userId: string, labels: Snapshot["labels"]) => {
   const unique = uniqueBySlug(sorted);
   return user?.accountType === "premium"
     ? unique
-    : unique.slice(0, CONSTANTS.maxFreeLables);
+    : unique.slice(0, CONSTANTS.maxFreeLabels);
 };
 
 const findAccessibleNotes = async (userId: string, noteIds: string[]) => {
-  if (!noteIds.length) {
-    return { owned: new Set<string>(), shared: new Set<string>() };
-  }
   const db = useDrizzle();
   const [owned, shared] = await Promise.all([
     db.query.note.findMany({
@@ -99,7 +96,7 @@ const deleteRemovedLabels = (userId: string, keepIds: string[]) =>
       ),
     );
 
-const upsertLabel = (userId: string, id: string, label: Label) => {
+const upsertLabel = (userId: string, id: string, label: SnapshotLabel) => {
   const values = {
     name: label.name,
     slug: label.slug,

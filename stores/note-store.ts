@@ -1,39 +1,37 @@
+import { SYNC_TIMING } from "@/lib/sync/constants";
+import {
+  scopeFilters,
+  sortKeyIn,
+  toggleMessages,
+  type ToggleProp,
+} from "@/lib/notes";
 import { SyncEngine } from "@/lib/sync/engine";
 import { byKey, keyBefore, keyBetween } from "@/lib/sync/ordering";
-import {
-  getMeta,
-  writeMap,
-  type Background,
-  type LabelOptions,
-  type NoteMeta,
-  type WorkspaceNote,
+import type {
+  Background,
+  LabelOptions,
+  NoteMeta,
+  WorkspaceNote,
 } from "@/lib/sync/protocol";
 import { searchNotes } from "@/lib/sync/search";
 import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
 import { toast } from "vue-sonner";
 
-const ALL_NOTES = "all-notes";
-
-type ToggleProp = "pinned" | "archived" | "trashed" | "preview" | "public";
-
-const scopeFilters: Record<NoteScope, (note: ClientNote) => boolean> = {
-  active: (note) => !note.trashed && !note.archived && !note.pinned,
-  pinned: (note) => !note.trashed && !note.archived && note.pinned,
-  trashed: (note) => note.trashed,
-  archived: (note) => note.archived && !note.trashed,
-  reminders: (note) => !!note.reminderAt && !note.trashed,
-};
-
-const toggleMessages: Record<ToggleProp, (note: ClientNote) => string> = {
-  pinned: (note) => (note.pinned ? "unpinned" : "pinned"),
-  archived: (note) => (note.archived ? "unarchived" : "archived"),
-  trashed: (note) => (note.trashed ? "restored" : "trashed"),
-  preview: (note) => (note.preview ? "preview disabled" : "preview enabled"),
-  public: (note) => (note.public ? "is now private" : "is now public"),
-};
+type LabelValues = { name: string; options: LabelOptions };
 
 const labelScope = (labelId?: string | null) =>
   labelId && labelId !== ALL_NOTES ? labelId : null;
+
+const uploadImage = async (file: Blob) => {
+  const body = new FormData();
+  body.append("file", file);
+  const { url } = await $fetch("/api/images", {
+    method: "POST",
+    body,
+    timeout: SYNC_TIMING.imageUploadTimeout,
+  });
+  return url;
+};
 
 export const useNoteStore = defineStore("notes", () => {
   const { user, getToken } = useUser();
@@ -50,10 +48,10 @@ export const useNoteStore = defineStore("notes", () => {
   );
 
   const notes = computed<ClientNote[]>(() => {
-    const workspace = engine.value?.workspace.value.notes ?? {};
+    const entries = engine.value?.workspace.value.notes ?? {};
     const views = engine.value?.views.value ?? {};
     const labelsById = new Map(labels.value.map((label) => [label.id, label]));
-    return Object.entries(workspace)
+    return Object.entries(entries)
       .filter(([id]) => views[id])
       .map(([id, entry]) => ({
         ...views[id]!,
@@ -68,34 +66,22 @@ export const useNoteStore = defineStore("notes", () => {
     return engine.value;
   };
 
+  const workspace = () => requireEngine().workspaceDoc;
+
   const updateEntry = (noteId: string, values: Partial<WorkspaceNote>) =>
-    requireEngine().workspaceDoc.updateNote(noteId, values);
+    workspace().updateNote(noteId, values);
 
   const updateMeta = (noteId: string, values: Partial<NoteMeta>) =>
-    writeMap(getMeta(requireEngine().docs.get(noteId)), values);
-
-  const sortKeyOf = (note: ClientNote | undefined, labelId: string | null) =>
-    labelId ? note?.labelSortKey : note?.sortKey;
+    requireEngine().updateNoteMeta(noteId, values);
 
   const firstSortKey = (labelId: string | null) =>
     notes.value
       .filter((note) => !labelId || note.labelId === labelId)
-      .map((note) => sortKeyOf(note, labelId))
+      .map((note) => sortKeyIn(note, labelId))
       .filter(Boolean)
       .sort()[0];
 
-  const uploadImage = async (file: Blob) => {
-    const body = new FormData();
-    body.append("file", file);
-    const { url } = await $fetch("/api/images", {
-      timeout: 30_000,
-      method: "POST",
-      body,
-    });
-    return url;
-  };
-
-  const start = async (userId: string) => {
+  const startEngine = async (userId: string) => {
     const created = markRaw(
       new SyncEngine({
         userId,
@@ -110,7 +96,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   const ensureStarted = () => {
     if (!user.value) return Promise.resolve();
-    starting.value ??= start(user.value.id);
+    starting.value ??= startEngine(user.value.id);
     return starting.value;
   };
 
@@ -125,20 +111,19 @@ export const useNoteStore = defineStore("notes", () => {
     return notes.value
       .filter((note) => scopeFilters[scope](note))
       .filter((note) => !inLabel || note.labelId === inLabel)
-      .sort(byKey((note) => sortKeyOf(note, inLabel) ?? null));
+      .sort(byKey((note) => sortKeyIn(note, inLabel) ?? null));
   };
 
   const getNoteById = (noteId: string) =>
     notes.value.find((note) => note.id === noteId);
 
-  const loadNoteDoc = (noteId: string) => requireEngine().docs.load(noteId);
+  const loadNoteDoc = (noteId: string) => requireEngine().loadNoteDoc(noteId);
 
   const createNote = (labelId?: string) => {
     const label = labels.value.find((item) => item.id === labelId);
     const noteId = crypto.randomUUID();
     const now = Date.now();
-    const { docs, workspaceDoc } = requireEngine();
-    writeMap(getMeta(docs.get(noteId)), {
+    updateMeta(noteId, {
       title: "",
       background: label?.options.background ?? null,
       public: false,
@@ -147,8 +132,8 @@ export const useNoteStore = defineStore("notes", () => {
       createdAt: now,
       updatedAt: now,
       ownerId: user.value!.id,
-    } satisfies NoteMeta);
-    workspaceDoc.addNote(noteId, {
+    });
+    workspace().addNote(noteId, {
       role: "owner",
       pinned: false,
       archived: false,
@@ -159,7 +144,7 @@ export const useNoteStore = defineStore("notes", () => {
       preview: label?.options.preview ?? true,
       addedAt: now,
     });
-    useModalRouter().push(`/app/notes/${noteId}`);
+    return noteId;
   };
 
   const updateTitle = (noteId: string, title: string) =>
@@ -204,7 +189,7 @@ export const useNoteStore = defineStore("notes", () => {
   const toggleNoteProp = (
     note: ClientNote,
     prop: ToggleProp,
-    options: { silent?: boolean } = {},
+    options = { silent: false },
   ) => {
     const message = toggleMessages[prop](note);
     toggles[prop](note);
@@ -225,9 +210,9 @@ export const useNoteStore = defineStore("notes", () => {
     afterId: string | null,
   ) => {
     const inLabel = labelScope(labelId);
-    const before = beforeId ? sortKeyOf(getNoteById(beforeId), inLabel) : null;
-    const after = afterId ? sortKeyOf(getNoteById(afterId), inLabel) : null;
-    const key = keyBetween(before, after);
+    const keyOf = (id: string | null) =>
+      id ? sortKeyIn(getNoteById(id), inLabel) : null;
+    const key = keyBetween(keyOf(beforeId), keyOf(afterId));
     updateEntry(noteId, inLabel ? { labelSortKey: key } : { sortKey: key });
   };
 
@@ -239,39 +224,39 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
-  const createLabel = (values: { name: string; options: LabelOptions }) => {
-    const slug = slugify(values.name);
-    requireUniqueSlug(slug);
+  const requireLabelAllowance = () => {
     if (
-      !useUser().isPremium &&
-      labels.value.length >= CONSTANTS.maxFreeLables
+      !useUser().isPremium.value &&
+      labels.value.length >= CONSTANTS.maxFreeLabels
     ) {
       throw new Error(
-        `Free accounts can have up to ${CONSTANTS.maxFreeLables} labels.`,
+        `Free accounts can have up to ${CONSTANTS.maxFreeLabels} labels.`,
       );
     }
-    requireEngine().workspaceDoc.addLabel(crypto.randomUUID(), {
-      name: values.name,
+  };
+
+  const createLabel = (values: LabelValues) => {
+    const slug = slugify(values.name);
+    requireUniqueSlug(slug);
+    requireLabelAllowance();
+    workspace().addLabel(crypto.randomUUID(), {
+      ...values,
       slug,
       sortKey: keyBefore(labels.value[0]?.sortKey),
-      options: values.options,
       createdAt: Date.now(),
     });
   };
 
-  const updateLabel = (
-    labelId: string,
-    values: { name: string; options: LabelOptions },
-  ) => {
+  const updateLabel = (labelId: string, values: LabelValues) => {
     const slug = slugify(values.name);
     requireUniqueSlug(slug, labelId);
-    requireEngine().workspaceDoc.updateLabel(labelId, { ...values, slug });
+    workspace().updateLabel(labelId, { ...values, slug });
   };
 
   const deleteLabel = (labelId: string) => {
-    requireEngine().workspaceDoc.removeLabel(labelId);
+    workspace().removeLabel(labelId);
     const layoutStore = useLayoutStore();
-    if (layoutStore.label === labelId) layoutStore.label = ALL_NOTES;
+    if (layoutStore.label === labelId) layoutStore.showAllNotes();
   };
 
   const moveLabel = (
@@ -281,7 +266,7 @@ export const useNoteStore = defineStore("notes", () => {
   ) => {
     const keyOf = (id: string | null) =>
       labels.value.find((label) => label.id === id)?.sortKey;
-    requireEngine().workspaceDoc.updateLabel(labelId, {
+    workspace().updateLabel(labelId, {
       sortKey: keyBetween(keyOf(beforeId), keyOf(afterId)),
     });
   };
@@ -289,7 +274,7 @@ export const useNoteStore = defineStore("notes", () => {
   const deleteNoteForever = async (note: ClientNote) => {
     try {
       await $fetch(`/api/notes/${note.id}`, { method: "DELETE" });
-      requireEngine().workspaceDoc.removeNote(note.id);
+      workspace().removeNote(note.id);
       toast.success(
         note.role === "owner"
           ? "Note deleted permanently."
@@ -306,9 +291,8 @@ export const useNoteStore = defineStore("notes", () => {
     try {
       await requireEngine().syncNow();
       await $fetch("/api/notes/trash", { method: "DELETE" });
-      for (const note of retrieveNotes("trashed")) {
-        requireEngine().workspaceDoc.removeNote(note.id);
-      }
+      for (const note of retrieveNotes("trashed"))
+        workspace().removeNote(note.id);
       toast.success("Trash cleared successfully.");
     } catch {
       toast.error("Couldn't clear the trash.", {
@@ -328,25 +312,23 @@ export const useNoteStore = defineStore("notes", () => {
     labels,
     ensureStarted,
     resetStore,
-    methods: {
-      retrieveNotes,
-      getNoteById,
-      loadNoteDoc,
-      createNote,
-      updateTitle,
-      assignLabel,
-      setBackground,
-      setReminder,
-      toggleNoteProp,
-      moveNote,
-      createLabel,
-      updateLabel,
-      deleteLabel,
-      moveLabel,
-      deleteNoteForever,
-      clearTrash,
-      search,
-      syncNow,
-    },
+    retrieveNotes,
+    getNoteById,
+    loadNoteDoc,
+    createNote,
+    updateTitle,
+    assignLabel,
+    setBackground,
+    setReminder,
+    toggleNoteProp,
+    moveNote,
+    createLabel,
+    updateLabel,
+    deleteLabel,
+    moveLabel,
+    deleteNoteForever,
+    clearTrash,
+    search,
+    syncNow,
   };
 });

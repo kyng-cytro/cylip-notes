@@ -1,24 +1,21 @@
-type Payload = { kind?: "notes" | "users"; offset?: string; limit?: string };
+type Kind = "notes" | "users";
+type Payload = { kind?: Kind; offset?: string; limit?: string };
 
-const loadBatch = async (
-  kind: "notes" | "users",
-  offset: number,
-  limit: number,
-) => {
-  const db = useDrizzle();
+const loaders: Record<Kind, (id: string) => Promise<unknown>> = {
+  notes: loadNoteDoc,
+  users: loadWorkspaceDoc,
+};
+
+const loadBatch = async (kind: Kind, offset: number, limit: number) => {
   const table = kind === "notes" ? tables.note : tables.user;
-  const rows = await db
+  const rows = await useDrizzle()
     .select({ id: table.id })
     .from(table)
     .orderBy(table.id)
     .limit(limit)
     .offset(offset);
-  const path = (id: string) =>
-    kind === "notes"
-      ? `/internal/notes/${id}/load`
-      : `/internal/workspaces/${id}/load`;
   const results = await Promise.allSettled(
-    rows.map(({ id }) => callSyncWorker(path(id), "POST")),
+    rows.map(({ id }) => loaders[kind](id)),
   );
   const failed = rows
     .filter((_, i) => results[i]!.status === "rejected")

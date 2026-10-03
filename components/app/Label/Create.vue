@@ -8,7 +8,7 @@ const value = defineModel<string | undefined>("value", { default: undefined });
 
 const onSubmit = (values: Record<string, any>) => {
   try {
-    useNoteStore().methods.createLabel(
+    useNoteStore().createLabel(
       values as { name: string; options: LabelOptions },
     );
     toast.success("Label created successfully", {
@@ -22,7 +22,8 @@ const onSubmit = (values: Record<string, any>) => {
 };
 
 const canCreateLabel = computed(
-  () => isPremium || useNoteStore().labels.length < CONSTANTS.maxFreeLables,
+  () =>
+    isPremium.value || useNoteStore().labels.length < CONSTANTS.maxFreeLabels,
 );
 </script>
 <template>

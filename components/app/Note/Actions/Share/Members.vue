@@ -16,7 +16,7 @@ type Member = {
 const props = defineProps<{ note: ClientNote }>();
 
 const { user } = useUser();
-const { methods } = useNoteStore();
+const noteStore = useNoteStore();
 const isOwner = computed(() => props.note.role === "owner");
 const membersUrl = computed(() => `/api/notes/${props.note.id}/members`);
 
@@ -143,7 +143,7 @@ const remove = async (userId: string) => {
           v-else-if="member.id === user?.id && !isOwner"
           size="xs"
           variant="ghost"
-          @click="methods.deleteNoteForever(note)"
+          @click="noteStore.deleteNoteForever(note)"
         >
           Leave
         </Button>

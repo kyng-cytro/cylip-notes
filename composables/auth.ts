@@ -1,59 +1,69 @@
+import { SYNC_TIMING } from "@/lib/sync/constants";
 import type { SerializeDates } from "@/lib/types";
 import type { AuthUser } from "@/server/utils/auth";
 
 type User = SerializeDates<AuthUser>;
 
+const throwOnError = ({ error }: { error: { message?: string } | null }) => {
+  if (error) throw new Error(error.message || "Could not sign in.");
+};
+
 export const useUser = () => {
   const user = useState<User | null>("user", () => null);
-  const loggedIn = user.value?.id ? true : false;
-  const isPremium = user.value?.accountType === "premium" ? true : false;
+  const loggedIn = computed(() => !!user.value);
+  const isPremium = computed(() => user.value?.accountType === "premium");
 
-  async function signIn(
-    opts: { type: "google" } | { type: "magic-link"; email: string },
-  ) {
-    const client = useNuxtApp().$authClient;
-    const { error } =
-      opts.type === "google"
-        ? await client.signIn.social({
-            provider: "google",
-            callbackURL: authRoutes.app,
-          })
-        : await client.signIn.magicLink({
-            email: opts.email,
-            callbackURL: authRoutes.app,
-            errorCallbackURL: authRoutes.login,
-          });
-    if (error) throw new Error(error.message || "Could not sign in.");
-    if (opts.type === "magic-link") await navigateTo("/login/check-email");
-  }
-
-  const getToken = async () => {
-    const session = await useRequestFetch()("/api/session", {
-      timeout: 10_000,
-    });
-    if (!session) return "";
-    return session.token;
+  const signInWithGoogle = async () => {
+    const { $authClient } = useNuxtApp();
+    throwOnError(
+      await $authClient.signIn.social({
+        provider: "google",
+        callbackURL: authRoutes.app,
+      }),
+    );
   };
 
-  async function logout() {
+  const signInWithEmail = async (email: string) => {
+    const { $authClient } = useNuxtApp();
+    throwOnError(
+      await $authClient.signIn.magicLink({
+        email,
+        callbackURL: authRoutes.app,
+        errorCallbackURL: authRoutes.login,
+      }),
+    );
+    await navigateTo("/login/check-email");
+  };
+
+  const getToken = async () => {
+    const { token } = await $fetch<{ token: string | null }>("/api/session", {
+      timeout: SYNC_TIMING.tokenTimeout,
+    });
+    return token ?? "";
+  };
+
+  const logout = async () => {
     const { $authClient } = useNuxtApp();
     await useNoteStore().resetStore();
     await $authClient.signOut();
     user.value = null;
     await navigateTo(authRoutes.login);
-  }
+  };
 
-  async function updateUser(values: Record<string, string | File>) {
+  const updateUser = async (values: Record<string, string | File>) => {
     const body = new FormData();
-    for (const [key, value] of Object.entries(values)) {
-      body.append(key, value);
-    }
-    const data = await $fetch("/api/user", {
-      body,
-      method: "PATCH",
-    });
-    user.value = data;
-  }
+    for (const [key, value] of Object.entries(values)) body.append(key, value);
+    user.value = await $fetch("/api/user", { method: "PATCH", body });
+  };
 
-  return { loggedIn, isPremium, user, signIn, logout, getToken, updateUser };
+  return {
+    user,
+    loggedIn,
+    isPremium,
+    signInWithGoogle,
+    signInWithEmail,
+    getToken,
+    logout,
+    updateUser,
+  };
 };

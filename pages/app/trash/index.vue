@@ -8,7 +8,7 @@ const { initialized } = storeToRefs(notesStore);
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
 const notes = computed(() => {
-  return notesStore.methods.retrieveNotes("trashed");
+  return notesStore.retrieveNotes("trashed");
 });
 </script>
 <template>
@@ -26,7 +26,7 @@ const notes = computed(() => {
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
         <div class="flex flex-wrap items-center justify-between gap-y-2">
-          <p class="text-sm font-semibold text-muted-foreground">
+          <p class="text-muted-foreground text-sm font-semibold">
             Notes will be deleted permanently after 7 days.
           </p>
           <AppConfirmDialog
@@ -36,11 +36,11 @@ const notes = computed(() => {
               confirm: { text: 'Delete trashed notes' },
               cancel: { text: 'Cancel' },
             }"
-            @confirm="() => notesStore.methods.clearTrash()"
+            @confirm="() => notesStore.clearTrash()"
           >
             <Button
               variant="link"
-              class="p-0 text-sm font-semibold text-muted-foreground"
+              class="text-muted-foreground p-0 text-sm font-semibold"
             >
               Empty Trash
             </Button>

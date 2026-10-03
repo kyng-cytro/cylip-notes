@@ -1,11 +1,10 @@
+import { CLIENT_ROUTES, SYNC_TIMING } from "./constants";
 import type {
   PullRequest,
   PullResponse,
   PushRequest,
   PushResponse,
 } from "./protocol";
-
-const REQUEST_TIMEOUT = 20_000;
 
 export class SyncApi {
   constructor(
@@ -14,11 +13,11 @@ export class SyncApi {
   ) {}
 
   pull(request: PullRequest) {
-    return this.post<PullResponse>("/sync/pull", request);
+    return this.post<PullResponse>(CLIENT_ROUTES.pull, request);
   }
 
   push(request: PushRequest) {
-    return this.post<PushResponse>("/sync/push", request);
+    return this.post<PushResponse>(CLIENT_ROUTES.push, request);
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
@@ -29,7 +28,7 @@ export class SyncApi {
         "content-type": "application/json",
       },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT),
+      signal: AbortSignal.timeout(SYNC_TIMING.requestTimeout),
     });
     if (!response.ok)
       throw new Error(`Sync request failed: ${response.status}`);

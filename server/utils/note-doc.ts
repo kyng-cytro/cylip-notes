@@ -1,6 +1,6 @@
+import { DOC_KEYS } from "@/lib/sync/constants";
 import { extensions } from "@/lib/tiptap";
 import {
-  CONTENT_FIELD,
   getMeta,
   readMeta,
   toBase64,
@@ -24,7 +24,7 @@ export const buildNoteDoc = (content: JSONContent | null, meta: NoteMeta) => {
       prosemirrorJSONToYXmlFragment(
         schema,
         content,
-        doc.getXmlFragment(CONTENT_FIELD),
+        doc.getXmlFragment(DOC_KEYS.content),
       );
     }
   });
@@ -37,7 +37,7 @@ export const encodeNoteDoc = (doc: Y.Doc) =>
 export const readNoteDoc = (doc: Y.Doc) => ({
   meta: readMeta(doc),
   content: yXmlFragmentToProseMirrorRootNode(
-    doc.getXmlFragment(CONTENT_FIELD),
+    doc.getXmlFragment(DOC_KEYS.content),
     schema,
   ).toJSON() as JSONContent,
 });

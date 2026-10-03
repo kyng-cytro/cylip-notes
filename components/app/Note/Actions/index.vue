@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { canEdit as canEditRole } from "@/lib/sync/protocol";
 import type { ClientNote } from "@/lib/types";
 import type { Editor } from "@tiptap/vue-3";
 import { ArchiveIcon, Repeat2Icon, Trash2Icon } from "lucide-vue-next";
@@ -10,11 +11,11 @@ const props = defineProps<{
   cb?: () => void;
 }>();
 
-const { methods } = useNoteStore();
+const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
 
 const isOwner = computed(() => props.note.role === "owner");
-const canEdit = computed(() => props.note.role !== "viewer");
+const canEdit = computed(() => canEditRole(props.note.role));
 
 const runAndClose = async (action: () => void | Promise<void>) => {
   await action();
@@ -23,8 +24,8 @@ const runAndClose = async (action: () => void | Promise<void>) => {
 
 const removeNote = () =>
   isOwner.value
-    ? methods.toggleNoteProp(props.note, "trashed")
-    : methods.deleteNoteForever(props.note);
+    ? noteStore.toggleNoteProp(props.note, "trashed")
+    : noteStore.deleteNoteForever(props.note);
 </script>
 
 <template>
@@ -32,7 +33,9 @@ const removeNote = () =>
     <AppNoteActionsButton
       tooltip="Restore note"
       :icon="Repeat2Icon"
-      @button-click="runAndClose(() => methods.toggleNoteProp(note, 'trashed'))"
+      @button-click="
+        runAndClose(() => noteStore.toggleNoteProp(note, 'trashed'))
+      "
     />
     <TooltipWrapper tooltip="Delete forever">
       <AppConfirmDialog
@@ -42,7 +45,7 @@ const removeNote = () =>
           confirm: { text: 'Delete forever' },
           cancel: { text: 'Cancel' },
         }"
-        @confirm="runAndClose(() => methods.deleteNoteForever(note))"
+        @confirm="runAndClose(() => noteStore.deleteNoteForever(note))"
       >
         <Button variant="ghost" size="xs">
           <Trash2Icon class="size-4" />
@@ -53,19 +56,19 @@ const removeNote = () =>
   <template v-else>
     <AppNoteActionsReminder
       :reminder-at="note.reminderAt"
-      @set-reminder="methods.setReminder(note.id, $event)"
+      @set-reminder="noteStore.setReminder(note.id, $event)"
     />
     <AppNoteActionsShare :note="note" />
     <AppNoteActionsBackgroundOptions
       v-if="canEdit"
       :background="note.background"
-      @set-background="methods.setBackground(note, $event)"
+      @set-background="noteStore.setBackground(note, $event)"
     />
     <AppNoteActionsButton
       :tooltip="note.archived ? 'Unarchive' : 'Archive'"
       :icon="ArchiveIcon"
       @button-click="
-        runAndClose(() => methods.toggleNoteProp(note, 'archived'))
+        runAndClose(() => noteStore.toggleNoteProp(note, 'archived'))
       "
     />
     <AppNoteActionsDropdown
@@ -75,8 +78,8 @@ const removeNote = () =>
       @copy="copy(editor?.getHTML(), true)"
       @delete="runAndClose(removeNote)"
       @full-screen="navigateTo(`/app/notes/${note.id}`, { external: true })"
-      @assign-label="methods.assignLabel(note, $event)"
-      @toggle-show-preview="methods.toggleNoteProp(note, 'preview')"
+      @assign-label="noteStore.assignLabel(note, $event)"
+      @toggle-show-preview="noteStore.toggleNoteProp(note, 'preview')"
     />
   </template>
 </template>

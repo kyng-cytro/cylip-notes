@@ -1,67 +1,53 @@
 import type { Editor } from "@tiptap/vue-3";
-import imageCompression, { type Options } from "browser-image-compression";
+import imageCompression from "browser-image-compression";
 
-const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "tiff"];
+type ValidationResult =
+  { valid: true; file: File } | { valid: false; message: string };
 
-const compressImage = async (file: File, options: Options = {}) => {
-  return await imageCompression(file, options);
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "bmp", "tiff"];
+
+const isImage = (file: File) => {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return (
+    file.type.startsWith("image/") && ALLOWED_EXTENSIONS.includes(extension)
+  );
 };
 
-const getUrl = async (file: File): Promise<string | ArrayBuffer | null> => {
-  const fileReader = new FileReader();
-  fileReader.readAsDataURL(file);
-  return new Promise((resolve) => {
-    fileReader.onload = () => {
-      resolve(fileReader.result);
-    };
+const readAsDataUrl = (file: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
   });
+
+export const toCompressedDataUrl = async (file: File) => {
+  const compressed = await imageCompression(
+    file,
+    CONSTANTS.imageCompressionOptions,
+  );
+  if (compressed.size > CONSTANTS.imageSizeLimit)
+    throw new Error("File too large.");
+  return readAsDataUrl(compressed);
 };
 
-export const getDataUrl = async (
-  file: File,
-  options = { compress: true, sizeLimit: CONSTANTS.imageSizeLimit }, // Defualt 300kb
-): Promise<string | ArrayBuffer | null> => {
-  if (!file) return null;
-  const result = options.compress
-    ? await compressImage(file, CONSTANTS.imageCompressionOptions)
-    : file;
-  if (result.size > options.sizeLimit) throw new Error("File too large.");
-  return await getUrl(result);
-};
-
-const isValidImage = (file: File) => {
-  const isValidMimeType = file.type.includes("image");
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  const isValidExtension = allowedExtensions.includes(extension || "");
-  return isValidMimeType && isValidExtension;
-};
-
-export const imagePreProcessChecks = (
+export const validateImageFiles = (
   editor: Editor,
   files: File[],
-): { valid: true; file: File } | { valid: false; message: string } => {
-  // Cheking if the file list is empty
-  if (!files.length || !files[0])
-    return { valid: false, message: "No file found." };
-  // Cheking if the file list has more than one file
+): ValidationResult => {
+  const [file] = files;
+  if (!file) return { valid: false, message: "No file found." };
   if (files.length > 1)
     return { valid: false, message: "You can only upload one file at a time." };
-  // Cheking if any of the files is not an image
-  if (files.some((file) => !isValidImage(file)))
+  if (!isImage(file))
+    return { valid: false, message: "Only image files are allowed." };
+  const accountType = useUser().user.value?.accountType ?? "free";
+  const max = CONSTANTS.maxImagePerNote[accountType];
+  if ((editor.$nodes("image")?.length ?? 0) >= max) {
     return {
       valid: false,
-      message: "Only image files are allowed.",
+      message: `Notes under the ${accountType} plan can only have ${max} image at a time.`,
     };
-  // Cheking if the user is not logged in
-  const { user } = useUser();
-  if (!user.value) return { valid: false, message: "User not found." };
-  // Cheking if the user has reached the max image limit
-  const images = editor.$nodes("image");
-  const max = CONSTANTS.maxImagePerNote[user.value.accountType];
-  if (images && images.length >= max)
-    return {
-      valid: false,
-      message: `Notes under the ${user.value.accountType} plan can only have ${max} image at a time.`,
-    };
-  return { valid: true, file: files[0] };
+  }
+  return { valid: true, file };
 };

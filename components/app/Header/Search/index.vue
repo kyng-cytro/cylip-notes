@@ -4,9 +4,9 @@ import { PopoverClose } from "reka-ui";
 
 const q = ref("");
 const query = refDebounced(q, 200);
-const { methods } = useNoteStore();
+const noteStore = useNoteStore();
 const results = computed(() =>
-  query.value ? methods.search(query.value) : [],
+  query.value ? noteStore.search(query.value) : [],
 );
 
 const replace = computed(() => {
@@ -51,7 +51,6 @@ const replace = computed(() => {
             </template>
           </template>
         </div>
-        <!-- Arrow -->
         <div
           class="bg-background absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l"
         />

@@ -1,5 +1,5 @@
+import { DOC_KEYS } from "./constants";
 import * as Y from "yjs";
-import { CONTENT_FIELD } from "./protocol";
 
 const isInlineImage = (node: Y.AbstractType<unknown>) =>
   node instanceof Y.XmlElement &&
@@ -8,7 +8,7 @@ const isInlineImage = (node: Y.AbstractType<unknown>) =>
 
 const findInlineImages = (doc: Y.Doc) =>
   [
-    ...doc.getXmlFragment(CONTENT_FIELD).createTreeWalker(isInlineImage),
+    ...doc.getXmlFragment(DOC_KEYS.content).createTreeWalker(isInlineImage),
   ] as Y.XmlElement[];
 
 export const uploadInlineImages = async (

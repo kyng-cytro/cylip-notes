@@ -24,7 +24,6 @@ const isDark = computed(() => useColorMode().value === "dark");
       </Button>
     </PopoverTrigger>
     <PopoverContent class="sm:w-[450px]">
-      <!-- Solid Colors -->
       <div class="flex flex-wrap gap-2 sm:justify-between">
         <AppNoteActionsBackgroundOptionsPlaceholder
           label="no-background"

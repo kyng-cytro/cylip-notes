@@ -1,3 +1,4 @@
+import { NOTE_CHANGED, PARTIES, STORAGE_NAMES } from "./constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import YProvider from "y-partyserver/provider";
 import * as Y from "yjs";
@@ -28,7 +29,7 @@ export class Workspace {
 
   constructor(private options: Options) {
     this.persistence = new IndexeddbPersistence(
-      `cylip-workspace-${options.userId}`,
+      STORAGE_NAMES.workspace(options.userId),
       this.doc,
     );
     getNotesMap(this.doc).observeDeep(options.onChange);
@@ -45,7 +46,7 @@ export class Workspace {
       this.options.userId,
       this.doc,
       {
-        party: "workspace-doc",
+        party: PARTIES.workspace,
         params: async () => ({ token: await this.options.getToken() }),
       },
     );
@@ -54,7 +55,7 @@ export class Workspace {
     });
     this.provider.on("custom-message", (message: string) => {
       const parsed = JSON.parse(message) as NoteChangedMessage;
-      if (parsed.type === "note-changed") this.options.onNoteChanged(parsed.id);
+      if (parsed.type === NOTE_CHANGED) this.options.onNoteChanged(parsed.id);
     });
   }
 

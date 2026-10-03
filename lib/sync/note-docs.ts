@@ -1,3 +1,4 @@
+import { STORAGE_NAMES } from "./constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 
@@ -50,7 +51,7 @@ export class NoteDocs {
     if (existing) return existing;
     const doc = new Y.Doc();
     const persistence = new IndexeddbPersistence(
-      `cylip-note-${this.userId}-${noteId}`,
+      STORAGE_NAMES.note(this.userId, noteId),
       doc,
     );
     doc.on("afterTransaction", (transaction) => {

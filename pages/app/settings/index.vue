@@ -18,7 +18,9 @@ const onSubmit = async (values: Record<string, string | File>) => {
     await updateUser(values);
     toast.success("Account information updated successfully");
   } catch (e: any) {
-    toast.error("Something went wrong", { description: e.data.message });
+    toast.error("Something went wrong", {
+      description: e.data?.message ?? e.message,
+    });
   }
 };
 
@@ -31,7 +33,7 @@ const getImage = (value?: File | string | null) => {
 };
 
 const deleteLabel = (label: ClientLabel) => {
-  noteStore.methods.deleteLabel(label.id);
+  noteStore.deleteLabel(label.id);
   toast.success("Label deleted successfully", {
     description: `${capitalize(label.name)} has been deleted.`,
   });
@@ -150,7 +152,7 @@ const deleteLabel = (label: ClientLabel) => {
     </div>
     <AppLabelContainer
       :labels
-      @move="noteStore.methods.moveLabel"
+      @move="noteStore.moveLabel"
       @delete="deleteLabel"
     />
   </AppMainContainer>

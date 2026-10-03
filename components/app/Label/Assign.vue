@@ -19,7 +19,7 @@ const query = defineModel<string>();
       auto-focus
     />
     <CommandList
-      class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary max-w-[300px]"
+      class="scrollbar-thumb-secondary max-w-[300px] scrollbar-thin scrollbar-track-transparent"
     >
       <CommandEmpty class="flex flex-col items-center justify-center gap-2 p-4">
         <span>No label with the name "{{ query }}".</span>
@@ -33,7 +33,7 @@ const query = defineModel<string>();
         </AppLabelCreate>
       </CommandEmpty>
       <CommandGroup>
-        <CommandItem value="all-notes" @select="$emit('assign-label', null)"
+        <CommandItem :value="ALL_NOTES" @select="$emit('assign-label', null)"
           >All Notes
 
           <Check class="ml-auto size-4" v-if="!labelId" />

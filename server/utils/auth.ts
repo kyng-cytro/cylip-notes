@@ -20,7 +20,7 @@ const sendSignInLink = async (email: string, url: string) => {
     url,
     name: name || "there",
   });
-  await sendEmail({ html, text, subject, to: email, category: "sign-in" });
+  await sendEmail({ html, text, subject, to: email });
 };
 
 export const auth = betterAuth({

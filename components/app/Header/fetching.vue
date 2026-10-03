@@ -19,7 +19,7 @@ const tooltip = computed(
       variant="ghost"
       size="icon"
       :class="{ 'text-muted-foreground': status === 'synced' }"
-      @click="noteStore.methods.syncNow()"
+      @click="noteStore.syncNow()"
     >
       <CloudOff v-if="status === 'offline'" class="size-4" />
       <RotateCw

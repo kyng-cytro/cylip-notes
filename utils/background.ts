@@ -1,6 +1,6 @@
 import type { Background as NoteBackground } from "@/lib/sync/protocol";
 
-export type Background = {
+type BackgroundOption = {
   type: "color" | "image";
   name: string;
   light: string;
@@ -9,7 +9,7 @@ export type Background = {
 
 export const preloadRoutes = ["/app", "/public"];
 
-export const backgrounds: Background[] = [
+export const backgrounds: BackgroundOption[] = [
   { type: "color", name: "mint-green", light: "#DFFFD6", dark: "#2C784D" },
   { type: "color", name: "lavender", light: "#EFEAFF", dark: "#624FA0" },
   { type: "color", name: "blush-pink", light: "#FFE4E1", dark: "#CC6A62" },
@@ -49,23 +49,14 @@ export const getBackgroundOptions = (isDark: boolean) =>
 
 export const applyBackground = (
   isDark: boolean,
-  options: NoteBackground | undefined,
+  background: NoteBackground | undefined,
 ) => {
-  if (!options) return "";
-  const { type, value } = options;
-  if (type === "color") {
-    const color = backgrounds.find(({ name, type }) => {
-      return name === value && type === "color";
-    });
-    if (!color) return "";
-    return `background-color: ${isDark ? color.dark : color.light};`;
-  }
-  if (type === "image") {
-    const image = backgrounds.find(({ name, type }) => {
-      return name === value && type === "image";
-    });
-    if (!image) return "";
-    return `background-image: url(${isDark ? image.dark : image.light});background-size: cover;background-position: center top;`;
-  }
-  return "";
+  const option = backgrounds.find(
+    ({ name, type }) => name === background?.value && type === background?.type,
+  );
+  if (!option) return "";
+  const value = isDark ? option.dark : option.light;
+  return option.type === "color"
+    ? `background-color: ${value};`
+    : `background-image: url(${value});background-size: cover;background-position: center top;`;
 };

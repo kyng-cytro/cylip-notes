@@ -8,7 +8,7 @@ const { initialized } = storeToRefs(notesStore);
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
 const notes = computed(() => {
-  return notesStore.methods.retrieveNotes("reminders");
+  return notesStore.retrieveNotes("reminders");
 });
 </script>
 <template>
@@ -25,7 +25,7 @@ const notes = computed(() => {
     </template>
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
-        <p class="text-sm font-semibold text-muted-foreground">Reminders</p>
+        <p class="text-muted-foreground text-sm font-semibold">Reminders</p>
         <AppNoteContainer :notes="notes" :disabled="true" />
       </AppScrollContainer>
     </template>

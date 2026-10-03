@@ -1,6 +1,61 @@
-import type { NoteRole } from "@/lib/sync/protocol";
+import { NOTE_ROLES, type NoteRole } from "@/lib/sync/protocol";
 
-const getAudiences = async (noteIds: string[]) => {
+type Membership = { noteId: string; userId: string };
+
+export const getNoteRole = async (
+  noteId: string,
+  userId: string,
+): Promise<NoteRole | null> => {
+  const db = useDrizzle();
+  const note = await db.query.note.findFirst({
+    columns: { userId: true },
+    where: eq(tables.note.id, noteId),
+  });
+  if (!note) return null;
+  if (note.userId === userId) return "owner";
+  const member = await db.query.noteMember.findFirst({
+    columns: { role: true },
+    where: and(
+      eq(tables.noteMember.noteId, noteId),
+      eq(tables.noteMember.userId, userId),
+    ),
+  });
+  return member?.role ?? null;
+};
+
+export const requireNoteRole = async (
+  noteId: string,
+  userId: string,
+  allowed: readonly NoteRole[] = NOTE_ROLES,
+) => {
+  const role = await getNoteRole(noteId, userId);
+  if (!role || !allowed.includes(role)) {
+    throw createError({
+      statusCode: 403,
+      message: "You can't do that on this note.",
+    });
+  }
+  return role;
+};
+
+export const isDeletedNote = async (noteId: string) => {
+  const tombstone = await useDrizzle().query.deletedNote.findFirst({
+    where: eq(tables.deletedNote.id, noteId),
+  });
+  return !!tombstone;
+};
+
+export const claimNotes = async (noteIds: string[], userId: string) => {
+  if (!noteIds.length) return [];
+  const rows = await useDrizzle()
+    .insert(tables.note)
+    .values(noteIds.map((id) => ({ id, userId })))
+    .onConflictDoNothing()
+    .returning({ id: tables.note.id });
+  return rows.map((row) => row.id);
+};
+
+const getMemberships = async (noteIds: string[]): Promise<Membership[]> => {
   const db = useDrizzle();
   const [notes, members] = await Promise.all([
     db.query.note.findMany({
@@ -18,19 +73,9 @@ const getAudiences = async (noteIds: string[]) => {
   ];
 };
 
-const removeFromWorkspaces = (audience: { noteId: string; userId: string }[]) =>
-  Promise.allSettled(
-    audience.map(({ noteId, userId }) =>
-      callSyncWorker(
-        `/internal/workspaces/${userId}/notes/${noteId}`,
-        "DELETE",
-      ),
-    ),
-  );
-
 export const deleteNotes = async (noteIds: string[]) => {
   if (!noteIds.length) return;
-  const audience = await getAudiences(noteIds);
+  const memberships = await getMemberships(noteIds);
   const db = useDrizzle();
   await db.batch([
     db
@@ -39,10 +84,12 @@ export const deleteNotes = async (noteIds: string[]) => {
       .onConflictDoNothing(),
     db.delete(tables.note).where(inArray(tables.note.id, noteIds)),
   ]);
-  await Promise.allSettled(
-    noteIds.map((id) => callSyncWorker(`/internal/notes/${id}`, "DELETE")),
-  );
-  await removeFromWorkspaces(audience);
+  await Promise.allSettled([
+    ...noteIds.map(destroyNoteDoc),
+    ...memberships.map(({ noteId, userId }) =>
+      removeFromWorkspace(userId, noteId),
+    ),
+  ]);
 };
 
 export const grantNoteAccess = async (
@@ -57,15 +104,8 @@ export const grantNoteAccess = async (
       target: [tables.noteMember.noteId, tables.noteMember.userId],
       set: { role },
     });
-  await callSyncWorker(
-    `/internal/workspaces/${userId}/notes/${noteId}`,
-    "POST",
-    { role },
-  );
-  await callSyncWorker(
-    `/internal/notes/${noteId}/connections/${userId}`,
-    "DELETE",
-  );
+  await addToWorkspace(userId, noteId, role);
+  await disconnectFromNote(noteId, userId);
 };
 
 export const revokeNoteAccess = async (noteId: string, userId: string) => {
@@ -77,24 +117,6 @@ export const revokeNoteAccess = async (noteId: string, userId: string) => {
         eq(tables.noteMember.userId, userId),
       ),
     );
-  await removeFromWorkspaces([{ noteId, userId }]);
-  await callSyncWorker(
-    `/internal/notes/${noteId}/connections/${userId}`,
-    "DELETE",
-  );
-};
-
-export const requireNoteRole = async (
-  noteId: string,
-  userId: string,
-  allowed: NoteRole[],
-) => {
-  const role = await getNoteRole(noteId, userId);
-  if (!role || !allowed.includes(role)) {
-    throw createError({
-      statusCode: 403,
-      message: "You can't do that on this note.",
-    });
-  }
-  return role;
+  await removeFromWorkspace(userId, noteId);
+  await disconnectFromNote(noteId, userId);
 };

@@ -1,6 +1,12 @@
 import * as Y from "yjs";
+import { DOC_KEYS, NOTE_CHANGED } from "./constants";
 
-export type NoteRole = "owner" | "editor" | "viewer";
+export const NOTE_ROLES = ["owner", "editor", "viewer"] as const;
+
+export type NoteRole = (typeof NOTE_ROLES)[number];
+
+export const canEdit = (role: NoteRole | undefined) =>
+  role === "owner" || role === "editor";
 
 export type Background = {
   type: "color" | "image" | null;
@@ -48,7 +54,7 @@ export type WorkspaceSnapshot = {
   labels: Record<string, WorkspaceLabel>;
 };
 
-export type NoteChangedMessage = { type: "note-changed"; id: string };
+export type NoteChangedMessage = { type: typeof NOTE_CHANGED; id: string };
 
 export type PullRequest = {
   docs: Record<string, string>;
@@ -69,14 +75,13 @@ export type PushResponse = {
   denied: string[];
 };
 
-export const CONTENT_FIELD = "default";
+export const getMeta = (doc: Y.Doc) => doc.getMap<unknown>(DOC_KEYS.meta);
 
-export const getMeta = (doc: Y.Doc) => doc.getMap<unknown>("meta");
-
-export const getNotesMap = (doc: Y.Doc) => doc.getMap<Y.Map<unknown>>("notes");
+export const getNotesMap = (doc: Y.Doc) =>
+  doc.getMap<Y.Map<unknown>>(DOC_KEYS.notes);
 
 export const getLabelsMap = (doc: Y.Doc) =>
-  doc.getMap<Y.Map<unknown>>("labels");
+  doc.getMap<Y.Map<unknown>>(DOC_KEYS.labels);
 
 export const readMeta = (doc: Y.Doc): NoteMeta => {
   const meta = getMeta(doc);

@@ -11,21 +11,18 @@ const open = ref(false);
 const noteStore = useNoteStore();
 
 const initialValues = computed(() => ({
-  name: props.label.name ?? "",
+  name: props.label.name,
   options: {
-    preview: props.label.options?.preview ?? true,
-    background: props.label.options?.background?.value
-      ? {
-          type: props.label.options.background.type,
-          value: props.label.options.background.value,
-        }
+    preview: props.label.options.preview,
+    background: props.label.options.background?.value
+      ? props.label.options.background
       : undefined,
   },
 }));
 
 const onSubmit = (values: Record<string, any>) => {
   try {
-    noteStore.methods.updateLabel(
+    noteStore.updateLabel(
       props.label.id,
       values as { name: string; options: LabelOptions },
     );

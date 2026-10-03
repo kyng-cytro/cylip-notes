@@ -20,6 +20,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^4",
     "@floating-ui/dom": "^1.8.0",
+    "@internationalized/date": "^3.12.4",
     "@libsql/client": "^0.17.4",
     "@nuxt/image": "^2",
     "@nuxthub/core": "^0.10.8",
@@ -59,6 +60,7 @@
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.3",
     "fractional-indexing": "^4.0.0",
+    "highlight.js": "^11.11.2",
     "idb-keyval": "^6.3.0",
     "lowlight": "^3.3.0",
     "lucide-vue-next": "^1",
@@ -99,8 +101,5 @@
     "typescript": "^5.9",
     "vue-tsc": "^3",
     "wrangler": "^4"
-  },
-  "patchedDependencies": {
-    "@onesignal/onesignal-vue3@2.0.1": "patches/@onesignal%2Fonesignal-vue3@2.0.1.patch"
   }
 }

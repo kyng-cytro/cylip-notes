@@ -1,82 +1,66 @@
+import { HEADERS, WORKER_ROUTES } from "@/lib/sync/constants";
 import type { NoteRole } from "@/lib/sync/protocol";
-import { getServerByName } from "partyserver";
+import { noteDoc, workspaceDoc } from "./docs";
 import type { Env } from "./env";
+import { status } from "./http";
 
-type Handler = (
-  env: Env,
-  params: Record<string, string>,
-  request: Request,
-) => Promise<void>;
+type Params = { noteId: string; userId: string };
+type Route = {
+  method: "POST" | "DELETE";
+  pattern: URLPattern;
+  handle: (env: Env, params: Params, request: Request) => Promise<unknown>;
+};
 
-const routes: { method: string; pattern: URLPattern; handler: Handler }[] = [
-  {
-    method: "POST",
-    pattern: new URLPattern({
-      pathname: "/internal/workspaces/:userId/notes/:noteId",
-    }),
-    handler: async (env, { userId, noteId }, request) => {
+const route = (
+  method: Route["method"],
+  pathname: string,
+  handle: Route["handle"],
+): Route => ({
+  method,
+  pattern: new URLPattern({ pathname }),
+  handle,
+});
+
+const routes = [
+  route(
+    "POST",
+    WORKER_ROUTES.workspaceNote,
+    async (env, { userId, noteId }, request) => {
       const { role } = await request.json<{ role: NoteRole }>();
-      await (
-        await getServerByName(env.WorkspaceDoc, userId!)
-      ).addNote(noteId!, role);
+      return (await workspaceDoc(env, userId)).addNote(noteId, role);
     },
-  },
-  {
-    method: "DELETE",
-    pattern: new URLPattern({
-      pathname: "/internal/workspaces/:userId/notes/:noteId",
-    }),
-    handler: async (env, { userId, noteId }) => {
-      await (
-        await getServerByName(env.WorkspaceDoc, userId!)
-      ).removeNote(noteId!);
-    },
-  },
-  {
-    method: "DELETE",
-    pattern: new URLPattern({
-      pathname: "/internal/notes/:noteId/connections/:userId",
-    }),
-    handler: async (env, { noteId, userId }) => {
-      await (await getServerByName(env.NoteDoc, noteId!)).disconnect(userId!);
-    },
-  },
-  {
-    method: "DELETE",
-    pattern: new URLPattern({ pathname: "/internal/notes/:noteId" }),
-    handler: async (env, { noteId }) => {
-      await (await getServerByName(env.NoteDoc, noteId!)).destroy();
-    },
-  },
-  {
-    method: "POST",
-    pattern: new URLPattern({ pathname: "/internal/notes/:noteId/load" }),
-    handler: async (env, { noteId }) => {
-      await getServerByName(env.NoteDoc, noteId!);
-    },
-  },
-  {
-    method: "POST",
-    pattern: new URLPattern({ pathname: "/internal/workspaces/:userId/load" }),
-    handler: async (env, { userId }) => {
-      await getServerByName(env.WorkspaceDoc, userId!);
-    },
-  },
+  ),
+  route(
+    "DELETE",
+    WORKER_ROUTES.workspaceNote,
+    async (env, { userId, noteId }) =>
+      (await workspaceDoc(env, userId)).removeNote(noteId),
+  ),
+  route(
+    "DELETE",
+    WORKER_ROUTES.noteConnections,
+    async (env, { noteId, userId }) =>
+      (await noteDoc(env, noteId)).disconnect(userId),
+  ),
+  route("DELETE", WORKER_ROUTES.note, async (env, { noteId }) =>
+    (await noteDoc(env, noteId)).destroy(),
+  ),
+  route("POST", WORKER_ROUTES.loadNote, (env, { noteId }) =>
+    noteDoc(env, noteId),
+  ),
+  route("POST", WORKER_ROUTES.loadWorkspace, (env, { userId }) =>
+    workspaceDoc(env, userId),
+  ),
 ];
 
 export const handleInternal = async (env: Env, request: Request) => {
-  if (request.headers.get("x-sync-secret") !== env.SYNC_SECRET) {
-    return new Response(null, { status: 401 });
+  if (request.headers.get(HEADERS.syncSecret) !== env.SYNC_SECRET)
+    return status(401);
+  for (const { method, pattern, handle } of routes) {
+    const match = pattern.exec(request.url);
+    if (method !== request.method || !match) continue;
+    await handle(env, match.pathname.groups as Params, request);
+    return status(204);
   }
-  for (const route of routes) {
-    const match = route.pattern.exec(request.url);
-    if (route.method !== request.method || !match) continue;
-    await route.handler(
-      env,
-      match.pathname.groups as Record<string, string>,
-      request,
-    );
-    return new Response(null, { status: 204 });
-  }
-  return new Response(null, { status: 404 });
+  return status(404);
 };

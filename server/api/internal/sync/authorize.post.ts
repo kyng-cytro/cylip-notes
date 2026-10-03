@@ -1,4 +1,7 @@
+import type { NoteRole } from "@/lib/sync/protocol";
 import { z } from "zod";
+
+type User = { id: string; name: string };
 
 const bodySchema = z.object({
   token: z.string().min(1),
@@ -6,21 +9,25 @@ const bodySchema = z.object({
   id: z.string().min(1).max(64),
 });
 
-const authorizeWorkspace = (user: { id: string; name: string }, id: string) => {
-  if (id !== user.id) throw createError({ statusCode: 403 });
-  return { userId: user.id, name: user.name, role: "owner", created: false };
+const identity = (user: User, role: NoteRole, created = false) => ({
+  userId: user.id,
+  name: user.name,
+  role,
+  created,
+});
+
+const authorizeWorkspace = (user: User, userId: string) => {
+  if (userId !== user.id) throw createError({ statusCode: 403 });
+  return identity(user, "owner");
 };
 
-const authorizeNote = async (
-  user: { id: string; name: string },
-  id: string,
-) => {
-  if (await isDeletedNote(id)) throw createError({ statusCode: 410 });
-  const role = await getNoteRole(id, user.id);
-  if (role) return { userId: user.id, name: user.name, role, created: false };
-  const [claimed] = await claimNotes([id], user.id);
+const authorizeNote = async (user: User, noteId: string) => {
+  if (await isDeletedNote(noteId)) throw createError({ statusCode: 410 });
+  const role = await getNoteRole(noteId, user.id);
+  if (role) return identity(user, role);
+  const [claimed] = await claimNotes([noteId], user.id);
   if (!claimed) throw createError({ statusCode: 403 });
-  return { userId: user.id, name: user.name, role: "owner", created: true };
+  return identity(user, "owner", true);
 };
 
 export default defineSyncEventHandler(async (event) => {

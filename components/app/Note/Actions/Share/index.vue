@@ -4,7 +4,7 @@ import { CopyIcon, Share2Icon } from "lucide-vue-next";
 
 const props = defineProps<{ note: ClientNote }>();
 
-const { methods } = useNoteStore();
+const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
 const open = ref(false);
 
@@ -33,7 +33,7 @@ const url = computed(
           </div>
           <Switch
             :modelValue="note.public"
-            @update:modelValue="methods.toggleNoteProp(note, 'public')"
+            @update:modelValue="noteStore.toggleNoteProp(note, 'public')"
           />
         </div>
         <Badge variant="secondary" class="relative w-full px-2 py-3">

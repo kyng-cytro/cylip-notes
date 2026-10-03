@@ -9,21 +9,22 @@ const { initialized } = storeToRefs(notesStore);
 const { label } = storeToRefs(useLayoutStore());
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
-const notes = computed(() => {
-  return notesStore.methods.retrieveNotes("active", label.value);
-});
+const isAllNotes = computed(() => label.value === ALL_NOTES);
+const notes = computed(() => notesStore.retrieveNotes("active", label.value));
+const pinnedNotes = computed(() =>
+  notesStore.retrieveNotes("pinned", label.value),
+);
 
-const pinnedNotes = computed(() => {
-  return notesStore.methods.retrieveNotes("pinned", label.value);
-});
-
-const createNote = () => notesStore.methods.createNote(label.value);
+const createNote = () => {
+  const noteId = notesStore.createNote(label.value);
+  useModalRouter().push(`/app/notes/${noteId}`);
+};
 
 const moveNote = (
   noteId: string,
   beforeId: string | null,
   afterId: string | null,
-) => notesStore.methods.moveNote(noteId, label.value, beforeId, afterId);
+) => notesStore.moveNote(noteId, label.value, beforeId, afterId);
 </script>
 
 <template>
@@ -37,15 +38,13 @@ const moveNote = (
     </div>
     <template v-if="!notes.length && !pinnedNotes.length">
       <AppEmptyPage
-        :title="
-          label === 'all-notes' ? 'No notes yet' : 'No notes in this label'
-        "
+        :title="isAllNotes ? 'No notes yet' : 'No notes in this label'"
         :subtitle="
-          label === 'all-notes'
+          isAllNotes
             ? 'Create your first note to get started'
             : 'Notes with this label will show up here.'
         "
-        :button="label === 'all-notes' ? { text: 'Create Note' } : undefined"
+        :button="isAllNotes ? { text: 'Create Note' } : undefined"
         @button-click="createNote"
         v-if="initialized"
       />

@@ -1,3 +1,4 @@
+import { NOTE_CHANGED, SAVE_DEBOUNCE } from "@/lib/sync/constants";
 import {
   getNotesMap,
   readWorkspace,
@@ -7,7 +8,7 @@ import {
   type NoteRole,
   type WorkspaceNote,
 } from "@/lib/sync/protocol";
-import { generateKeyBetween } from "fractional-indexing";
+import { keyBefore } from "@/lib/sync/ordering";
 import { YServer } from "y-partyserver";
 import * as Y from "yjs";
 import { fetchWorkspaceSeed, projectWorkspace } from "./app";
@@ -15,7 +16,7 @@ import type { Env } from "./env";
 import { loadState, saveState } from "./storage";
 
 export class WorkspaceDoc extends YServer<Env> {
-  static callbackOptions = { debounceWait: 1000, debounceMaxWait: 5000 };
+  static callbackOptions = SAVE_DEBOUNCE.workspace;
 
   async onLoad() {
     const stored = loadState(this.ctx.storage);
@@ -41,7 +42,7 @@ export class WorkspaceDoc extends YServer<Env> {
 
   notifyNoteChanged(noteId: string) {
     if (!getNotesMap(this.document).has(noteId)) return;
-    const message: NoteChangedMessage = { type: "note-changed", id: noteId };
+    const message: NoteChangedMessage = { type: NOTE_CHANGED, id: noteId };
     this.broadcastCustomMessage(JSON.stringify(message));
   }
 
@@ -57,7 +58,7 @@ export class WorkspaceDoc extends YServer<Env> {
       pinned: false,
       archived: false,
       labelId: null,
-      sortKey: generateKeyBetween(null, this.firstSortKey()),
+      sortKey: keyBefore(this.firstSortKey()),
       labelSortKey: null,
       reminderAt: null,
       preview: true,

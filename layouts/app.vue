@@ -29,7 +29,6 @@ onMounted(() => {
 @import "@/assets/css/tiptap-default.css";
 @import "@/assets/css/tiptap-extended.css";
 
-/* modal */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;

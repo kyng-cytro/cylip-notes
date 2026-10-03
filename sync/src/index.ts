@@ -1,13 +1,26 @@
-import { getServerByName, routePartykitRequest, type Lobby } from "partyserver";
-import { AppError, authorize } from "./app";
+import { CLIENT_ROUTES, WORKER_ROUTES } from "@/lib/sync/constants";
+import { routePartykitRequest, type Lobby } from "partyserver";
+import { authorize } from "./app";
 import { pull, push } from "./client-routes";
+import { reprojectWorkspace } from "./docs";
 import type { Env } from "./env";
-import { bearerToken, corsHeaders, json, status } from "./http";
+import {
+  bearerToken,
+  corsHeaders,
+  errorResponse,
+  status,
+  withCors,
+} from "./http";
 import { withIdentity } from "./identity";
 import { handleInternal } from "./internal-routes";
 
 export { NoteDoc } from "./note-doc";
 export { WorkspaceDoc } from "./workspace-doc";
+
+const clientRoutes: Record<string, typeof pull | typeof push> = {
+  [CLIENT_ROUTES.pull]: pull,
+  [CLIENT_ROUTES.push]: push,
+};
 
 const authorizeConnection = async (
   env: Env,
@@ -24,16 +37,10 @@ const authorizeConnection = async (
       kind,
       id: lobby.name,
     });
-    if (created) {
-      ctx.waitUntil(
-        getServerByName(env.WorkspaceDoc, identity.userId).then((w) =>
-          w.project(),
-        ),
-      );
-    }
+    if (created) ctx.waitUntil(reprojectWorkspace(env, identity.userId));
     return withIdentity(request, identity);
   } catch (error) {
-    return status(error instanceof AppError ? error.status : 500);
+    return errorResponse(error);
   }
 };
 
@@ -45,31 +52,25 @@ const handleClientRequest = async (
   const token = bearerToken(request);
   if (!token) return status(401);
   try {
-    return json(await handler(env, token, await request.json()));
+    return Response.json(await handler(env, token, await request.json()));
   } catch (error) {
-    return status(error instanceof AppError ? error.status : 500);
+    return errorResponse(error);
   }
-};
-
-const withCors = (env: Env, response: Response) => {
-  const headers = new Headers(response.headers);
-  for (const [key, value] of Object.entries(corsHeaders(env)))
-    headers.set(key, value);
-  return new Response(response.body, { status: response.status, headers });
 };
 
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
-    if (request.method === "OPTIONS") {
+    if (request.method === "OPTIONS")
       return new Response(null, { headers: corsHeaders(env) });
-    }
-    if (pathname.startsWith("/internal/")) return handleInternal(env, request);
-    if (request.method === "POST" && pathname === "/sync/pull") {
-      return withCors(env, await handleClientRequest(env, request, pull));
-    }
-    if (request.method === "POST" && pathname === "/sync/push") {
-      return withCors(env, await handleClientRequest(env, request, push));
+    if (pathname.startsWith(WORKER_ROUTES.prefix))
+      return handleInternal(env, request);
+    const clientRoute = clientRoutes[pathname];
+    if (clientRoute && request.method === "POST") {
+      return withCors(
+        env,
+        await handleClientRequest(env, request, clientRoute),
+      );
     }
     const party = await routePartykitRequest(request, env, {
       onBeforeConnect: (req, lobby) =>

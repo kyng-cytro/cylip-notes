@@ -1,6 +1,5 @@
 @reference "@/assets/css/tailwind.css";
 
-/* basic editor styles */
 ::selection {
   @apply bg-secondary text-primary;
 }
@@ -9,14 +8,12 @@
   margin-top: 0;
 }
 
-/* blockquote styles */
 .tiptap blockquote {
   @apply border-primary border-l-4;
   margin: 1.5rem 0;
   padding-left: 1rem;
 }
 
-/* list styles */
 .tiptap ul,
 .tiptap ol {
   padding: 0 1rem;
@@ -29,7 +26,6 @@
   margin-bottom: 0.25em;
 }
 
-/* placeholder styles */
 .tiptap p.is-editor-empty:first-child::before {
   @apply text-primary animate-pulse;
   content: attr(data-placeholder);
@@ -42,7 +38,6 @@
   word-break: break-all;
 }
 
-/* task list specific styles */
 .tiptap ul[data-type="taskList"] {
   list-style: none;
   margin-left: 0;
@@ -97,7 +92,6 @@
   padding: 0;
 }
 
-/* gap cursor */
 .tiptap img {
   display: block;
   margin: 1.5rem 0;
@@ -106,7 +100,6 @@
   border-radius: 0.5rem;
 }
 
-/* code styling */
 .hljs-comment,
 .hljs-quote {
   color: #616161;

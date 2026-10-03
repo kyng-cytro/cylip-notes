@@ -1,3 +1,4 @@
+import { AppError } from "./app";
 import type { Env } from "./env";
 
 export const corsHeaders = (env: Env) => ({
@@ -7,9 +8,17 @@ export const corsHeaders = (env: Env) => ({
   "Access-Control-Max-Age": "86400",
 });
 
-export const json = (data: unknown) => Response.json(data);
+export const withCors = (env: Env, response: Response) => {
+  const headers = new Headers(response.headers);
+  for (const [key, value] of Object.entries(corsHeaders(env)))
+    headers.set(key, value);
+  return new Response(response.body, { status: response.status, headers });
+};
 
 export const status = (code: number) => new Response(null, { status: code });
+
+export const errorResponse = (error: unknown) =>
+  status(error instanceof AppError ? error.status : 500);
 
 export const bearerToken = (request: Request) =>
   request.headers.get("authorization")?.replace(/^Bearer /i, "") ?? null;

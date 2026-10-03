@@ -8,25 +8,37 @@ const bodySchema = z.object({
   since: z.number().nullish(),
 });
 
-const loadAccess = (ids: string[], userId: string) => {
+const loadAccess = (noteIds: string[], userId: string) => {
   const db = useDrizzle();
   return Promise.all([
     db.query.note.findMany({
       columns: { id: true, userId: true, updatedAt: true },
-      where: inArray(tables.note.id, ids),
+      where: inArray(tables.note.id, noteIds),
     }),
     db.query.noteMember.findMany({
       columns: { noteId: true, role: true },
       where: and(
         eq(tables.noteMember.userId, userId),
-        inArray(tables.noteMember.noteId, ids),
+        inArray(tables.noteMember.noteId, noteIds),
       ),
     }),
     db.query.deletedNote.findMany({
       columns: { id: true },
-      where: inArray(tables.deletedNote.id, ids),
+      where: inArray(tables.deletedNote.id, noteIds),
     }),
   ]);
+};
+
+type Access = Awaited<ReturnType<typeof loadAccess>>;
+
+const resolveRoles = ([notes, memberships]: Access, userId: string) => {
+  const memberRoles = new Map(memberships.map((m) => [m.noteId, m.role]));
+  return new Map(
+    notes.map((note) => [
+      note.id,
+      note.userId === userId ? ("owner" as const) : memberRoles.get(note.id),
+    ]),
+  );
 };
 
 export default defineSyncEventHandler(async (event) => {
@@ -36,37 +48,26 @@ export default defineSyncEventHandler(async (event) => {
   );
   const user = await getUserFromToken(token);
   const cursor = Date.now();
+  const access = await loadAccess(ids, user.id);
+  const [notes, , tombstones] = access;
+  const noteRoles = resolveRoles(access, user.id);
+
   const roles: Record<string, NoteRole> = {};
-  const changed: string[] = [];
-  const denied: string[] = [];
-  const created: string[] = [];
-  if (!ids.length)
-    return { userId: user.id, roles, changed, denied, created, cursor };
+  for (const [id, role] of noteRoles) if (role) roles[id] = role;
+  const denied = [
+    ...[...noteRoles].filter(([, role]) => !role).map(([id]) => id),
+    ...tombstones.map((tombstone) => tombstone.id),
+  ];
+  const changed = notes
+    .filter(
+      (note) => roles[note.id] && (!since || note.updatedAt.getTime() > since),
+    )
+    .map((note) => note.id);
 
-  const [notes, memberships, tombstones] = await loadAccess(ids, user.id);
-  const memberRoles = new Map(memberships.map((m) => [m.noteId, m.role]));
-
-  for (const note of notes) {
-    const role = note.userId === user.id ? "owner" : memberRoles.get(note.id);
-    if (!role) {
-      denied.push(note.id);
-      continue;
-    }
-    roles[note.id] = role;
-    if (!since || note.updatedAt.getTime() > since) changed.push(note.id);
-  }
-  denied.push(...tombstones.map((t) => t.id));
-
-  if (create) {
-    const known = new Set([...notes.map((n) => n.id), ...denied]);
-    created.push(
-      ...(await claimNotes(
-        ids.filter((id) => !known.has(id)),
-        user.id,
-      )),
-    );
-    for (const id of created) roles[id] = "owner";
-  }
+  const known = new Set([...noteRoles.keys(), ...denied]);
+  const unknown = ids.filter((id) => !known.has(id));
+  const created = create ? await claimNotes(unknown, user.id) : [];
+  for (const id of created) roles[id] = "owner";
 
   return { userId: user.id, roles, changed, denied, created, cursor };
 });

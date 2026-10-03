@@ -1,18 +1,17 @@
+export const ALL_NOTES = "all-notes";
+
 export const useLayoutStore = defineStore(
   "layout",
   () => {
     const layout = ref<"grid" | "list">("grid");
-    const label = ref<string>("all-notes");
+    const label = ref(ALL_NOTES);
     const toggleLayout = () => {
       layout.value = layout.value === "grid" ? "list" : "grid";
     };
-    return {
-      label,
-      layout,
-      toggleLayout,
+    const showAllNotes = () => {
+      label.value = ALL_NOTES;
     };
+    return { label, layout, toggleLayout, showAllNotes };
   },
-  {
-    persist: true,
-  },
+  { persist: true },
 );

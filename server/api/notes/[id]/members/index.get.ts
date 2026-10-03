@@ -2,11 +2,7 @@ const userColumns = { id: true, name: true, email: true, image: true } as const;
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
-  await requireNoteRole(id, event.context.user.id, [
-    "owner",
-    "editor",
-    "viewer",
-  ]);
+  await requireNoteRole(id, event.context.user.id);
   const note = await useDrizzle().query.note.findFirst({
     columns: {},
     where: eq(tables.note.id, id),

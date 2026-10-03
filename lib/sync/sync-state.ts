@@ -1,3 +1,4 @@
+import { STORAGE_NAMES } from "./constants";
 import {
   clear,
   createStore,
@@ -15,7 +16,7 @@ export class SyncState {
   private store: UseStore;
 
   constructor(userId: string) {
-    this.store = createStore(`cylip-sync-${userId}`, "state");
+    this.store = createStore(STORAGE_NAMES.syncState(userId), "state");
   }
 
   getCursor() {

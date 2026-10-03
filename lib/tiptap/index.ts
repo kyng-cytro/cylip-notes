@@ -7,6 +7,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import StarterKit from "@tiptap/starter-kit";
+import { generateHTML, type JSONContent } from "@tiptap/vue-3";
 
 export const extensions = [
   TaskList,
@@ -37,3 +38,6 @@ export const extensions = [
     key: null,
   }),
 ];
+
+export const contentToHtml = (content: JSONContent | null) =>
+  content ? generateHTML(content, extensions) : "";

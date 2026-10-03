@@ -1,20 +1,18 @@
+import { CLOSE_CODES, SAVE_DEBOUNCE } from "@/lib/sync/constants";
 import { fromBase64, toBase64 } from "@/lib/sync/protocol";
-import {
-  getServerByName,
-  type Connection,
-  type ConnectionContext,
-} from "partyserver";
+import type { Connection, ConnectionContext } from "partyserver";
 import { YServer } from "y-partyserver";
 import * as Y from "yjs";
 import { fetchNoteSeed, projectNote } from "./app";
+import { workspaceDoc } from "./docs";
 import type { Env, Identity } from "./env";
 import { readIdentity } from "./identity";
 import { loadState, saveState } from "./storage";
 
 export class NoteDoc extends YServer<Env> {
-  static callbackOptions = { debounceWait: 2000, debounceMaxWait: 10000 };
+  static callbackOptions = SAVE_DEBOUNCE.note;
 
-  deleted = false;
+  private deleted = false;
 
   async onLoad() {
     const stored = loadState(this.ctx.storage);
@@ -69,14 +67,14 @@ export class NoteDoc extends YServer<Env> {
 
   disconnect(userId: string) {
     for (const connection of this.getConnections(userId)) {
-      connection.close(4003, "Access changed");
+      connection.close(CLOSE_CODES.accessChanged, "Access changed");
     }
   }
 
   async destroy() {
     this.deleted = true;
     for (const connection of this.getConnections()) {
-      connection.close(4004, "Note deleted");
+      connection.close(CLOSE_CODES.noteDeleted, "Note deleted");
     }
     await this.ctx.storage.deleteAll();
   }
@@ -87,7 +85,6 @@ export class NoteDoc extends YServer<Env> {
   }
 
   private async notifyWorkspace(userId: string) {
-    const workspace = await getServerByName(this.env.WorkspaceDoc, userId);
-    await workspace.notifyNoteChanged(this.name);
+    await (await workspaceDoc(this.env, userId)).notifyNoteChanged(this.name);
   }
 }

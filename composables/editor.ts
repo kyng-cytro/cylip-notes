@@ -1,133 +1,94 @@
-import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
+import { PARTIES } from "@/lib/sync/constants";
+import { toCompressedDataUrl, validateImageFiles } from "@/lib/image-utils";
 import { extensions } from "@/lib/tiptap";
 import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
-import FileHandler from "@tiptap/extension-file-handler";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
-import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
-import type * as Y from "yjs";
+import FileHandler from "@tiptap/extension-file-handler";
+import { Editor } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 import YProvider from "y-partyserver/provider";
+import type * as Y from "yjs";
 
-type NoteEditorOptions = {
-  noteId: string;
-  editable: boolean;
-};
+const PLACEHOLDER_IMAGE = "/image-placeholder.jpg";
+const EDITOR_CLASS =
+  "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary";
 
-const proccessImage = async (editor: Editor, file: File, pos: number) => {
+const endOfSelection = (editor: Editor) =>
+  editor.state.doc.resolve(editor.state.selection.to).end();
+
+const insertImage = async (editor: Editor, file: File, position: number) => {
   editor.commands.insertContentAt(
-    pos,
-    {
-      type: "image",
-      attrs: {
-        src: "/image-placeholder.jpg",
-      },
-    },
+    position,
+    { type: "image", attrs: { src: PLACEHOLDER_IMAGE } },
     { updateSelection: true },
   );
-  const placeholdPos = editor.state.selection.anchor;
-  getDataUrl(file)
-    .then((dataUrl) => {
-      editor
-        .chain()
-        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
-        .insertContentAt(placeholdPos, {
-          type: "image",
-          attrs: {
-            src: dataUrl,
-          },
-        })
-        .focus()
-        .run();
-    })
-    .catch((err) => {
-      toast.error("Something went wrong", {
-        description: err.message,
-      });
-      editor
-        .chain()
-        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
-        .focus()
-        .run();
+  const placeholder = editor.state.selection.anchor;
+  const removePlaceholder = () =>
+    editor.chain().deleteRange({ from: placeholder, to: placeholder + 1 });
+  try {
+    const src = await toCompressedDataUrl(file);
+    removePlaceholder()
+      .insertContentAt(placeholder, { type: "image", attrs: { src } })
+      .focus()
+      .run();
+  } catch (error) {
+    toast.error("Something went wrong", {
+      description: (error as Error).message,
     });
+    removePlaceholder().focus().run();
+  }
 };
 
-const getAIProvider = (): AIProvider => {
-  const user = useUser().user.value;
-  const tokens = user?.tokens ?? 0;
+const handleImageFiles = (editor: Editor, files: File[], position: number) => {
+  const result = validateImageFiles(editor, files);
+  if (!result.valid) return toast.warning(result.message);
+  insertImage(editor, result.file, position);
+};
+
+export const pickImage = (editor: Editor) => {
+  const { open, onChange } = useFileDialog({
+    accept: "image/*",
+    multiple: false,
+  });
+  onChange((files) => {
+    if (files)
+      handleImageFiles(editor, Array.from(files), endOfSelection(editor));
+  });
+  open();
+};
+
+const aiProvider = (): AIProvider => {
+  const tokens = useUser().user.value?.tokens ?? 0;
   return {
     permissions: {
       refine: tokens >= CONSTANTS.rates.refine,
       suggest: tokens >= CONSTANTS.rates.suggest,
     },
-    async getSuggestion(text) {
-      const { suggestion } = await $fetch("/api/ai/suggest", {
-        method: "POST",
-        body: JSON.stringify({ text }),
-      });
-      return suggestion;
-    },
-    async refine(text, mode) {
-      const { refined } = await $fetch("/api/ai/refine", {
-        method: "POST",
-        body: JSON.stringify({ text, mode }),
-      });
-      return refined;
-    },
-    onError(action, message) {
-      toast.error(`Failed to ${action}`, { description: message });
-    },
+    getSuggestion: async (text) =>
+      (await $fetch("/api/ai/suggest", { method: "POST", body: { text } }))
+        .suggestion,
+    refine: async (text, mode) =>
+      (await $fetch("/api/ai/refine", { method: "POST", body: { text, mode } }))
+        .refined,
+    onError: (action, message) =>
+      toast.error(`Failed to ${action}`, { description: message }),
   };
-};
-
-export const useEditorUtils = () => {
-  const convertToHtml = (doc: JSONContent | null) => {
-    if (!doc) return "";
-    return generateHTML(doc, extensions);
-  };
-  const addImage = (editor: Editor) => {
-    const { open, onChange } = useFileDialog({
-      accept: "image/*",
-      multiple: false,
-    });
-    open();
-    onChange((filelist) => {
-      if (!filelist) return;
-      const files = Array.from(filelist);
-      if (!files.length) return;
-      const result = imagePreProcessChecks(editor, files);
-      if (!result.valid) return toast.warning(result.message);
-      proccessImage(
-        editor,
-        result.file,
-        editor.state.doc.resolve(editor.state.selection.to).end(),
-      );
-    });
-  };
-  return { addImage, convertToHtml };
 };
 
 const connectNote = (noteId: string, doc: Y.Doc) =>
   new YProvider(useRuntimeConfig().public.syncUrl, noteId, doc, {
-    party: "note-doc",
+    party: PARTIES.note,
     params: async () => ({ token: await useUser().getToken() }),
   });
 
-export const useNoteEditor = async ({
-  noteId,
-  editable,
-}: NoteEditorOptions) => {
-  const doc = await useNoteStore().methods.loadNoteDoc(noteId);
+export const useNoteEditor = async (noteId: string, editable: boolean) => {
+  const doc = await useNoteStore().loadNoteDoc(noteId);
   const provider = connectNote(noteId, doc);
   return new Editor({
     autofocus: true,
     editable,
-    editorProps: {
-      attributes: {
-        class:
-          "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary",
-      },
-    },
+    editorProps: { attributes: { class: EDITOR_CLASS } },
     extensions: [
       ...extensions,
       Collaboration.configure({ document: doc }),
@@ -142,29 +103,20 @@ export const useNoteEditor = async ({
           "image/gif",
           "image/svg+xml",
         ],
-        onDrop: (currentEditor, files, pos) => {
-          const result = imagePreProcessChecks(currentEditor as Editor, files);
-          if (!result.valid) return toast.warning(result.message);
-          proccessImage(currentEditor as Editor, result.file, pos);
-        },
-        onPaste: (currentEditor, files, htmlContent) => {
-          if (htmlContent) return;
-          const result = imagePreProcessChecks(currentEditor as Editor, files);
-          if (!result.valid) return toast.warning(result.message);
-          proccessImage(
-            currentEditor as Editor,
-            result.file,
-            currentEditor.state.doc
-              .resolve(currentEditor.state.selection.to)
-              .end(),
-          );
+        onDrop: (editor, files, position) =>
+          handleImageFiles(editor as Editor, files, position),
+        onPaste: (editor, files, html) => {
+          if (!html)
+            handleImageFiles(
+              editor as Editor,
+              files,
+              endOfSelection(editor as Editor),
+            );
         },
       }),
-      AI.configure({ provider: getAIProvider() }),
+      AI.configure({ provider: aiProvider() }),
     ],
-    onFocus: ({ event }) => {
-      event.preventDefault();
-    },
+    onFocus: ({ event }) => event.preventDefault(),
     onDestroy: () => provider.destroy(),
   });
 };

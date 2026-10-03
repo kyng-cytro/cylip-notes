@@ -1,3 +1,4 @@
+import { APP_ROUTES } from "@/lib/sync/constants";
 import type { H3Event } from "h3";
 
 const isSameOrigin = (event: H3Event) => {
@@ -8,7 +9,7 @@ const isSameOrigin = (event: H3Event) => {
 };
 
 const isServerToServer = (path: string) =>
-  path.startsWith("/api/internal/") || path.includes("_hub");
+  path.startsWith(APP_ROUTES.prefix) || path.includes("_hub");
 
 const needsOriginCheck = (event: H3Event) =>
   !import.meta.dev && event.method !== "GET" && !isServerToServer(event.path);

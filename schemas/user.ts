@@ -25,3 +25,5 @@ export const updateUserSchema = z.object({
     .min(3, { message: "Name needs to be at least 3 characters" }),
   email: z.string().email({ message: "Invalid email" }).trim().toLowerCase(),
 });
+
+export const updateProfileSchema = updateUserSchema.omit({ email: true });

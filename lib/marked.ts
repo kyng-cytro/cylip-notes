@@ -1,8 +1,9 @@
 import { marked } from "marked";
 
-// TODO: this needs to be improved
-export const markdownToHTML = (markdown: string) => {
-  const isBlocky = /(\n|^-|\d+\. )/m.test(markdown.trim());
-  const html = isBlocky ? marked.parse(markdown) : marked.parseInline(markdown);
-  return html;
-};
+const looksLikeBlocks = (markdown: string) =>
+  /(\n|^-|\d+\. )/m.test(markdown.trim());
+
+export const markdownToHTML = (markdown: string) =>
+  looksLikeBlocks(markdown)
+    ? marked.parse(markdown)
+    : marked.parseInline(markdown);
