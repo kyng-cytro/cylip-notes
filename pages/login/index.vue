@@ -6,13 +6,28 @@ definePageMeta({
 });
 
 const { signIn } = useUser();
+const route = useRoute();
+
+onMounted(() => {
+  if (!route.query.error) return;
+  toast.error("Sign in link is invalid or has expired", {
+    description: "Please request a new one.",
+  });
+});
 
 const onSubmit = async (values: Record<string, any>) => {
   try {
     await signIn({ type: "magic-link", email: values.email });
   } catch (e: any) {
-    toast.error("Something went wrong", { description: e.data.message });
-  } finally {
+    toast.error("Something went wrong", { description: e.message });
+  }
+};
+
+const signInWithGoogle = async () => {
+  try {
+    await signIn({ type: "google" });
+  } catch (e: any) {
+    toast.error("Something went wrong", { description: e.message });
   }
 };
 </script>
@@ -71,7 +86,7 @@ const onSubmit = async (values: Record<string, any>) => {
               <Button
                 variant="outline"
                 type="button"
-                @click="signIn({ type: 'google' })"
+                @click="signInWithGoogle"
               >
                 Google
                 <span class="sr-only">Sign In with Google</span>

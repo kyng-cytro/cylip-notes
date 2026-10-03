@@ -64,7 +64,7 @@ const deleteLabel = async (label: ClientLabel) => {
       :initial-values="{
         name: user?.name,
         email: user?.email,
-        picture: user?.picture,
+        picture: user?.image,
       }"
       :validation-schema="updateUserSchema"
     >

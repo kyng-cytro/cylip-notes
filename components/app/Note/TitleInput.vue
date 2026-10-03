@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SparklesIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
-const text = defineModel({ default: "" });
+const text = defineModel<string>({ default: "" });
 
 const { suggest } = defineProps<{
   large?: boolean;

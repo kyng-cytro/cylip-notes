@@ -1,6 +1,6 @@
 import type { Label, Note } from "@/server/utils/drizzle";
 
-type SerializeDates<T> = T extends Date
+export type SerializeDates<T> = T extends Date
   ? string
   : T extends (infer U)[]
     ? SerializeDates<U>[]

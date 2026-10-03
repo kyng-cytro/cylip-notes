@@ -1,4 +1,3 @@
-import { generateId } from "lucia";
 import { notePostSchema } from "@/schemas/note";
 
 export default defineAuthenticatedEventHandler(async (event) => {

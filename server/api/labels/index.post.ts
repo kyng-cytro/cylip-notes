@@ -1,6 +1,5 @@
 import { labelCreateSchema } from "@/schemas/label";
 import { CONSTANTS, slugify } from "@/utils/helpers";
-import { generateId } from "lucia";
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const { name, ...rest } = await readValidatedBody(

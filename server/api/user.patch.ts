@@ -40,9 +40,8 @@ export default defineAuthenticatedEventHandler(async (event) => {
     await db
       .update(tables.user)
       .set({
-        ...data,
-        email: undefined,
-        picture: data.picture instanceof File ? getImagePath(id) : data.picture,
+        name: data.name,
+        image: data.picture instanceof File ? getImagePath(id) : data.picture,
       })
       .where(eq(tables.user.id, id));
     const user = await db.query.user.findFirst({

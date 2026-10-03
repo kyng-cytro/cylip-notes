@@ -1,5 +1,11 @@
-import { verifyRequestOrigin } from "lucia";
-import type { Session, User } from "lucia";
+const isSameOrigin = (origin: string | null, host: string | null) => {
+  if (!origin || !host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+};
 
 export default defineEventHandler(async (event) => {
   if (import.meta.prerender) return;
@@ -7,47 +13,24 @@ export default defineEventHandler(async (event) => {
     !import.meta.dev &&
     event.method !== "GET" &&
     !event.path.includes("_hub") &&
-    !event.path.includes("websocket")
+    !event.path.includes("websocket") &&
+    !isSameOrigin(
+      getHeader(event, "Origin") ?? null,
+      getHeader(event, "Host") ?? null,
+    )
   ) {
-    const originHeader = getHeader(event, "Origin") ?? null;
-    const hostHeader = getHeader(event, "Host") ?? null;
-    if (
-      !originHeader ||
-      !hostHeader ||
-      !verifyRequestOrigin(originHeader, [hostHeader])
-    ) {
-      return setResponseStatus(event, 403);
-    }
+    return setResponseStatus(event, 403);
   }
-  const lucia = initializeLucia();
-  const sessionId = getCookie(event, lucia.sessionCookieName) ?? null;
-  if (!sessionId) {
-    event.context.session = null;
-    event.context.user = null;
-    return;
-  }
-  const { session, user } = await lucia.validateSession(sessionId);
-  if (session && session.fresh) {
-    appendResponseHeader(
-      event,
-      "Set-Cookie",
-      lucia.createSessionCookie(session.id).serialize(),
-    );
-  }
-  if (!session) {
-    appendResponseHeader(
-      event,
-      "Set-Cookie",
-      lucia.createBlankSessionCookie().serialize(),
-    );
-  }
-  event.context.session = session;
-  event.context.user = user;
+  // Better Auth handles its own routes.
+  if (event.path.startsWith("/api/auth/")) return;
+  const data = await auth.api.getSession({ headers: event.headers });
+  event.context.session = data?.session ?? null;
+  event.context.user = data?.user ?? null;
 });
 
 declare module "h3" {
   interface H3EventContext {
-    user: User | null;
-    session: Session | null;
+    user: AuthUser | null;
+    session: AuthSession | null;
   }
 }

@@ -86,6 +86,9 @@ export default defineNuxtConfig({
     task: {
       apiKey: process.env.NUXT_TASK_API_KEY,
     },
+    auth: {
+      secret: process.env.NUXT_AUTH_SECRET,
+    },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,

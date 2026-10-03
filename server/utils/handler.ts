@@ -4,11 +4,9 @@ import type {
   H3Event,
   H3EventContext,
 } from "h3";
-import type { Session, User } from "lucia";
-
 interface AuthenticatedEventContext {
-  user: User;
-  session: Session;
+  user: AuthUser;
+  session: AuthSession;
 }
 
 type AuthenticatedEvent<T extends EventHandlerRequest = EventHandlerRequest> =
@@ -99,21 +97,22 @@ export const defineWebsocketEventHandler = <T extends EventHandlerRequest, D>(
         message: "Invalid API token.",
       });
     }
-    const lucia = initializeLucia();
-    const { user, session } = await lucia.validateSession(sessionId);
-    if (!user) {
+    const data = await auth.api.getSession({
+      headers: new Headers({ authorization: `Bearer ${sessionId}` }),
+    });
+    if (!data) {
       throw createError({
         statusCode: 401,
         message: "Invalid session token.",
       });
     }
-    if (!["free", "premium"].includes(user.accountType)) {
+    if (!["free", "premium"].includes(data.user.accountType)) {
       throw createError({
         statusCode: 403,
         message: "You do not have permission to access this reasource.",
       });
     }
-    event.context.user = user;
-    event.context.session = session;
+    event.context.user = data.user;
+    event.context.session = data.session;
     return handler(event as AuthenticatedEvent<T>);
   });

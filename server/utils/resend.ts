@@ -1,4 +1,3 @@
-import { generateId } from "lucia";
 import { Resend } from "resend";
 
 const {
