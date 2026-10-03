@@ -1,20 +1,23 @@
 <script setup lang="ts">
+import type { LabelOptions } from "@/lib/sync/protocol";
 import { toast } from "vue-sonner";
 
 const open = ref(false);
 const { isPremium } = useUser();
 const value = defineModel<string | undefined>("value", { default: undefined });
 
-const onSubmit = async (values: Record<string, any>) => {
+const onSubmit = (values: Record<string, any>) => {
   try {
-    await useNoteStore().methods.createLabel(values);
+    useNoteStore().methods.createLabel(
+      values as { name: string; options: LabelOptions },
+    );
     toast.success("Label created successfully", {
       description: `A new label with the name ${values.name} has been created.`,
     });
     value.value = undefined;
     open.value = false;
   } catch (e: any) {
-    toast.error("Could not create label", { description: e.data.message });
+    toast.error("Could not create label", { description: e.message });
   }
 };
 

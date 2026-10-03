@@ -1,5 +1,3 @@
-import type { ClientNote } from "@/lib/types";
-
 export const CONSTANTS = {
   imageSizeLimit: 300000,
   profileImageSizeLimit: 1000000,
@@ -59,77 +57,4 @@ export const getTwoChars = (text: string) => {
     return split[0].charAt(0) + split[1].charAt(0);
   }
   return text.slice(0, 2);
-};
-
-export const getFilterConfig = (status: string, labelId?: string) => {
-  const filterMap: Record<string, (note: ClientNote) => boolean> = {
-    active: (note) => {
-      if (labelId && labelId !== "all-notes") {
-        return (
-          !note.trashed &&
-          !note.archived &&
-          !note.pinned &&
-          note.labelId === labelId
-        );
-      }
-      return !note.trashed && !note.archived && !note.pinned;
-    },
-    pinned: (note) => {
-      if (labelId && labelId !== "all-notes") {
-        return (
-          !note.trashed &&
-          !note.archived &&
-          note.pinned &&
-          note.labelId === labelId
-        );
-      }
-      return !note.trashed && !note.archived && note.pinned;
-    },
-    trashed: (note) => note.trashed,
-    archived: (note) => note.archived,
-    reminders: (note) => !!note.reminderAt,
-  };
-  return filterMap[status] || (() => false);
-};
-
-export const getToggleConfig = (note: ClientNote, prop: string) => {
-  const { pinned, trashed, archived, options } = note;
-  const toggleMap: Record<
-    string,
-    { body: Record<string, any>; message: string }
-  > = {
-    preview: {
-      body: {
-        field: "options",
-        value: { ...options, preview: !options?.preview },
-      },
-      message: note.options?.preview ? "preview disabled" : "preview enabled",
-    },
-    public: {
-      body: {
-        field: "options",
-        value: {
-          ...options,
-          public: {
-            ...options?.public,
-            enabled: !options?.public?.enabled,
-          },
-        },
-      },
-      message: options?.public ? "is now private" : "is now public",
-    },
-    pinned: {
-      body: { field: "pinned", value: !note.pinned },
-      message: pinned ? "unpinned" : "pinned",
-    },
-    trashed: {
-      body: { field: "trashed", value: !note.trashed },
-      message: trashed ? "restored" : "trashed",
-    },
-    archived: {
-      body: { field: "archived", value: !note.archived },
-      message: archived ? "unarchived" : "archived",
-    },
-  };
-  return toggleMap[prop] || { body: {}, message: "" };
 };

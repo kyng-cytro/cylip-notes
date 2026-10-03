@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LabelOptions } from "@/lib/sync/protocol";
 import type { ClientLabel } from "@/lib/types";
 import { toast } from "vue-sonner";
 
@@ -22,14 +23,17 @@ const initialValues = computed(() => ({
   },
 }));
 
-const onSubmit = async (values: Record<string, any>) => {
+const onSubmit = (values: Record<string, any>) => {
   try {
-    await noteStore.methods.updateLabel(props.label.id, values);
+    noteStore.methods.updateLabel(
+      props.label.id,
+      values as { name: string; options: LabelOptions },
+    );
     toast.success("Label updated successfully");
     open.value = false;
   } catch (e: any) {
     toast.error("Could not update label", {
-      description: e.data?.message || e.message,
+      description: e.message,
     });
   }
 };

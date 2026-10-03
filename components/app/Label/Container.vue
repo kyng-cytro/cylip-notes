@@ -10,7 +10,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "delete", label: ClientLabel): void;
-  (e: "reorder", orderedIds: string[]): void;
+  (
+    e: "move",
+    labelId: string,
+    beforeId: string | null,
+    afterId: string | null,
+  ): void;
 }>();
 
 const dragOptions = computed(() => ({
@@ -35,9 +40,16 @@ const dragStart = () => {
 
 const dragEnd = () => {
   drag.value = false;
+};
+
+const onChange = ({ moved }: { moved?: { newIndex: number } }) => {
+  if (!moved) return;
+  const at = (index: number) => localLabels.value[index]?.id ?? null;
   emit(
-    "reorder",
-    localLabels.value.map((label) => label.id),
+    "move",
+    at(moved.newIndex)!,
+    at(moved.newIndex - 1),
+    at(moved.newIndex + 1),
   );
 };
 
@@ -69,6 +81,7 @@ watch(
       class="space-y-2"
       @start="dragStart"
       @end="dragEnd"
+      @change="onChange"
     >
       <div
         v-for="label in localLabels"

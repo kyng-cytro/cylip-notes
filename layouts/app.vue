@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import "vue-sonner/style.css";
 onMounted(() => {
-  // init Note Store
-  useNoteStore().initStore();
+  useNoteStore().ensureStarted();
   useOneSignalSetup().init();
-});
-
-onBeforeUnmount(() => {
-  useNoteStore().$dispose();
 });
 </script>
 

@@ -28,13 +28,17 @@ export const useUser = () => {
   }
 
   const getToken = async () => {
-    const session = await useRequestFetch()("/api/session");
+    const session = await useRequestFetch()("/api/session", {
+      timeout: 10_000,
+    });
     if (!session) return "";
     return session.token;
   };
 
   async function logout() {
-    await useNuxtApp().$authClient.signOut();
+    const { $authClient } = useNuxtApp();
+    await useNoteStore().resetStore();
+    await $authClient.signOut();
     user.value = null;
     await navigateTo(authRoutes.login);
   }

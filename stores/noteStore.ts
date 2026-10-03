@@ -1,350 +1,352 @@
-import type { ClientLabel, ClientNote } from "@/lib/types";
-import type { JSONContent } from "@tiptap/vue-3";
+import { SyncEngine } from "@/lib/sync/engine";
+import { byKey, keyBefore, keyBetween } from "@/lib/sync/ordering";
+import {
+  getMeta,
+  writeMap,
+  type Background,
+  type LabelOptions,
+  type NoteMeta,
+  type WorkspaceNote,
+} from "@/lib/sync/protocol";
+import { searchNotes } from "@/lib/sync/search";
+import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
 import { toast } from "vue-sonner";
 
+const ALL_NOTES = "all-notes";
+
+type ToggleProp = "pinned" | "archived" | "trashed" | "preview" | "public";
+
+const scopeFilters: Record<NoteScope, (note: ClientNote) => boolean> = {
+  active: (note) => !note.trashed && !note.archived && !note.pinned,
+  pinned: (note) => !note.trashed && !note.archived && note.pinned,
+  trashed: (note) => note.trashed,
+  archived: (note) => note.archived && !note.trashed,
+  reminders: (note) => !!note.reminderAt && !note.trashed,
+};
+
+const toggleMessages: Record<ToggleProp, (note: ClientNote) => string> = {
+  pinned: (note) => (note.pinned ? "unpinned" : "pinned"),
+  archived: (note) => (note.archived ? "unarchived" : "archived"),
+  trashed: (note) => (note.trashed ? "restored" : "trashed"),
+  preview: (note) => (note.preview ? "preview disabled" : "preview enabled"),
+  public: (note) => (note.public ? "is now private" : "is now public"),
+};
+
+const labelScope = (labelId?: string | null) =>
+  labelId && labelId !== ALL_NOTES ? labelId : null;
+
 export const useNoteStore = defineStore("notes", () => {
-  type UserData = { notes: ClientNote[]; labels: ClientLabel[] };
+  const { user, getToken } = useUser();
+  const engine = shallowRef<SyncEngine | null>(null);
+  const starting = shallowRef<Promise<void> | null>(null);
 
-  // Getters
-  const { user } = useUser();
-  const notes = ref<ClientNote[]>([]);
-  const labels = ref<ClientLabel[]>([]);
-  const initialized = ref(false);
-  const fetching = ref(false);
-  const { baseUrl } = useRuntimeConfig().public;
-  const userId = computed(() => user.value?.id);
+  const initialized = computed(() => engine.value?.ready.value ?? false);
+  const status = computed(() => engine.value?.status.value ?? "offline");
 
-  // Init
-  const initStore = async () => {
-    if (!userId.value) return;
-    const data = await loadData(userId.value);
-    if (data) updateData(data);
-    initialized.value = true;
+  const labels = computed<ClientLabel[]>(() =>
+    Object.entries(engine.value?.workspace.value.labels ?? {})
+      .map(([id, label]) => ({ id, ...label }))
+      .sort(byKey((label) => label.sortKey)),
+  );
+
+  const notes = computed<ClientNote[]>(() => {
+    const workspace = engine.value?.workspace.value.notes ?? {};
+    const views = engine.value?.views.value ?? {};
+    const labelsById = new Map(labels.value.map((label) => [label.id, label]));
+    return Object.entries(workspace)
+      .filter(([id]) => views[id])
+      .map(([id, entry]) => ({
+        ...views[id]!,
+        ...entry,
+        label: (entry.labelId && labelsById.get(entry.labelId)) || null,
+      }))
+      .filter((note) => !note.trashed || note.role === "owner");
+  });
+
+  const requireEngine = () => {
+    if (!engine.value) throw new Error("Notes are still loading.");
+    return engine.value;
   };
 
-  // Actions
-  const loadData = async (id: string) => {
-    fetching.value = true;
-    const data = await $fetch<UserData>(`/api/users/${id}`);
-    fetching.value = false;
-    return data;
-  };
+  const updateEntry = (noteId: string, values: Partial<WorkspaceNote>) =>
+    requireEngine().workspaceDoc.updateNote(noteId, values);
 
-  const updateData = (data: UserData) => {
-    notes.value = data.notes;
-    labels.value = data.labels;
-  };
+  const updateMeta = (noteId: string, values: Partial<NoteMeta>) =>
+    writeMap(getMeta(requireEngine().docs.get(noteId)), values);
 
-  const refreshData = async () => {
-    if (!userId.value) return;
-    const data = await loadData(userId.value);
-    if (data) updateData(data);
-  };
+  const sortKeyOf = (note: ClientNote | undefined, labelId: string | null) =>
+    labelId ? note?.labelSortKey : note?.sortKey;
 
-  const retrieveNotes = (
-    status: "active" | "pinned" | "trashed" | "archived" | "reminders",
-    labelId?: string,
-  ) => {
-    const filterConfig = getFilterConfig(status, labelId);
-    const isLabelScope = !!labelId && labelId !== "all-notes";
+  const firstSortKey = (labelId: string | null) =>
+    notes.value
+      .filter((note) => !labelId || note.labelId === labelId)
+      .map((note) => sortKeyOf(note, labelId))
+      .filter(Boolean)
+      .sort()[0];
 
-    return notes.value
-      .filter((note) => filterConfig(note))
-      .sort((a, b) => {
-        const primaryOrder = isLabelScope
-          ? (b.labelOrder || 0) - (a.labelOrder || 0)
-          : (b.globalOrder || 0) - (a.globalOrder || 0);
-
-        if (primaryOrder !== 0) return primaryOrder;
-
-        return +new Date(b.createdAt) - +new Date(a.createdAt);
-      });
-  };
-
-  const getNoteById = (id: string) => {
-    return notes.value.find((note) => note.id === id);
-  };
-
-  const createLabel = async (values: Record<string, any>) => {
-    const label = await $fetch<ClientLabel>("/api/labels", {
+  const uploadImage = async (file: Blob) => {
+    const body = new FormData();
+    body.append("file", file);
+    const { url } = await $fetch("/api/images", {
+      timeout: 30_000,
       method: "POST",
-      body: values,
+      body,
     });
-    labels.value = [label, ...labels.value];
+    return url;
   };
 
-  const updateLabel = async (labelId: string, values: Record<string, any>) => {
-    const label = await $fetch<ClientLabel>(`/api/labels/${labelId}`, {
-      method: "PATCH",
-      body: values,
-    });
-    labels.value = labels.value.map((item) =>
-      item.id === labelId ? label : item,
+  const start = async (userId: string) => {
+    const created = markRaw(
+      new SyncEngine({
+        userId,
+        syncUrl: useRuntimeConfig().public.syncUrl,
+        getToken,
+        uploadImage,
+      }),
     );
-    notes.value = notes.value.map((note) => {
-      if (note.labelId !== labelId) return note;
-      return { ...note, label };
+    await created.start();
+    engine.value = created;
+  };
+
+  const ensureStarted = () => {
+    if (!user.value) return Promise.resolve();
+    starting.value ??= start(user.value.id);
+    return starting.value;
+  };
+
+  const resetStore = async () => {
+    await engine.value?.stop({ clearData: true });
+    engine.value = null;
+    starting.value = null;
+  };
+
+  const retrieveNotes = (scope: NoteScope, labelId?: string) => {
+    const inLabel = labelScope(labelId);
+    return notes.value
+      .filter((note) => scopeFilters[scope](note))
+      .filter((note) => !inLabel || note.labelId === inLabel)
+      .sort(byKey((note) => sortKeyOf(note, inLabel) ?? null));
+  };
+
+  const getNoteById = (noteId: string) =>
+    notes.value.find((note) => note.id === noteId);
+
+  const loadNoteDoc = (noteId: string) => requireEngine().docs.load(noteId);
+
+  const createNote = (labelId?: string) => {
+    const label = labels.value.find((item) => item.id === labelId);
+    const noteId = crypto.randomUUID();
+    const now = Date.now();
+    const { docs, workspaceDoc } = requireEngine();
+    writeMap(getMeta(docs.get(noteId)), {
+      title: "",
+      background: label?.options.background ?? null,
+      public: false,
+      trashed: false,
+      trashedAt: null,
+      createdAt: now,
+      updatedAt: now,
+      ownerId: user.value!.id,
+    } satisfies NoteMeta);
+    workspaceDoc.addNote(noteId, {
+      role: "owner",
+      pinned: false,
+      archived: false,
+      labelId: label?.id ?? null,
+      sortKey: keyBefore(firstSortKey(null)),
+      labelSortKey: label ? keyBefore(firstSortKey(label.id)) : null,
+      reminderAt: null,
+      preview: label?.options.preview ?? true,
+      addedAt: now,
     });
+    useModalRouter().push(`/app/notes/${noteId}`);
   };
 
-  const deleteLabel = async (labelId: string) => {
-    const layoutStore = useLayoutStore();
-    await $fetch(`/api/labels/${labelId}`, {
-      method: "DELETE" as any,
-    });
+  const updateTitle = (noteId: string, title: string) =>
+    updateMeta(noteId, { title });
 
-    labels.value = labels.value.filter((label) => label.id !== labelId);
-    if (layoutStore.label === labelId) {
-      layoutStore.label = "all-notes";
-    }
-    notes.value = notes.value.map((note) => {
-      if (note.labelId !== labelId) return note;
-      return { ...note, labelId: null, label: null, labelOrder: null };
-    });
-  };
-
-  const createNote = async (labelId?: string) => {
-    try {
-      const note = await $fetch<ClientNote>("/api/notes", {
-        method: "POST",
-        body: { labelId },
-      });
-      notes.value = [note, ...notes.value];
-      useModalRouter().push(`/app/notes/${note.id}`);
-    } catch (e: any) {
-      toast.error("Error creating note", {
-        description: e.message,
-      });
-    }
-  };
-
-  const updateNote = async (
-    noteId: string,
-    prop: "title" | "content",
-    newValue: string | JSONContent,
-  ) => {
-    try {
-      const data = await $fetch<ClientNote>(`/api/notes/${noteId}`, {
-        method: "PUT",
-        body: { field: prop, value: newValue },
-      });
-      notes.value = notes.value.map((n) => (n.id === noteId ? data : n));
-    } catch (e: any) {
-      toast.error("Something went wrong updating the note.", {
-        description: e.message,
-      });
-    }
-  };
-
-  const assignLabel = async (note: ClientNote, labelId: string | null) => {
+  const assignLabel = (note: ClientNote, labelId: string | null) => {
     if (labelId === note.labelId) return;
-    try {
-      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
-        method: "PATCH",
-        body: { field: "label", value: labelId },
-      });
-      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
-      toast.success("Label updated successfully.");
-    } catch (e: any) {
-      toast.error("Something went wrong updating the note.", {
-        description: e.message,
-      });
-    }
+    updateEntry(note.id, {
+      labelId,
+      labelSortKey: labelId ? keyBefore(firstSortKey(labelId)) : null,
+    });
+    toast.success("Label updated successfully.");
   };
 
-  const setBackground = async (
+  const setBackground = (note: ClientNote, background: Background) => {
+    updateMeta(note.id, { background });
+    toast.success("Background updated successfully.");
+  };
+
+  const setReminder = (noteId: string, reminderAt: Date | null) => {
+    updateEntry(noteId, { reminderAt: reminderAt?.getTime() ?? null });
+    toast.success(reminderAt ? "Reminder set." : "Reminder cleared.");
+  };
+
+  const toggles: Record<ToggleProp, (note: ClientNote) => void> = {
+    pinned: (note) =>
+      updateEntry(note.id, { pinned: !note.pinned, archived: false }),
+    archived: (note) =>
+      updateEntry(note.id, { archived: !note.archived, pinned: false }),
+    preview: (note) => updateEntry(note.id, { preview: !note.preview }),
+    public: (note) => updateMeta(note.id, { public: !note.public }),
+    trashed: (note) => {
+      updateMeta(note.id, {
+        trashed: !note.trashed,
+        trashedAt: note.trashed ? null : Date.now(),
+        public: false,
+      });
+      updateEntry(note.id, { pinned: false, archived: false });
+    },
+  };
+
+  const toggleNoteProp = (
     note: ClientNote,
-    options: { type: "color" | "image"; value: string } | null,
+    prop: ToggleProp,
+    options: { silent?: boolean } = {},
   ) => {
-    try {
-      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
-        method: "PATCH",
-        body: {
-          field: "options",
-          value: {
-            ...note.options,
-            background: {
-              type: options?.type || null,
-              value: options?.value || null,
-            },
-          },
-        },
-      });
-      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
-      toast.success("Background updated successfully.");
-    } catch (e: any) {
-      toast.error("Something went wrong updating the note.", {
-        description: e.message,
-      });
-    }
+    const message = toggleMessages[prop](note);
+    toggles[prop](note);
+    if (options.silent) return;
+    toast.success(`Note ${message}.`, {
+      action: {
+        label: "Undo",
+        onClick: () =>
+          toggleNoteProp(getNoteById(note.id)!, prop, { silent: true }),
+      },
+    });
   };
 
-  const setReminder = async (note: ClientNote, reminderAt: Date | null) => {
-    try {
-      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
-        method: "PATCH",
-        body: { field: "reminder_at", value: reminderAt },
-      });
-      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
-      toast.success("Reminder updated successfully.");
-    } catch (e: any) {
-      toast.error("Something went wrong updating the note.", {
-        description: e.message,
-      });
-    }
-  };
-
-  const toggleNoteProp = async (
-    note: ClientNote,
-    prop: "pinned" | "archived" | "trashed" | "preview" | "public",
-    options?: { recursiveCall?: boolean },
+  const moveNote = (
+    noteId: string,
+    labelId: string | undefined,
+    beforeId: string | null,
+    afterId: string | null,
   ) => {
-    const { body, message } = getToggleConfig(note, prop);
-    try {
-      const data = await $fetch<ClientNote>(`/api/notes/${note.id}`, {
-        method: "PATCH",
-        body,
-      });
-      notes.value = notes.value.map((n) => (n.id === note.id ? data : n));
-      if (options?.recursiveCall) return;
-      toast.success(`Note ${message}.`, {
-        action: {
-          label: "Undo",
-          onClick: () => toggleNoteProp(data, prop, { recursiveCall: true }),
-        },
-      });
-    } catch (e: any) {
-      toast.error("Something went wrong updating the note.", {
-        description: e.message,
-      });
+    const inLabel = labelScope(labelId);
+    const before = beforeId ? sortKeyOf(getNoteById(beforeId), inLabel) : null;
+    const after = afterId ? sortKeyOf(getNoteById(afterId), inLabel) : null;
+    const key = keyBetween(before, after);
+    updateEntry(noteId, inLabel ? { labelSortKey: key } : { sortKey: key });
+  };
+
+  const requireUniqueSlug = (slug: string, exceptId?: string) => {
+    if (
+      labels.value.some((label) => label.slug === slug && label.id !== exceptId)
+    ) {
+      throw new Error("A label with that name already exists.");
     }
   };
 
-  const permenentlyDeleteNote = async (note: ClientNote) => {
+  const createLabel = (values: { name: string; options: LabelOptions }) => {
+    const slug = slugify(values.name);
+    requireUniqueSlug(slug);
+    if (
+      !useUser().isPremium &&
+      labels.value.length >= CONSTANTS.maxFreeLables
+    ) {
+      throw new Error(
+        `Free accounts can have up to ${CONSTANTS.maxFreeLables} labels.`,
+      );
+    }
+    requireEngine().workspaceDoc.addLabel(crypto.randomUUID(), {
+      name: values.name,
+      slug,
+      sortKey: keyBefore(labels.value[0]?.sortKey),
+      options: values.options,
+      createdAt: Date.now(),
+    });
+  };
+
+  const updateLabel = (
+    labelId: string,
+    values: { name: string; options: LabelOptions },
+  ) => {
+    const slug = slugify(values.name);
+    requireUniqueSlug(slug, labelId);
+    requireEngine().workspaceDoc.updateLabel(labelId, { ...values, slug });
+  };
+
+  const deleteLabel = (labelId: string) => {
+    requireEngine().workspaceDoc.removeLabel(labelId);
+    const layoutStore = useLayoutStore();
+    if (layoutStore.label === labelId) layoutStore.label = ALL_NOTES;
+  };
+
+  const moveLabel = (
+    labelId: string,
+    beforeId: string | null,
+    afterId: string | null,
+  ) => {
+    const keyOf = (id: string | null) =>
+      labels.value.find((label) => label.id === id)?.sortKey;
+    requireEngine().workspaceDoc.updateLabel(labelId, {
+      sortKey: keyBetween(keyOf(beforeId), keyOf(afterId)),
+    });
+  };
+
+  const deleteNoteForever = async (note: ClientNote) => {
     try {
       await $fetch(`/api/notes/${note.id}`, { method: "DELETE" });
-      notes.value = notes.value.filter((n) => n.id !== note.id);
-      toast.success("Note deleted permanently.");
-    } catch (e: any) {
-      toast.error("Error deleting note.", { description: e.message });
+      requireEngine().workspaceDoc.removeNote(note.id);
+      toast.success(
+        note.role === "owner"
+          ? "Note deleted permanently."
+          : "You left the note.",
+      );
+    } catch {
+      toast.error("Couldn't delete the note.", {
+        description: "Deleting notes forever needs an internet connection.",
+      });
     }
   };
 
   const clearTrash = async () => {
     try {
-      await $fetch(`/api/users/${userId.value}/clear-trash`, {
-        method: "DELETE",
-      });
-      notes.value = notes.value.filter((n) => !n.trashed);
+      await requireEngine().syncNow();
+      await $fetch("/api/notes/trash", { method: "DELETE" });
+      for (const note of retrieveNotes("trashed")) {
+        requireEngine().workspaceDoc.removeNote(note.id);
+      }
       toast.success("Trash cleared successfully.");
-    } catch (e: any) {
-      toast.error("Error clearing trash.", { description: e.message });
-    }
-  };
-
-  const searchNotes = async (query: string) => {
-    try {
-      const data = await $fetch<
-        { id: string; title: string; score: number; snippet: string }[]
-      >(`/api/search/notes?q=${query}`);
-      return data;
-    } catch (e: any) {
-      toast.error("Error searching notes.", { description: e.message });
-    }
-  };
-
-  const reorderNotes = async (params: {
-    scope: "all" | "label";
-    labelId?: string;
-    orderedIds: string[];
-  }) => {
-    const { scope, labelId, orderedIds } = params;
-    if (orderedIds.length < 2) return;
-    const rankMap = new Map(
-      orderedIds.map((id, index) => [id, orderedIds.length - index]),
-    );
-    const previousNotes = [...notes.value];
-    notes.value = notes.value.map((note) => {
-      const rank = rankMap.get(note.id);
-      if (!rank) return note;
-      return {
-        ...note,
-        ...(scope === "label" ? { labelOrder: rank } : { globalOrder: rank }),
-      };
-    });
-    try {
-      await $fetch("/api/notes/reorder/list", {
-        method: "PATCH",
-        body: { scope, labelId, orderedIds },
+    } catch {
+      toast.error("Couldn't clear the trash.", {
+        description: "Clearing the trash needs an internet connection.",
       });
-    } catch (e: any) {
-      notes.value = previousNotes;
-      toast.error("Error reordering notes.", { description: e.message });
     }
   };
 
-  const reorderLabels = async (orderedIds: string[]) => {
-    if (orderedIds.length < 2) return;
-    const rankMap = new Map(
-      orderedIds.map((id, index) => [id, orderedIds.length - index]),
-    );
-    const previousLabels = [...labels.value];
-    const labelMap = new Map(labels.value.map((label) => [label.id, label]));
-    labels.value = orderedIds
-      .map((id) => {
-        const current = labelMap.get(id);
-        if (!current) return null;
-        return { ...current, order: rankMap.get(id) || current.order };
-      })
-      .filter((label): label is ClientLabel => !!label);
-    try {
-      await $fetch("/api/labels/reorder/list", {
-        method: "PATCH",
-        body: { orderedIds },
-      });
-    } catch (e: any) {
-      labels.value = previousLabels;
-      toast.error("Error reordering labels.", { description: e.message });
-    }
-  };
+  const search = (query: string) => searchNotes(notes.value, query);
 
-  // SSE
-  const { data, event } = useEventSource(
-    `${baseUrl}/api/users/server-events/${userId.value}`,
-    ["connection", "refresh"] as const,
-  );
-
-  // Watch for changes and refresh data
-  watch(data, () => {
-    if (event.value === "refresh") {
-      refreshData();
-    }
-  });
+  const syncNow = () => engine.value?.syncNow();
 
   return {
-    fetching,
     initialized,
+    status,
     notes,
     labels,
+    ensureStarted,
+    resetStore,
     methods: {
-      updateNote,
-      clearTrash,
+      retrieveNotes,
+      getNoteById,
+      loadNoteDoc,
       createNote,
+      updateTitle,
+      assignLabel,
+      setBackground,
+      setReminder,
+      toggleNoteProp,
+      moveNote,
       createLabel,
       updateLabel,
       deleteLabel,
-      searchNotes,
-      assignLabel,
-      refreshData,
-      reorderNotes,
-      reorderLabels,
-      setReminder,
-      getNoteById,
-      retrieveNotes,
-      setBackground,
-      toggleNoteProp,
-      permenentlyDeleteNote,
+      moveLabel,
+      deleteNoteForever,
+      clearTrash,
+      search,
+      syncNow,
     },
-    initStore,
   };
 });

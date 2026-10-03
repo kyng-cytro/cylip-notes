@@ -5,16 +5,13 @@ import FileHandler from "@tiptap/extension-file-handler";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
+import type * as Y from "yjs";
 import { toast } from "vue-sonner";
-import YPartyKitProvider from "y-partykit/provider";
-import * as Y from "yjs";
+import YProvider from "y-partyserver/provider";
 
-type EditorOpts = {
-  roomId: string;
-  disabled?: boolean;
-  autofocus?: boolean;
-  placeholder?: string;
-  initialValue?: JSONContent | null;
+type NoteEditorOptions = {
+  noteId: string;
+  editable: boolean;
 };
 
 const proccessImage = async (editor: Editor, file: File, pos: number) => {
@@ -110,22 +107,21 @@ export const useEditorUtils = () => {
   return { addImage, convertToHtml };
 };
 
-export const useEditor = async ({
-  roomId,
-  disabled,
-  autofocus,
-}: EditorOpts) => {
-  const initialized = ref(false);
-  const yDoc = new Y.Doc();
-  const provider = new YPartyKitProvider(
-    useRuntimeConfig().public.webSocketUrl,
-    roomId,
-    yDoc,
-    { params: { auth_session: await useUser().getToken() } },
-  );
-  const editor = new Editor({
-    autofocus,
-    editable: !disabled,
+const connectNote = (noteId: string, doc: Y.Doc) =>
+  new YProvider(useRuntimeConfig().public.syncUrl, noteId, doc, {
+    party: "note-doc",
+    params: async () => ({ token: await useUser().getToken() }),
+  });
+
+export const useNoteEditor = async ({
+  noteId,
+  editable,
+}: NoteEditorOptions) => {
+  const doc = await useNoteStore().methods.loadNoteDoc(noteId);
+  const provider = connectNote(noteId, doc);
+  return new Editor({
+    autofocus: true,
+    editable,
     editorProps: {
       attributes: {
         class:
@@ -134,13 +130,10 @@ export const useEditor = async ({
     },
     extensions: [
       ...extensions,
-      Collaboration.configure({ document: yDoc }),
+      Collaboration.configure({ document: doc }),
       CollaborationCaret.configure({
-        provider: provider,
-        user: {
-          name: `${useUser().user.value?.name || "Guest"}`,
-          color: "#00ffaa",
-        },
+        provider,
+        user: { name: useUser().user.value?.name || "Guest", color: "#00ffaa" },
       }),
       FileHandler.configure({
         allowedMimeTypes: [
@@ -167,22 +160,11 @@ export const useEditor = async ({
           );
         },
       }),
-      AI.configure({
-        provider: getAIProvider(),
-      }),
+      AI.configure({ provider: getAIProvider() }),
     ],
     onFocus: ({ event }) => {
       event.preventDefault();
     },
-    onCreate: () => {
-      provider.on("synced", () => {
-        initialized.value = true;
-      });
-    },
-    onDestroy: () => {
-      provider.destroy();
-      yDoc.destroy();
-    },
+    onDestroy: () => provider.destroy(),
   });
-  return { editor, initialized };
 };

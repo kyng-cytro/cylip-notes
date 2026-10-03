@@ -1,4 +1,4 @@
-import type { NoteOptions } from "@/schemas/note";
+import type { Background as NoteBackground } from "@/lib/sync/protocol";
 
 export type Background = {
   type: "color" | "image";
@@ -49,7 +49,7 @@ export const getBackgroundOptions = (isDark: boolean) =>
 
 export const applyBackground = (
   isDark: boolean,
-  options: NoteOptions["background"],
+  options: NoteBackground | undefined,
 ) => {
   if (!options) return "";
   const { type, value } = options;

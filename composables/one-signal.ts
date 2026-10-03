@@ -5,11 +5,12 @@ export const useOneSignalSetup = () => {
   const { appId, safariWebId } = useRuntimeConfig().public.onesignal;
 
   const init = () => {
-    // init OneSignal
     onesignal.init({
       appId,
       persistNotification: true,
       safari_web_id: safariWebId,
+      serviceWorkerPath: "push/onesignal/OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "/push/onesignal/" },
       autoResubscribe: !import.meta.dev,
       welcomeNotification: {
         title: "Hey there 👋",
@@ -18,7 +19,6 @@ export const useOneSignalSetup = () => {
       },
     });
 
-    // listen and login to OneSignal
     onesignal.User.PushSubscription.addEventListener("change", (e) => {
       if (e.current.token) {
         const { user } = useUser();
@@ -27,16 +27,10 @@ export const useOneSignalSetup = () => {
       }
     });
 
-    onesignal.Notifications.addEventListener("click", async (e) => {
-      if (e.result.actionId === "reminder-okay") {
-        const id = e.result.url?.split("/").pop();
-        console.log(e.notification.additionalData);
-        if (!id) return;
-        await $fetch(`/api/notes/${id}`, {
-          method: "PATCH",
-          body: { field: "reminder_at", value: null },
-        });
-      }
+    onesignal.Notifications.addEventListener("click", (e) => {
+      if (e.result.actionId !== "reminder-okay") return;
+      const id = e.result.url?.split("/").pop();
+      if (id) useNoteStore().methods.setReminder(id, null);
     });
   };
 

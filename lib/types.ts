@@ -1,4 +1,5 @@
-import type { Label, Note } from "@/server/utils/drizzle";
+import type { NoteView } from "./sync/note-views";
+import type { WorkspaceLabel, WorkspaceNote } from "./sync/protocol";
 
 export type SerializeDates<T> = T extends Date
   ? string
@@ -8,5 +9,10 @@ export type SerializeDates<T> = T extends Date
       ? { [K in keyof T]: SerializeDates<T[K]> }
       : T;
 
-export type ClientNote = SerializeDates<Note>;
-export type ClientLabel = SerializeDates<Label>;
+export type ClientLabel = WorkspaceLabel & { id: string };
+
+export type ClientNote = NoteView &
+  WorkspaceNote & { label: ClientLabel | null };
+
+export type NoteScope =
+  "active" | "pinned" | "trashed" | "archived" | "reminders";

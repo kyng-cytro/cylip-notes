@@ -17,22 +17,18 @@ const pinnedNotes = computed(() => {
   return notesStore.methods.retrieveNotes("pinned", label.value);
 });
 
-const createNote = async () => {
-  await notesStore.methods.createNote(label.value);
-};
+const createNote = () => notesStore.methods.createNote(label.value);
 
-const reorderNotes = async (orderedIds: string[]) => {
-  await notesStore.methods.reorderNotes({
-    scope: label.value === "all-notes" ? "all" : "label",
-    labelId: label.value === "all-notes" ? undefined : label.value,
-    orderedIds,
-  });
-};
+const moveNote = (
+  noteId: string,
+  beforeId: string | null,
+  afterId: string | null,
+) => notesStore.methods.moveNote(noteId, label.value, beforeId, afterId);
 </script>
 
 <template>
   <AppMainContainer>
-    <div class="flex items-center justify-between pl-1 pr-2">
+    <div class="flex items-center justify-between pr-2 pl-1">
       <AppLabelSelect />
       <Button class="font-semibold" variant="default" @click="createNote">
         New Note <Plus class="ml-1 size-5" />
@@ -60,7 +56,7 @@ const reorderNotes = async (orderedIds: string[]) => {
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
         <p
-          class="text-sm font-semibold text-muted-foreground"
+          class="text-muted-foreground text-sm font-semibold"
           v-if="pinnedNotes.length"
         >
           Pinned
@@ -68,15 +64,15 @@ const reorderNotes = async (orderedIds: string[]) => {
         <AppNoteContainer
           :notes="pinnedNotes"
           v-if="pinnedNotes.length"
-          @reorder="reorderNotes"
+          @move="moveNote"
         />
         <p
-          class="text-sm font-semibold text-muted-foreground"
+          class="text-muted-foreground text-sm font-semibold"
           v-if="pinnedNotes.length"
         >
           Others
         </p>
-        <AppNoteContainer :notes="notes" @reorder="reorderNotes" />
+        <AppNoteContainer :notes="notes" @move="moveNote" />
       </AppScrollContainer>
     </template>
     <PlusModalPage name="modal" />

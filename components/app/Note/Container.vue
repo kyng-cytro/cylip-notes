@@ -8,7 +8,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  reorder: [orderedIds: string[]];
+  move: [noteId: string, beforeId: string | null, afterId: string | null];
 }>();
 
 const dragOptions = computed(() => ({
@@ -35,9 +35,16 @@ const dragStart = () => {
 
 const dragEnd = () => {
   drag.value = false;
+};
+
+const onChange = ({ moved }: { moved?: { newIndex: number } }) => {
+  if (!moved) return;
+  const at = (index: number) => localNotes.value[index]?.id ?? null;
   emit(
-    "reorder",
-    localNotes.value.map((note) => note.id),
+    "move",
+    at(moved.newIndex)!,
+    at(moved.newIndex - 1),
+    at(moved.newIndex + 1),
   );
 };
 
@@ -66,6 +73,7 @@ watch(
     v-model="localNotes"
     @start="dragStart"
     @end="dragEnd"
+    @change="onChange"
   >
     <TransitionGroup
       @before-leave="setLeaveSize"

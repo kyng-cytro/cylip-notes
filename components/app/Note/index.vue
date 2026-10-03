@@ -22,8 +22,8 @@ const content = computed(() => {
 
 const isDark = computed(() => useColorMode().value === "dark");
 const background = computed(() => {
-  if (!props.note.options?.background) return "";
-  return applyBackground(isDark.value, props.note.options?.background);
+  if (!props.note.background) return "";
+  return applyBackground(isDark.value, props.note.background);
 });
 
 onMounted(async () => {
@@ -72,7 +72,7 @@ onMounted(async () => {
       >
         <div
           class="line-clamp-[18] max-h-96 overflow-hidden"
-          v-if="note.options?.preview && content"
+          v-if="note.preview && content"
           v-motion
         >
           <p
@@ -86,23 +86,20 @@ onMounted(async () => {
     <!-- Label, Reminder & Public -->
     <div
       class="mt-3 flex flex-wrap items-center gap-4"
-      v-if="note.label || note.reminderAt || note.options?.public.enabled"
+      v-if="note.label || note.reminderAt || note.public"
     >
-      <AppNoteActionsShareBadge
-        :vists="note.options.public.vists"
-        v-if="note.options?.public.enabled"
-      />
+      <AppNoteActionsShareBadge v-if="note.public" />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />
       <AppNoteActionsReminderBadge
         v-if="note.reminderAt"
         :date="note.reminderAt"
-        @clear-reminder="noteStore.methods.setReminder(note, null)"
+        @clear-reminder="noteStore.methods.setReminder(note.id, null)"
         @click.stop
       />
     </div>
     <!-- Actions -->
     <div
-      class="scrollbar-none mt-3 flex items-center justify-between gap-3 overflow-y-auto group-hover:visible group-focus:visible lg:invisible"
+      class="mt-3 flex scrollbar-none items-center justify-between gap-3 overflow-y-auto group-hover:visible group-focus:visible lg:invisible"
       @click.stop
     >
       <AppNoteActions :note="note" />

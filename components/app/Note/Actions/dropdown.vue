@@ -4,6 +4,7 @@ import { EllipsisVertical, MaximizeIcon } from "lucide-vue-next";
 defineProps<{
   canOpen?: boolean;
   labelId: string | null;
+  deleteText: string;
 }>();
 
 const open = ref(false);
@@ -12,7 +13,6 @@ const { labels } = storeToRefs(useNoteStore());
 const emits = defineEmits<{
   (e: "copy"): void;
   (e: "delete"): void;
-  (e: "versions"): void;
   (e: "full-screen"): void;
   (e: "toggle-show-preview"): void;
   (e: "assign-label", labelId: string | null): void;
@@ -45,9 +45,6 @@ const assign = (labelId: string | null) => {
             <DropdownMenuItem @click="$emit('full-screen')" v-if="canOpen"
               >Full Screen <MaximizeIcon class="ml-1 size-4" />
             </DropdownMenuItem>
-            <DropdownMenuItem @click="$emit('versions')" disabled
-              >Version History</DropdownMenuItem
-            >
             <DropdownMenuItem @click="$emit('toggle-show-preview')"
               >Toggle Preview</DropdownMenuItem
             >
@@ -68,9 +65,9 @@ const assign = (labelId: string | null) => {
           </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem class="text-red-600" @click="$emit('delete')"
-              >Delete Note</DropdownMenuItem
-            >
+            <DropdownMenuItem class="text-red-600" @click="$emit('delete')">{{
+              deleteText
+            }}</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

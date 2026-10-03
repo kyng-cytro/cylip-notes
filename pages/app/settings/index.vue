@@ -30,21 +30,11 @@ const getImage = (value?: File | string | null) => {
   return value;
 };
 
-const reorderLabels = async (orderedIds: string[]) => {
-  await noteStore.methods.reorderLabels(orderedIds);
-};
-
-const deleteLabel = async (label: ClientLabel) => {
-  try {
-    await noteStore.methods.deleteLabel(label.id);
-    toast.success("Label deleted successfully", {
-      description: `${capitalize(label.name)} has been deleted.`,
-    });
-  } catch (e: any) {
-    toast.error("Could not delete label", {
-      description: e.data?.message || e.message,
-    });
-  }
+const deleteLabel = (label: ClientLabel) => {
+  noteStore.methods.deleteLabel(label.id);
+  toast.success("Label deleted successfully", {
+    description: `${capitalize(label.name)} has been deleted.`,
+  });
 };
 </script>
 <template>
@@ -158,6 +148,10 @@ const deleteLabel = async (label: ClientLabel) => {
       </div>
       <hr class="bg-muted my-2" />
     </div>
-    <AppLabelContainer :labels @reorder="reorderLabels" @delete="deleteLabel" />
+    <AppLabelContainer
+      :labels
+      @move="noteStore.methods.moveLabel"
+      @delete="deleteLabel"
+    />
   </AppMainContainer>
 </template>

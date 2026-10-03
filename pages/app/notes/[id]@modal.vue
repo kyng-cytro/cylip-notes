@@ -1,49 +1,9 @@
 <script setup lang="ts">
-import { extensions } from "@/lib/tiptap";
-import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
 import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
-const noteStore = useNoteStore();
-const note = ref(noteStore.methods.getNoteById(id));
-
-const title = ref(note.value?.title || "");
-const trashed = computed(() => note.value?.trashed || false);
-
-const { editor, initialized } = await useEditor({
-  roomId: note.value!.id,
-  autofocus: true,
-  disabled: trashed.value,
-});
-
-const refresh = () => {
-  note.value = noteStore.methods.getNoteById(id);
-};
-
-const suggestTitle = async () => {
-  const text = renderToMarkdown({ extensions, content: editor.getJSON() });
-  if (!text) return [];
-  const { titles } = await $fetch("/api/ai/title", {
-    method: "POST",
-    body: { text },
-  });
-  return titles;
-};
-
-watchDebounced(
-  title,
-  async () => {
-    if (!title.value || title.value === note.value!.title || trashed.value)
-      return;
-    await noteStore.methods.updateNote(note.value!.id, "title", title.value);
-  },
-  { debounce: 1000 },
-);
-const isDark = computed(() => useColorMode().value === "dark");
-const background = computed(() => {
-  if (!note.value) return "";
-  return applyBackground(isDark.value, note.value.options?.background);
-});
+const { note, editor, title, canEdit, background, suggestTitle } =
+  await useNotePage(id);
 </script>
 <template>
   <div
@@ -52,7 +12,7 @@ const background = computed(() => {
     <Card
       v-motion-slide-left
       :duration="500"
-      v-if="note"
+      v-if="note && editor"
       @click.stop
       tabindex="-1"
       :style="background"
@@ -75,33 +35,25 @@ const background = computed(() => {
               can-open
               :note="note"
               :editor="editor"
-              :cb="() => navigateTo(`/app`)"
-              :refresh="() => refresh()"
+              :cb="() => navigateTo('/app')"
             />
           </div>
         </div>
         <AppNoteTitleInput
           v-model="title"
-          :disabled="!editor.isEditable"
+          :disabled="!canEdit"
           :suggest="{
-            fn: () => suggestTitle(),
-            enabled:
-              editor.isEditable && !title && hasEnoughContent(editor.getText()),
+            fn: suggestTitle,
+            enabled: canEdit && !title && hasEnoughContent(editor.getText()),
           }"
         />
         <EditorToolbar :editor="editor" />
       </CardHeader>
       <CardContent class="relative -m-1 flex-1 overflow-hidden">
-        <Editor :editor="editor" :initialized />
+        <Editor :editor="editor" />
       </CardContent>
       <CardFooter class="flex justify-end px-4 py-2">
-        <AppNoteLastEdited
-          :trashed="trashed"
-          :label="note.label"
-          :updated-at="note.updatedAt"
-          :reminder-at="note.reminderAt"
-          :public="note.options?.public"
-        />
+        <AppNoteLastEdited :note="note" />
       </CardFooter>
     </Card>
   </div>

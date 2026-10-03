@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { BellPlusIcon } from "lucide-vue-next";
 defineProps<{
-  reminderAt: string | null;
+  reminderAt: number | null;
 }>();
 const emits = defineEmits<{
   (e: "set-reminder", value: Date | null): void;
