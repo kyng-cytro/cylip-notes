@@ -1,17 +1,7 @@
 import type { SerializeDates } from "@/lib/types";
 import type { AuthUser } from "@/server/utils/auth";
-import { createAuthClient } from "better-auth/vue";
-import { magicLinkClient } from "better-auth/client/plugins";
 
 type User = SerializeDates<AuthUser>;
-
-let authClient: ReturnType<typeof createClient> | undefined;
-const createClient = () =>
-  createAuthClient({
-    baseURL: useRuntimeConfig().public.baseUrl,
-    plugins: [magicLinkClient()],
-  });
-const useAuthClient = () => (authClient ??= createClient());
 
 export const useUser = () => {
   const user = useState<User | null>("user", () => null);
@@ -21,7 +11,7 @@ export const useUser = () => {
   async function signIn(
     opts: { type: "google" } | { type: "magic-link"; email: string },
   ) {
-    const client = useAuthClient();
+    const client = useNuxtApp().$authClient;
     const { error } =
       opts.type === "google"
         ? await client.signIn.social({
@@ -44,7 +34,7 @@ export const useUser = () => {
   };
 
   async function logout() {
-    await useAuthClient().signOut();
+    await useNuxtApp().$authClient.signOut();
     user.value = null;
     await navigateTo(authRoutes.login);
   }
