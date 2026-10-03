@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@vueuse/motion/nuxt",
     "pinia-plugin-persistedstate/nuxt",
+    "@vite-pwa/nuxt",
   ],
   css: ["@/assets/css/tailwind.css"],
   vite: {
@@ -26,7 +27,6 @@ export default defineNuxtConfig({
     prefix: "",
   },
   pagesPlus: {
-    // `notes/[id]@modal.vue` is a modal parallel route, not a vue-router named view.
     namedViewsAsParallelRoutes: true,
   },
   colorMode: {
@@ -34,6 +34,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
+    tsConfig: { exclude: ["../sync"] },
     typeCheck: process.env.NODE_ENV === "development",
   },
   nitro: {
@@ -68,7 +69,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
+      syncUrl: process.env.NUXT_PUBLIC_SYNC_URL,
       onesignal: {
         url: process.env.NUXT_PUBLIC_ONESIGNAL_URL,
         appId: process.env.NUXT_PUBLIC_ONESIGNAL_APP_ID,
@@ -103,11 +104,9 @@ export default defineNuxtConfig({
     resend: {
       apiKey: process.env.NUXT_RESEND_API_KEY,
     },
-    websocket: {
-      apiKey: process.env.NUXT_WEBSOCKET_API_KEY,
-    },
-    serverSentEvents: {
-      interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
+    sync: {
+      url: process.env.NUXT_SYNC_URL,
+      secret: process.env.NUXT_SYNC_SECRET,
     },
     onesignal: {
       apiKey: process.env.NUXT_ONESIGNAL_API_KEY,
@@ -116,5 +115,28 @@ export default defineNuxtConfig({
   routeRules: {
     "/": { prerender: true },
     "/pricing": { prerender: true },
+    "/app": { ssr: false, prerender: true },
+    "/app/**": { ssr: false },
+  },
+  pwa: {
+    registerType: "autoUpdate",
+    manifest: false,
+    client: { installPrompt: false },
+    workbox: {
+      navigateFallback: "/app",
+      navigateFallbackAllowlist: [/^\/app(\/|$)/],
+      globPatterns: ["**/*.{js,css,html,svg,png,webp,ico,woff2}"],
+      globIgnores: ["screenshots/**", "push/**"],
+      runtimeCaching: [
+        {
+          urlPattern: /\/(images|profile-pictures)\//,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "note-images",
+            expiration: { maxEntries: 500 },
+          },
+        },
+      ],
+    },
   },
 });
