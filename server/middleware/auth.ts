@@ -1,28 +1,26 @@
-const isSameOrigin = (origin: string | null, host: string | null) => {
+import type { H3Event } from "h3";
+
+const isSameOrigin = (event: H3Event) => {
+  const origin = getHeader(event, "Origin");
+  const host = getHeader(event, "Host");
   if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
+  return URL.parse(origin)?.host === host;
 };
+
+const isServerToServer = (path: string) =>
+  path.startsWith("/api/internal/") || path.includes("_hub");
+
+const needsOriginCheck = (event: H3Event) =>
+  !import.meta.dev && event.method !== "GET" && !isServerToServer(event.path);
 
 export default defineEventHandler(async (event) => {
   if (import.meta.prerender) return;
-  if (
-    !import.meta.dev &&
-    event.method !== "GET" &&
-    !event.path.includes("_hub") &&
-    !event.path.includes("websocket") &&
-    !isSameOrigin(
-      getHeader(event, "Origin") ?? null,
-      getHeader(event, "Host") ?? null,
-    )
-  ) {
+  if (needsOriginCheck(event) && !isSameOrigin(event)) {
     return setResponseStatus(event, 403);
   }
-  // Better Auth handles its own routes.
-  if (event.path.startsWith("/api/auth/")) return;
+  if (event.path.startsWith("/api/auth/") || isServerToServer(event.path)) {
+    return;
+  }
   const data = await auth.api.getSession({ headers: event.headers });
   event.context.session = data?.session ?? null;
   event.context.user = data?.user ?? null;

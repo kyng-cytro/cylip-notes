@@ -1,19 +1,6 @@
 import { z } from "zod";
 
-export const notePostSchema = z.object({
-  labelId: z.string().optional(),
-});
-
-export const notePutSchema = z.discriminatedUnion("field", [
-  z.object({ field: z.literal("title"), value: z.string().trim().min(1) }),
-  z.object({ field: z.literal("content"), value: z.any() }),
-]);
-
-export const noteWebsocketPutSchema = z.object({
-  content: z.any(),
-});
-
-export const noteOptionsSchema = z.object({
+const noteOptionsSchema = z.object({
   preview: z.boolean().default(true),
   public: z.object({
     vists: z.number().default(0),
@@ -24,38 +11,16 @@ export const noteOptionsSchema = z.object({
       type: z.enum(["image", "color"]).nullable(),
       value: z.string().min(1).nullable(),
     })
-    .optional(),
+    .nullish(),
 });
 
 export type NoteOptions = z.infer<typeof noteOptionsSchema>;
 
-export const notePatchSchema = z.discriminatedUnion("field", [
-  z.object({ field: z.literal("options"), value: noteOptionsSchema }),
-  z.object({ field: z.literal("pinned"), value: z.boolean() }),
-  z.object({ field: z.literal("archived"), value: z.boolean() }),
-  z.object({ field: z.literal("trashed"), value: z.boolean() }),
-  z.object({
-    field: z.literal("reminder_at"),
-    value: z.coerce.date().nullable(),
-  }),
-  z.object({
-    field: z.literal("label"),
-    value: z.string().min(1).nullable(),
-  }),
-]);
+const memberRoleSchema = z.enum(["editor", "viewer"]);
 
-export const noteReorderSchema = z
-  .object({
-    scope: z.enum(["all", "label"]),
-    labelId: z.string().min(1).optional(),
-    orderedIds: z.array(z.string().min(1)).min(1),
-  })
-  .superRefine((data, ctx) => {
-    if (data.scope === "label" && !data.labelId) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["labelId"],
-        message: "labelId is required when scope is label.",
-      });
-    }
-  });
+export const addMemberSchema = z.object({
+  email: z.email().trim().toLowerCase(),
+  role: memberRoleSchema,
+});
+
+export const updateMemberSchema = z.object({ role: memberRoleSchema });

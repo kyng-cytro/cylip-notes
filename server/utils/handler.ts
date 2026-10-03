@@ -79,40 +79,10 @@ export const defineTaskEventHandler = <T extends EventHandlerRequest, D>(
     return handler(event);
   });
 
-export const defineWebsocketEventHandler = <T extends EventHandlerRequest, D>(
-  handler: (event: AuthenticatedEvent<T>) => D | Promise<D>,
+export const defineSyncEventHandler = <T extends EventHandlerRequest, D>(
+  handler: EventHandler<T, D>,
 ): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-    const { "x-api-key": apiKey, "x-session-id": sessionId } =
-      getRequestHeaders(event);
-    if (!apiKey || !sessionId) {
-      throw createError({
-        statusCode: 401,
-        message: "Missing API token or session token.",
-      });
-    }
-    if (apiKey.toString() !== useRuntimeConfig().websocket.apiKey.toString()) {
-      throw createError({
-        statusCode: 401,
-        message: "Invalid API token.",
-      });
-    }
-    const data = await auth.api.getSession({
-      headers: new Headers({ authorization: `Bearer ${sessionId}` }),
-    });
-    if (!data) {
-      throw createError({
-        statusCode: 401,
-        message: "Invalid session token.",
-      });
-    }
-    if (!["free", "premium"].includes(data.user.accountType)) {
-      throw createError({
-        statusCode: 403,
-        message: "You do not have permission to access this reasource.",
-      });
-    }
-    event.context.user = data.user;
-    event.context.session = data.session;
-    return handler(event as AuthenticatedEvent<T>);
+    requireSyncSecret(event);
+    return handler(event);
   });

@@ -1,0 +1,19 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "cylip-notes-sync",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "NoteDoc", "class_name": "NoteDoc" },
+      { "name": "WorkspaceDoc", "class_name": "WorkspaceDoc" },
+    ],
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["NoteDoc", "WorkspaceDoc"] },
+  ],
+  "vars": {
+    "APP_URL": "http://localhost:3000",
+  },
+}

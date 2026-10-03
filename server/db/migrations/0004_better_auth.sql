@@ -1,8 +1,3 @@
--- Lucia -> Better Auth.
--- User rows are preserved; google ids move to `accounts`.
--- Lucia sessions/tokens are not compatible and are dropped (users sign in once).
--- NuxtHub runs statements one by one without a transaction, so everything that
--- can be is re-runnable, and the non-repeatable column changes come last.
 CREATE TABLE IF NOT EXISTS `accounts` (
 	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,
@@ -58,7 +53,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS `sessions_token_unique` ON `sessions` (`token`
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS `sessions_user_id_idx` ON `sessions` (`user_id`);
 --> statement-breakpoint
--- Existing users have all signed in via magic link or Google, so their email is verified.
 ALTER TABLE `users` ADD `email_verified` integer DEFAULT false NOT NULL;
 --> statement-breakpoint
 UPDATE `users` SET `email_verified` = true;

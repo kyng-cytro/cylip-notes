@@ -1,6 +1,0 @@
-{
-  "$schema": "https://www.partykit.io/schema.json",
-  "name": "cylip-notes-party",
-  "main": "party/index.ts",
-  "compatibilityDate": "2024-08-05"
-}

@@ -1,6 +1,17 @@
 import { sql } from "drizzle-orm";
 import { db, schema } from "hub:db";
-export { and, eq, gt, gte, inArray, lt, lte, or, sql } from "drizzle-orm";
+export {
+  and,
+  eq,
+  gt,
+  gte,
+  inArray,
+  lt,
+  lte,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 
 import type { AnyColumn } from "drizzle-orm";
 

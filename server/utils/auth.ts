@@ -1,6 +1,5 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { bearer } from "better-auth/plugins/bearer";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { generateName } from "@/lib/name-generator";
 
@@ -52,8 +51,6 @@ export const auth = betterAuth({
     },
   },
   account: {
-    // Matches the old behaviour: signing in with Google links to an existing
-    // magic-link account with the same email.
     accountLinking: { enabled: true, trustedProviders: ["google"] },
   },
   socialProviders: {
@@ -84,8 +81,6 @@ export const auth = betterAuth({
       expiresIn: 60 * 5,
       sendMagicLink: ({ email, url }) => sendSignInLink(email, url),
     }),
-    // Lets the sync server authenticate with the raw session token.
-    bearer(),
   ],
 });
 

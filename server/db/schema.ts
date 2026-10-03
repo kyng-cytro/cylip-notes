@@ -5,6 +5,7 @@ import { relations } from "drizzle-orm";
 import {
   index,
   integer,
+  primaryKey,
   sqliteTable,
   text,
   unique,
@@ -135,6 +136,7 @@ export const label = sqliteTable(
     name: text("name").notNull(),
     slug: text("slug").notNull(),
     order: integer("order").notNull().default(0),
+    sortKey: text("sort_key"),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, {
@@ -186,6 +188,8 @@ export const note = sqliteTable("notes", {
   trashedAt: integer("trashed_at", { mode: "timestamp_ms" }),
   globalOrder: integer("global_order").notNull().default(0),
   labelOrder: integer("label_order"),
+  sortKey: text("sort_key"),
+  labelSortKey: text("label_sort_key"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -195,7 +199,7 @@ export const note = sqliteTable("notes", {
     .$onUpdateFn(() => new Date()),
 });
 
-export const notesRelations = relations(note, ({ one }) => ({
+export const notesRelations = relations(note, ({ one, many }) => ({
   user: one(user, {
     fields: [note.userId],
     references: [user.id],
@@ -204,17 +208,57 @@ export const notesRelations = relations(note, ({ one }) => ({
     fields: [note.labelId],
     references: [label.id],
   }),
+  members: many(noteMember),
 }));
 
-export const changelog = sqliteTable("change_logs", {
-  id: text("id").notNull().primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, {
-      onDelete: "cascade",
+export const noteMember = sqliteTable(
+  "note_members",
+  {
+    noteId: text("note_id")
+      .notNull()
+      .references(() => note.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["editor", "viewer"] }).notNull(),
+    pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
+    archived: integer("archived", { mode: "boolean" }).notNull().default(false),
+    labelId: text("label_id").references(() => label.id, {
+      onDelete: "set null",
     }),
-  table_name: text("table_name").notNull(),
-  operation: text("operation", {
-    enum: ["insert", "update", "delete"],
-  }).notNull(),
+    sortKey: text("sort_key"),
+    labelSortKey: text("label_sort_key"),
+    reminderAt: integer("reminder_at", { mode: "timestamp_ms" }),
+    preview: integer("preview", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.noteId, t.userId] }),
+    index("note_members_user_id_idx").on(t.userId),
+    index("note_members_reminder_at_idx").on(t.reminderAt),
+  ],
+);
+
+export const noteMembersRelations = relations(noteMember, ({ one }) => ({
+  note: one(note, {
+    fields: [noteMember.noteId],
+    references: [note.id],
+  }),
+  user: one(user, {
+    fields: [noteMember.userId],
+    references: [user.id],
+  }),
+}));
+
+export const deletedNote = sqliteTable("deleted_notes", {
+  id: text("id").notNull().primaryKey(),
+  deletedAt: integer("deleted_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });
