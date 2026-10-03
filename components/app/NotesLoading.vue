@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { conatinerStyles: layoutStyles } = useLayout();
+const { conatinerStyles: layoutStyles } = useNoteLayout();
 const heights = [
   50, 50, 150, 300, 200, 100, 250, 350, 150, 100, 400, 300, 250, 200, 50,
 ];

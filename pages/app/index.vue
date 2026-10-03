@@ -7,7 +7,7 @@ definePageMeta({
 const notesStore = useNoteStore();
 const { initialized } = storeToRefs(notesStore);
 const { label } = storeToRefs(useLayoutStore());
-const { containerParentStyles: layoutStyles } = useLayout();
+const { containerParentStyles: layoutStyles } = useNoteLayout();
 
 const notes = computed(() => {
   return notesStore.methods.retrieveNotes("active", label.value);

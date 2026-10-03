@@ -1,4 +1,4 @@
-export const useLayout = () => {
+export const useNoteLayout = () => {
   const { layout } = storeToRefs(useLayoutStore());
 
   const containerParentStyles = computed(() => ({

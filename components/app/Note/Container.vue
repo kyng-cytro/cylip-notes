@@ -21,7 +21,7 @@ const dragOptions = computed(() => ({
   dragClass: "dragging",
 }));
 
-const { conatinerStyles: layoutStyles } = useLayout();
+const { conatinerStyles: layoutStyles } = useNoteLayout();
 
 const drag = ref(false);
 const localNotes = ref<ClientNote[]>([]);
