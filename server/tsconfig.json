@@ -1,4 +1,3 @@
 {
-  "include": ["markdown.d.ts"],
   "extends": "../.nuxt/tsconfig.server.json"
 }

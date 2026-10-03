@@ -1,4 +1,5 @@
 import { markdownToHTML } from "@/lib/marked";
+import { hasEnoughContent } from "@/utils/helpers";
 import { Editor, Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
