@@ -27,7 +27,7 @@ const canCreateLabel = computed(
 );
 </script>
 <template>
-  <Dialog v-model:open="open">
+  <Dialog :open="open" @update:open="open = $event && canCreateLabel">
     <DialogTrigger as-child>
       <div class="group relative">
         <slot name="trigger" :disabled="!canCreateLabel" />

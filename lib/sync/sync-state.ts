@@ -1,15 +1,6 @@
+import { clear, createStore, del, get, set, type UseStore } from "idb-keyval";
 import { STORAGE_NAMES } from "./constants";
-import {
-  clear,
-  createStore,
-  del,
-  get,
-  keys,
-  set,
-  type UseStore,
-} from "idb-keyval";
 
-const DIRTY = "dirty:";
 const VECTOR = "vector:";
 
 export class SyncState {
@@ -27,34 +18,16 @@ export class SyncState {
     return set("cursor", cursor, this.store);
   }
 
-  markDirty(noteId: string) {
-    return set(DIRTY + noteId, true, this.store);
-  }
-
-  async getDirty() {
-    const all = await keys<string>(this.store);
-    return all
-      .filter((key) => key.startsWith(DIRTY))
-      .map((key) => key.slice(DIRTY.length));
-  }
-
-  clearDirty(noteId: string) {
-    return del(DIRTY + noteId, this.store);
-  }
-
   getServerVector(noteId: string) {
-    return get<string>(VECTOR + noteId, this.store);
+    return get<Uint8Array>(VECTOR + noteId, this.store);
   }
 
-  setServerVector(noteId: string, vector: string) {
+  setServerVector(noteId: string, vector: Uint8Array) {
     return set(VECTOR + noteId, vector, this.store);
   }
 
-  async forget(noteId: string) {
-    await Promise.all([
-      this.clearDirty(noteId),
-      del(VECTOR + noteId, this.store),
-    ]);
+  forget(noteId: string) {
+    return del(VECTOR + noteId, this.store);
   }
 
   clear() {

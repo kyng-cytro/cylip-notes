@@ -34,6 +34,10 @@ export const HEADERS = {
   identity: "x-sync-identity",
 } as const;
 
+export const CHANNELS = {
+  notes: (userId: string) => `cylip-notes-${userId}`,
+};
+
 export const STORAGE_NAMES = {
   note: (userId: string, noteId: string) => `cylip-note-${userId}-${noteId}`,
   workspace: (userId: string) => `cylip-workspace-${userId}`,

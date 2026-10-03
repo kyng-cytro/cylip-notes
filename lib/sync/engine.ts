@@ -25,9 +25,6 @@ type Options = {
   uploadImage: (file: Blob) => Promise<string>;
 };
 
-const sameVector = (a: Uint8Array, b: Uint8Array) =>
-  a.length === b.length && a.every((byte, i) => byte === b[i]);
-
 export class SyncEngine {
   readonly workspace = shallowRef<WorkspaceSnapshot>({ notes: {}, labels: {} });
   readonly views = shallowRef<Record<string, NoteView>>({});
@@ -86,6 +83,7 @@ export class SyncEngine {
     window.removeEventListener("offline", this.markOffline);
     document.removeEventListener("visibilitychange", this.requestSync);
     await this.workspaceDoc.destroy({ clearData });
+    this.docs.close();
     if (clearData)
       await Promise.all([this.docs.removeAll(), this.state.clear()]);
   }
@@ -95,7 +93,8 @@ export class SyncEngine {
   }
 
   updateNoteMeta(noteId: string, values: Partial<NoteMeta>) {
-    writeMap(getMeta(this.docs.get(noteId)), values);
+    const doc = this.docs.get(noteId);
+    doc.transact(() => writeMap(getMeta(doc), values));
     this.flushViews();
   }
 
@@ -140,28 +139,22 @@ export class SyncEngine {
   }
 
   private async pushChanges() {
-    const dirty = (await this.state.getDirty()).filter((id) =>
-      this.docs.has(id),
-    );
-    if (!dirty.length) return;
+    const pending = await this.notesWithUnsyncedChanges();
+    if (!pending.length) return;
     await Promise.all(
-      dirty.map((id) =>
+      pending.map((id) =>
         uploadInlineImages(this.docs.get(id), this.options.uploadImage),
       ),
     );
     const vectors = new Map(
-      dirty.map((id) => [id, Y.encodeStateVector(this.docs.get(id))]),
+      pending.map((id) => [id, Y.encodeStateVector(this.docs.get(id))]),
     );
     const updates = await Promise.all(
-      dirty.map(async (id) => [id, await this.diffSinceServer(id)]),
+      pending.map(async (id) => [id, await this.diffSinceServer(id)]),
     );
     const result = await this.api.push({ docs: Object.fromEntries(updates) });
     for (const id of [...result.ok, ...result.readonly]) {
-      const vector = vectors.get(id)!;
-      await this.state.setServerVector(id, toBase64(vector));
-      if (sameVector(vector, Y.encodeStateVector(this.docs.get(id)))) {
-        await this.state.clearDirty(id);
-      }
+      await this.state.setServerVector(id, vectors.get(id)!);
     }
     this.dropNotes(result.denied);
   }
@@ -178,19 +171,36 @@ export class SyncEngine {
     for (const [id, { update, sv }] of Object.entries(result.docs)) {
       if (!this.docs.has(id)) continue;
       Y.applyUpdate(this.docs.get(id), fromBase64(update), "remote");
-      await this.state.setServerVector(id, sv);
+      await this.state.setServerVector(id, fromBase64(sv));
     }
     this.dropNotes(result.denied);
     await this.state.setCursor(result.cursor);
   }
 
+  private async notesWithUnsyncedChanges() {
+    const ids = this.docs.ids();
+    const flags = await Promise.all(
+      ids.map((id) => this.hasUnsyncedChanges(id)),
+    );
+    return ids.filter((_, i) => flags[i]);
+  }
+
+  private async hasUnsyncedChanges(noteId: string) {
+    const local = Y.decodeStateVector(
+      Y.encodeStateVector(this.docs.get(noteId)),
+    );
+    const stored = await this.state.getServerVector(noteId);
+    const server = stored
+      ? Y.decodeStateVector(stored)
+      : new Map<number, number>();
+    return [...local].some(
+      ([client, clock]) => (server.get(client) ?? 0) < clock,
+    );
+  }
+
   private async diffSinceServer(noteId: string) {
     const serverVector = await this.state.getServerVector(noteId);
-    const update = Y.encodeStateAsUpdate(
-      this.docs.get(noteId),
-      serverVector ? fromBase64(serverVector) : undefined,
-    );
-    return toBase64(update);
+    return toBase64(Y.encodeStateAsUpdate(this.docs.get(noteId), serverVector));
   }
 
   private async localVector(noteId: string) {
@@ -225,7 +235,7 @@ export class SyncEngine {
 
   private handleLocalChange(noteId: string) {
     queueMicrotask(() => this.touchUpdatedAt(noteId));
-    this.state.markDirty(noteId).then(this.requestSync);
+    this.requestSync();
   }
 
   private touchUpdatedAt(noteId: string) {

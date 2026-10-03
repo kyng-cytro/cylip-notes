@@ -5,7 +5,7 @@ import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import FileHandler from "@tiptap/extension-file-handler";
-import { Editor } from "@tiptap/vue-3";
+import { Editor, findChildren } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 import YProvider from "y-partyserver/provider";
 import type * as Y from "yjs";
@@ -17,26 +17,41 @@ const EDITOR_CLASS =
 const endOfSelection = (editor: Editor) =>
   editor.state.doc.resolve(editor.state.selection.to).end();
 
+const findImage = (editor: Editor, src: string) =>
+  findChildren(
+    editor.state.doc,
+    (node) => node.type.name === "image" && node.attrs.src === src,
+  )[0];
+
+const replacePlaceholder = (
+  editor: Editor,
+  placeholder: string,
+  src: string | null,
+) => {
+  const image = findImage(editor, placeholder);
+  if (!image) return;
+  const transaction = src
+    ? editor.state.tr.setNodeMarkup(image.pos, undefined, {
+        ...image.node.attrs,
+        src,
+      })
+    : editor.state.tr.delete(image.pos, image.pos + image.node.nodeSize);
+  editor.view.dispatch(transaction);
+};
+
 const insertImage = async (editor: Editor, file: File, position: number) => {
-  editor.commands.insertContentAt(
-    position,
-    { type: "image", attrs: { src: PLACEHOLDER_IMAGE } },
-    { updateSelection: true },
-  );
-  const placeholder = editor.state.selection.anchor;
-  const removePlaceholder = () =>
-    editor.chain().deleteRange({ from: placeholder, to: placeholder + 1 });
+  const placeholder = `${PLACEHOLDER_IMAGE}?upload=${crypto.randomUUID()}`;
+  editor.commands.insertContentAt(position, {
+    type: "image",
+    attrs: { src: placeholder },
+  });
   try {
-    const src = await toCompressedDataUrl(file);
-    removePlaceholder()
-      .insertContentAt(placeholder, { type: "image", attrs: { src } })
-      .focus()
-      .run();
+    replacePlaceholder(editor, placeholder, await toCompressedDataUrl(file));
   } catch (error) {
     toast.error("Something went wrong", {
       description: (error as Error).message,
     });
-    removePlaceholder().focus().run();
+    replacePlaceholder(editor, placeholder, null);
   }
 };
 
@@ -66,11 +81,18 @@ const aiProvider = (): AIProvider => {
       suggest: tokens >= CONSTANTS.rates.suggest,
     },
     getSuggestion: async (text) =>
-      (await $fetch("/api/ai/suggest", { method: "POST", body: { text } }))
-        .suggestion,
+      (
+        await requestAI<{ suggestion: string | null }>("/api/ai/suggest", {
+          text,
+        })
+      ).suggestion,
     refine: async (text, mode) =>
-      (await $fetch("/api/ai/refine", { method: "POST", body: { text, mode } }))
-        .refined,
+      (
+        await requestAI<{ refined: string | null }>("/api/ai/refine", {
+          text,
+          mode,
+        })
+      ).refined,
     onError: (action, message) =>
       toast.error(`Failed to ${action}`, { description: message }),
   };

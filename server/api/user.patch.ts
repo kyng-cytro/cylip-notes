@@ -26,5 +26,6 @@ export default defineAuthenticatedEventHandler(async (event) => {
     .set({ name, image })
     .where(eq(tables.user.id, id))
     .returning();
+  if (!user) throw createError({ statusCode: 404 });
   return user;
 });

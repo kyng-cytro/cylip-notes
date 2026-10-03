@@ -80,6 +80,11 @@ const suggestionWidget = (from: number, text: string) =>
 const insertMarkdown = (editor: Editor, markdown: string) =>
   editor.chain().focus().insertContent(markdownToHTML(markdown)).run();
 
+const withLeadingSpace = (editor: Editor, from: number, text: string) => {
+  const previous = editor.state.doc.textBetween(Math.max(0, from - 1), from);
+  return /\S/.test(previous) && /^\w/.test(text) ? ` ${text}` : text;
+};
+
 export const AI = Extension.create<{ provider: AIProvider }, Storage>({
   name: "ai",
   addStorage: () => ({
@@ -121,7 +126,9 @@ export const AI = Extension.create<{ provider: AIProvider }, Storage>({
       text: string,
     ) => {
       const suggestion = await provider.getSuggestion(text);
-      storage.suggestion = suggestion ?? "";
+      storage.suggestion = suggestion
+        ? withLeadingSpace(editor, from, suggestion)
+        : "";
       if (!suggestion) {
         clearDecorations(editor, storage);
         provider.onError?.(
@@ -130,7 +137,9 @@ export const AI = Extension.create<{ provider: AIProvider }, Storage>({
         );
         return;
       }
-      showDecorations(editor, storage, [suggestionWidget(from, suggestion)]);
+      showDecorations(editor, storage, [
+        suggestionWidget(from, storage.suggestion),
+      ]);
     };
 
     const fetchRefinement = async (

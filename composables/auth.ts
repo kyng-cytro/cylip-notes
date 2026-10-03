@@ -50,10 +50,16 @@ export const useUser = () => {
     await navigateTo(authRoutes.login);
   };
 
+  const refreshUser = async () => {
+    const data = await $fetch("/api/user");
+    user.value = data ? data : null;
+  };
+
   const updateUser = async (values: Record<string, string | File>) => {
     const body = new FormData();
     for (const [key, value] of Object.entries(values)) body.append(key, value);
-    user.value = await $fetch("/api/user", { method: "PATCH", body });
+    const updated = await $fetch("/api/user", { method: "PATCH", body });
+    user.value = updated;
   };
 
   return {
@@ -63,6 +69,7 @@ export const useUser = () => {
     signInWithGoogle,
     signInWithEmail,
     getToken,
+    refreshUser,
     logout,
     updateUser,
   };

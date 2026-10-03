@@ -41,9 +41,8 @@ export const useNotePage = async (noteId: string) => {
       content: editor?.getJSON() ?? {},
     });
     if (!text) return [];
-    const { titles } = await $fetch("/api/ai/title", {
-      method: "POST",
-      body: { text },
+    const { titles } = await requestAI<{ titles: string[] }>("/api/ai/title", {
+      text,
     });
     return titles;
   };

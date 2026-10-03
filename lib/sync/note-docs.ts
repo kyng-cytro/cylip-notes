@@ -1,6 +1,6 @@
-import { STORAGE_NAMES } from "./constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
+import { CHANNELS, STORAGE_NAMES } from "./constants";
 
 type Listeners = {
   onLocalChange: (noteId: string) => void;
@@ -9,13 +9,24 @@ type Listeners = {
 
 type Entry = { doc: Y.Doc; persistence: IndexeddbPersistence };
 
+type TabMessage = { noteId: string; update: Uint8Array };
+
+const FROM_OTHER_TAB = Symbol("other-tab");
+
 export class NoteDocs {
   private entries = new Map<string, Entry>();
+  private channel: BroadcastChannel;
 
   constructor(
     private userId: string,
     private listeners: Listeners,
-  ) {}
+  ) {
+    this.channel = new BroadcastChannel(CHANNELS.notes(userId));
+    this.channel.onmessage = ({ data }: MessageEvent<TabMessage>) => {
+      const entry = this.entries.get(data.noteId);
+      if (entry) Y.applyUpdate(entry.doc, data.update, FROM_OTHER_TAB);
+    };
+  }
 
   ids() {
     return [...this.entries.keys()];
@@ -46,6 +57,10 @@ export class NoteDocs {
     await Promise.all(this.ids().map((id) => this.remove(id)));
   }
 
+  close() {
+    this.channel.close();
+  }
+
   private open(noteId: string) {
     const existing = this.entries.get(noteId);
     if (existing) return existing;
@@ -54,6 +69,11 @@ export class NoteDocs {
       STORAGE_NAMES.note(this.userId, noteId),
       doc,
     );
+    doc.on("update", (update: Uint8Array, origin: unknown) => {
+      if (origin !== FROM_OTHER_TAB && origin !== persistence) {
+        this.channel.postMessage({ noteId, update } satisfies TabMessage);
+      }
+    });
     doc.on("afterTransaction", (transaction) => {
       if (transaction.changed.size === 0) return;
       if (transaction.local) this.listeners.onLocalChange(noteId);
