@@ -25,6 +25,10 @@ export default defineNuxtConfig({
   shadcn: {
     prefix: "",
   },
+  pagesPlus: {
+    // `notes/[id]@modal.vue` is a modal parallel route, not a vue-router named view.
+    namedViewsAsParallelRoutes: true,
+  },
   colorMode: {
     classSuffix: "",
   },

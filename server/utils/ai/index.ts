@@ -4,7 +4,7 @@ import { generateText } from "ai";
 type Options = {
   topP?: number;
   temperature?: number;
-  maxTokens?: number;
+  maxOutputTokens?: number;
   frequencyPenalty?: number;
   presencePenalty?: number;
 };
@@ -17,7 +17,7 @@ export const getAISDK = () => {
   return {
     generateText: (prompt: string, system?: string, opts?: Options) => {
       return generateText({
-        system,
+        instructions: system,
         prompt,
         ...opts,
         model: openai("gpt-4.1-mini"),
@@ -30,7 +30,7 @@ export const getAISDK = () => {
       opts?: Options,
     ) => {
       return generateText({
-        system,
+        instructions: system,
         prompt,
         ...opts,
         output: schema,
