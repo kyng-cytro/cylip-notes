@@ -21,7 +21,7 @@ export const readNoteView = (id: string, doc: Y.Doc): NoteView => {
     id,
     ...readMeta(doc),
     content: fragment.length ? (node.toJSON() as JSONContent) : null,
-    text: node.textContent,
+    text: node.textBetween(0, node.content.size, " "),
     loaded: doc.store.clients.size > 0,
   };
 };
