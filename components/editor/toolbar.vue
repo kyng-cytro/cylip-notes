@@ -35,6 +35,7 @@ onMounted(() => (touch.value = !hasFinePointer()));
       @toggled="openBlockMenu(editor)"
       :disabled="disabled"
     />
+    <EditorBlockMenu :editor="editor" />
     <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Bold"

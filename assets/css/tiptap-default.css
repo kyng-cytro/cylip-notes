@@ -78,6 +78,10 @@
   margin-block: 0.75rem;
 }
 
+.tiptap .is-empty:has(.ai-hint)::before {
+  content: none;
+}
+
 .tiptap .is-empty::before {
   @apply text-primary/40;
   content: attr(data-placeholder);

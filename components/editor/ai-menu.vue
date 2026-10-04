@@ -19,12 +19,16 @@ const refineModes = [
         size="icon"
         aria-label="AI tools"
         class="shrink-0"
-        :disabled="!editor.isEditable"
       >
         <Sparkles class="size-5" />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent side="top" align="start" class="w-52">
+    <DropdownMenuContent
+      side="top"
+      align="start"
+      class="w-52"
+      @close-auto-focus.prevent
+    >
       <template v-if="editor.can().accept()">
         <DropdownMenuItem @select="editor.commands.accept()">
           Accept suggestion

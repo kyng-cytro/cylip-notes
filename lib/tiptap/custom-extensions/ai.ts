@@ -55,6 +55,7 @@ const hintElement = (text: string, classes: string[]) => {
   const span = document.createElement("span");
   span.innerText = text;
   span.classList.add(
+    "ai-hint",
     "ml-.5",
     "rainbow-animation",
     "pointer-events-none",

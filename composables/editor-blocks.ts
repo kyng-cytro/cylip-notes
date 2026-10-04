@@ -1,4 +1,5 @@
 import type { ChainedCommands, Editor } from "@tiptap/core";
+import { TextSelection } from "@tiptap/pm/state";
 import type { Node } from "@tiptap/pm/model";
 import {
   ChevronRight,
@@ -212,3 +213,41 @@ export const deleteBlock = (editor: Editor, { node, pos }: BlockTarget) =>
     .focus()
     .deleteRange({ from: pos, to: pos + node.nodeSize })
     .run();
+
+export const blockAtCursor = (editor: Editor): BlockTarget | null => {
+  const { $from } = editor.state.selection;
+  if ($from.depth === 0) return null;
+  return { node: $from.node(1), pos: $from.before(1) };
+};
+
+type Direction = -1 | 1;
+
+const siblingIndex = (editor: Editor, pos: number, direction: Direction) =>
+  editor.state.doc.resolve(pos).index(0) + direction;
+
+export const canMoveBlock = (
+  editor: Editor,
+  { pos }: BlockTarget,
+  direction: Direction,
+) => {
+  const index = siblingIndex(editor, pos, direction);
+  return index >= 0 && index < editor.state.doc.childCount;
+};
+
+export const moveBlock = (
+  editor: Editor,
+  target: BlockTarget,
+  direction: Direction,
+) => {
+  if (!canMoveBlock(editor, target, direction)) return;
+  const { node, pos } = target;
+  const { state } = editor;
+  const sibling = state.doc.child(siblingIndex(editor, pos, direction));
+  const newPos =
+    direction === -1 ? pos - sibling.nodeSize : pos + sibling.nodeSize;
+  const cursorOffset = Math.max(1, state.selection.from - pos);
+  const tr = state.tr.delete(pos, pos + node.nodeSize).insert(newPos, node);
+  tr.setSelection(TextSelection.near(tr.doc.resolve(newPos + cursorOffset)));
+  editor.view.dispatch(tr.scrollIntoView());
+  editor.commands.focus();
+};
