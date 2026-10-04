@@ -38,6 +38,9 @@ const routes = [
       return (await workspaceDoc(env, userId)).setShared(noteId, shared);
     },
   ),
+  route("POST", WORKER_ROUTES.workspaceInvites, async (env, { userId }) =>
+    (await workspaceDoc(env, userId)).notifyInvitesChanged(),
+  ),
   route(
     "DELETE",
     WORKER_ROUTES.workspaceNote,

@@ -27,6 +27,8 @@ export const DOC_KEYS = {
 
 export const NOTE_CHANGED = "note-changed";
 
+export const INVITES_CHANGED = "invites-changed";
+
 export const CLOSE_CODES = { accessChanged: 4003, noteDeleted: 4004 } as const;
 
 export const HEADERS = {
@@ -53,6 +55,7 @@ export const WORKER_ROUTES = {
   prefix: "/internal/",
   workspaceNote: "/internal/workspaces/:userId/notes/:noteId",
   workspaceNoteShared: "/internal/workspaces/:userId/notes/:noteId/shared",
+  workspaceInvites: "/internal/workspaces/:userId/invites",
   noteConnections: "/internal/notes/:noteId/connections/:userId",
   note: "/internal/notes/:noteId",
   loadNote: "/internal/notes/:noteId/load",

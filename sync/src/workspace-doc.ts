@@ -1,11 +1,15 @@
-import { NOTE_CHANGED, SAVE_DEBOUNCE } from "@/lib/sync/constants";
+import {
+  INVITES_CHANGED,
+  NOTE_CHANGED,
+  SAVE_DEBOUNCE,
+} from "@/lib/sync/constants";
 import {
   getNotesMap,
   readWorkspace,
   toYMap,
   writeMap,
   writeWorkspace,
-  type NoteChangedMessage,
+  type WorkspaceMessage,
   type NoteRole,
   type WorkspaceNote,
 } from "@/lib/sync/protocol";
@@ -43,7 +47,14 @@ export class WorkspaceDoc extends YServer<Env> {
 
   notifyNoteChanged(noteId: string) {
     if (!getNotesMap(this.document).has(noteId)) return;
-    const message: NoteChangedMessage = { type: NOTE_CHANGED, id: noteId };
+    this.sendMessage({ type: NOTE_CHANGED, id: noteId });
+  }
+
+  notifyInvitesChanged() {
+    this.sendMessage({ type: INVITES_CHANGED });
+  }
+
+  private sendMessage(message: WorkspaceMessage) {
     this.broadcastCustomMessage(JSON.stringify(message));
   }
 

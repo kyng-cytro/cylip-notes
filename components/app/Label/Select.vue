@@ -15,6 +15,7 @@ const { labels, initialized } = storeToRefs(useNoteStore());
       <SelectContent>
         <SelectGroup>
           <SelectItem :value="ALL_NOTES">All Notes</SelectItem>
+          <SelectItem :value="SHARED_WITH_ME">Shared with me</SelectItem>
           <SelectItem :value="label.id" v-for="label in labels" :key="label.id">
             {{ capitalize(label.name) }}
           </SelectItem>

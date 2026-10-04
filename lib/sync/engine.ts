@@ -23,6 +23,7 @@ type Options = {
   syncUrl: string;
   getToken: () => Promise<string>;
   uploadImage: (file: Blob) => Promise<string>;
+  onInvitesChanged: () => void;
 };
 
 export class SyncEngine {

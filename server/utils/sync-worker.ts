@@ -35,6 +35,9 @@ export const setWorkspaceNoteShared = (
     { shared },
   );
 
+export const notifyInvitesChanged = (userId: string) =>
+  callWorker("POST", WORKER_ROUTES.workspaceInvites, { userId });
+
 export const removeFromWorkspace = (userId: string, noteId: string) =>
   callWorker("DELETE", WORKER_ROUTES.workspaceNote, { userId, noteId });
 

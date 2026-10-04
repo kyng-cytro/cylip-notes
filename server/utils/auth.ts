@@ -61,15 +61,6 @@ export const auth = betterAuth({
     },
   },
   databaseHooks: {
-    session: {
-      create: {
-        after: async (session) => {
-          await acceptNoteInvites(session.userId).catch((error) =>
-            console.error("Failed to accept note invites", error),
-          );
-        },
-      },
-    },
     user: {
       create: {
         before: async (user, ctx) => {

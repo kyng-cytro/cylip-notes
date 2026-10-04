@@ -51,6 +51,7 @@ const closeMobileMenu = () => {
       <AppHeaderSearch />
     </div>
     <div class="flex shrink-0 items-center gap-x-1 sm:gap-x-2">
+      <AppHeaderInvites />
       <AppHeaderFetching />
       <AppNoteLayoutSelect />
       <ColorMode />

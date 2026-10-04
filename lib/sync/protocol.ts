@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { DOC_KEYS, NOTE_CHANGED } from "./constants";
+import { DOC_KEYS, INVITES_CHANGED, NOTE_CHANGED } from "./constants";
 
 export const NOTE_ROLES = ["owner", "editor", "viewer"] as const;
 
@@ -55,7 +55,8 @@ export type WorkspaceSnapshot = {
   labels: Record<string, WorkspaceLabel>;
 };
 
-export type NoteChangedMessage = { type: typeof NOTE_CHANGED; id: string };
+export type WorkspaceMessage =
+  { type: typeof NOTE_CHANGED; id: string } | { type: typeof INVITES_CHANGED };
 
 export type PullRequest = {
   docs: Record<string, string>;

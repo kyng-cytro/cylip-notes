@@ -24,6 +24,10 @@ export const CONSTANTS = {
     free: 1,
     premium: 3,
   },
+  maxSharedPeople: {
+    free: 1,
+    premium: 5,
+  },
 };
 
 export const hasEnoughContent = (content: string | null) =>

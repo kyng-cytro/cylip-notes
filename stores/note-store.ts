@@ -20,8 +20,14 @@ import { toast } from "vue-sonner";
 
 type LabelValues = { name: string; options: LabelOptions };
 
-const labelScope = (labelId?: string | null) =>
-  labelId && labelId !== ALL_NOTES ? labelId : null;
+const labelScope = (filter?: string | null) =>
+  filter && filter !== ALL_NOTES && filter !== SHARED_WITH_ME ? filter : null;
+
+const inFilter = (note: ClientNote, filter?: string) => {
+  if (filter === SHARED_WITH_ME) return note.role !== "owner";
+  const labelId = labelScope(filter);
+  return !labelId || note.labelId === labelId;
+};
 
 const uploadImage = async (file: Blob) => {
   const body = new FormData();
@@ -36,6 +42,7 @@ const uploadImage = async (file: Blob) => {
 
 export const useNoteStore = defineStore("notes", () => {
   const { user, getToken } = useUser();
+  const { refresh: refreshInvites } = useInvites();
   const engine = shallowRef<SyncEngine | null>(null);
   const starting = shallowRef<Promise<void> | null>(null);
 
@@ -89,6 +96,7 @@ export const useNoteStore = defineStore("notes", () => {
         syncUrl: useRuntimeConfig().public.syncUrl,
         getToken,
         uploadImage,
+        onInvitesChanged: refreshInvites,
       }),
     );
     await created.start();
@@ -107,11 +115,11 @@ export const useNoteStore = defineStore("notes", () => {
     starting.value = null;
   };
 
-  const retrieveNotes = (scope: NoteScope, labelId?: string) => {
-    const inLabel = labelScope(labelId);
+  const retrieveNotes = (scope: NoteScope, filter?: string) => {
+    const inLabel = labelScope(filter);
     return notes.value
       .filter((note) => scopeFilters[scope](note))
-      .filter((note) => !inLabel || note.labelId === inLabel)
+      .filter((note) => inFilter(note, filter))
       .sort(byKey((note) => sortKeyIn(note, inLabel) ?? null));
   };
 

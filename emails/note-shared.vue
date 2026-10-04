@@ -13,7 +13,7 @@ import {
 } from "@vue-email/components";
 
 defineProps<{
-  sharer: { name: string };
+  sharer: { name: string; email: string };
   note: { title: string };
   url: string;
 }>();
@@ -35,7 +35,9 @@ const footer = { color: "#8898aa", fontSize: "12px" };
 <template>
   <Html>
     <Head />
-    <Preview>{{ sharer.name }} shared “{{ note.title }}” with you</Preview>
+    <Preview>
+      {{ sharer.name }} invited you to “{{ note.title }}” on Cylip Notes
+    </Preview>
     <Body :style="main">
       <Container :style="container">
         <Section :style="{ textAlign: 'center' }">
@@ -44,14 +46,17 @@ const footer = { color: "#8898aa", fontSize: "12px" };
           </Heading>
         </Section>
         <Text :style="paragraph">
-          {{ sharer.name }} shared the note “{{ note.title }}” with you.
+          {{ sharer.name }} ({{ sharer.email }}) invited you to the note “{{
+            note.title
+          }}”.
         </Text>
         <Text :style="paragraph">
-          Sign in with this email address to open it. If you don't have an
-          account yet, signing in creates one.
+          Sign in with this email address to accept or decline. The note stays
+          hidden until you accept. If you don't have an account yet, signing in
+          creates one.
         </Text>
         <Section>
-          <Button :style="button" :href="url">Open note</Button>
+          <Button :style="button" :href="url">View invite</Button>
         </Section>
         <Text :style="paragraph">
           Best,

@@ -1,4 +1,9 @@
-import { NOTE_CHANGED, PARTIES, STORAGE_NAMES } from "./constants";
+import {
+  INVITES_CHANGED,
+  NOTE_CHANGED,
+  PARTIES,
+  STORAGE_NAMES,
+} from "./constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import YProvider from "y-partyserver/provider";
 import * as Y from "yjs";
@@ -8,7 +13,7 @@ import {
   readWorkspace,
   toYMap,
   writeMap,
-  type NoteChangedMessage,
+  type WorkspaceMessage,
   type WorkspaceLabel,
   type WorkspaceNote,
 } from "./protocol";
@@ -20,6 +25,7 @@ type Options = {
   onChange: () => void;
   onConnect: () => void;
   onNoteChanged: (noteId: string) => void;
+  onInvitesChanged: () => void;
 };
 
 export class Workspace {
@@ -54,8 +60,9 @@ export class Workspace {
       if (status === "connected") this.options.onConnect();
     });
     this.provider.on("custom-message", (message: string) => {
-      const parsed = JSON.parse(message) as NoteChangedMessage;
+      const parsed = JSON.parse(message) as WorkspaceMessage;
       if (parsed.type === NOTE_CHANGED) this.options.onNoteChanged(parsed.id);
+      if (parsed.type === INVITES_CHANGED) this.options.onInvitesChanged();
     });
   }
 

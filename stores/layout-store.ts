@@ -1,5 +1,7 @@
 export const ALL_NOTES = "all-notes";
 
+export const SHARED_WITH_ME = "shared-with-me";
+
 export const useLayoutStore = defineStore(
   "layout",
   () => {

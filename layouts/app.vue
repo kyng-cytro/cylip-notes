@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import "vue-sonner/style.css";
+const { refresh: refreshInvites } = useInvites();
+
 onMounted(() => {
   useNoteStore().ensureStarted();
+  refreshInvites();
   useOneSignalSetup().init();
 });
 </script>

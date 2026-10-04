@@ -283,6 +283,10 @@ export const noteInvitesRelations = relations(noteInvite, ({ one }) => ({
     fields: [noteInvite.noteId],
     references: [note.id],
   }),
+  inviter: one(user, {
+    fields: [noteInvite.invitedBy],
+    references: [user.id],
+  }),
 }));
 
 export const deletedNote = sqliteTable("deleted_notes", {

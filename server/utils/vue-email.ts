@@ -20,10 +20,10 @@ export const renderSignInEmail = async (props: {
 });
 
 export const renderNoteSharedEmail = async (props: {
-  sharer: { name: string };
+  sharer: { name: string; email: string };
   note: { title: string };
   url: string;
 }) => ({
   ...(await renderEmail(noteSharedTemplate, props)),
-  subject: `${props.sharer.name} shared “${props.note.title}” with you`,
+  subject: `${props.sharer.name} invited you to “${props.note.title}”`,
 });

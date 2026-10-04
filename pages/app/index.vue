@@ -9,7 +9,25 @@ const { initialized } = storeToRefs(notesStore);
 const { label } = storeToRefs(useLayoutStore());
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
-const isAllNotes = computed(() => label.value === ALL_NOTES);
+const emptyState = computed(() => {
+  if (label.value === ALL_NOTES) {
+    return {
+      title: "No notes yet",
+      subtitle: "Create your first note to get started",
+      button: { text: "Create Note" },
+    };
+  }
+  if (label.value === SHARED_WITH_ME) {
+    return {
+      title: "Nothing shared with you yet",
+      subtitle: "Notes people share with you will show up here.",
+    };
+  }
+  return {
+    title: "No notes in this label",
+    subtitle: "Notes with this label will show up here.",
+  };
+});
 const notes = computed(() => notesStore.retrieveNotes("active", label.value));
 const pinnedNotes = computed(() =>
   notesStore.retrieveNotes("pinned", label.value),
@@ -38,13 +56,9 @@ const moveNote = (
     </div>
     <template v-if="!notes.length && !pinnedNotes.length">
       <AppEmptyPage
-        :title="isAllNotes ? 'No notes yet' : 'No notes in this label'"
-        :subtitle="
-          isAllNotes
-            ? 'Create your first note to get started'
-            : 'Notes with this label will show up here.'
-        "
-        :button="isAllNotes ? { text: 'Create Note' } : undefined"
+        :title="emptyState.title"
+        :subtitle="emptyState.subtitle"
+        :button="emptyState.button"
         @button-click="createNote"
         v-if="initialized"
       />
