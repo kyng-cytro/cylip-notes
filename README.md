@@ -6,12 +6,12 @@ A local-first note-taking PWA with real-time collaboration and AI helpers. Every
 
 ## Architecture
 
-| Piece | Where | Role |
-| --- | --- | --- |
-| Nuxt app | Vercel | UI, auth (Better Auth), AI, sharing API, scheduled tasks |
-| Database | Turso (SQLite) | Users, sessions, sharing permissions, and a projection of notes for search, reminders and public pages |
-| Images | Vercel Blob | Note images and profile pictures |
-| Sync server | Cloudflare Worker + Durable Objects (`sync/`) | One `NoteDoc` per note and one `WorkspaceDoc` per user, storing Yjs state |
+| Piece       | Where                                         | Role                                                                                                   |
+| ----------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Nuxt app    | Vercel                                        | UI, auth (Better Auth), AI, sharing API, scheduled tasks                                               |
+| Database    | Turso (SQLite)                                | Users, sessions, sharing permissions, and a projection of notes for search, reminders and public pages |
+| Images      | Vercel Blob                                   | Note images and profile pictures                                                                       |
+| Sync server | Cloudflare Worker + Durable Objects (`sync/`) | One `NoteDoc` per note and one `WorkspaceDoc` per user, storing Yjs state                              |
 
 On the device:
 
@@ -35,15 +35,16 @@ bun dev
 
 Useful scripts:
 
+- `bun dev:host` runs both on your LAN address so you can test on a phone. Open the printed URL on every device, including this computer, because sign-in only accepts that origin. Google sign-in, offline mode and install need HTTPS, so test those with `bun run build && bun preview` or a deploy.
 - `bun sync:typecheck` type checks the worker.
 - `bun db:generate` generates a migration after editing `server/db/schema.ts`.
 
 ## Deployment
 
-1. **Sync worker**: set `APP_URL` in `sync/wrangler.jsonc` to the app's URL, then:
+1. **Sync worker**:
    ```bash
    bunx wrangler secret put SYNC_SECRET -c sync/wrangler.jsonc
-   bun sync:deploy
+   bun sync:deploy --var APP_URL:https://<app-domain>
    ```
 2. **App (Vercel)**: set these for both build and runtime, since `/app` is prerendered with its public config:
    - `NUXT_AUTH_SECRET`
@@ -51,7 +52,8 @@ Useful scripts:
    - `NUXT_SYNC_URL` and `NUXT_PUBLIC_SYNC_URL` (the worker's URL)
    - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `BLOB_READ_WRITE_TOKEN` and the existing keys in `.env.example`
 
-   Database migrations run during the Vercel build.
+   Database migrations run during the Vercel build. Sharing sends invite emails through Resend, so the sending domain must be verified.
+
 3. **Google sign-in**: add `https://<app-domain>/api/auth/callback/google` as an authorized redirect URI.
 
 ## Migrating existing data
