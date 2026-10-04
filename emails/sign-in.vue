@@ -8,6 +8,7 @@ import {
   Link,
   Preview,
   Heading,
+  Hr,
   Container,
   Section,
 } from "@vue-email/components";

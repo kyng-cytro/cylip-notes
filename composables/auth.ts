@@ -13,22 +13,22 @@ export const useUser = () => {
   const loggedIn = computed(() => !!user.value);
   const isPremium = computed(() => user.value?.accountType === "premium");
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (callbackURL = authRoutes.app) => {
     const { $authClient } = useNuxtApp();
     throwOnError(
-      await $authClient.signIn.social({
-        provider: "google",
-        callbackURL: authRoutes.app,
-      }),
+      await $authClient.signIn.social({ provider: "google", callbackURL }),
     );
   };
 
-  const signInWithEmail = async (email: string) => {
+  const signInWithEmail = async (
+    email: string,
+    callbackURL = authRoutes.app,
+  ) => {
     const { $authClient } = useNuxtApp();
     throwOnError(
       await $authClient.signIn.magicLink({
         email,
-        callbackURL: authRoutes.app,
+        callbackURL,
         errorCallbackURL: authRoutes.login,
       }),
     );

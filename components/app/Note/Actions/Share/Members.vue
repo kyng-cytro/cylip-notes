@@ -1,59 +1,59 @@
 <script setup lang="ts">
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { ClientNote } from "@/lib/types";
+import type { NotePerson } from "@/server/utils/note-sharing";
 import { XIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
 type Role = "editor" | "viewer";
-
-type Member = {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  role: Role | "owner";
-};
 
 const props = defineProps<{ note: ClientNote }>();
 
 const { user } = useUser();
 const noteStore = useNoteStore();
 const isOwner = computed(() => props.note.role === "owner");
-const membersUrl = computed(() => `/api/notes/${props.note.id}/members`);
+const peopleUrl = computed(() => `/api/notes/${props.note.id}/members`);
+const personUrl = (email: string) =>
+  `${peopleUrl.value}/${encodeURIComponent(email)}`;
+const isYou = (person: NotePerson) => person.email === user.value?.email;
 
 const {
-  data: members,
+  data: people,
   refresh,
   error,
-} = useFetch<Member[]>(membersUrl, { server: false });
+} = useFetch<NotePerson[]>(peopleUrl, { server: false });
 
 const email = ref("");
 const role = ref<Role>("editor");
-const inviting = ref(false);
+const sharing = ref(false);
 
 const showError = (title: string, e: any) =>
   toast.error(title, {
     description: e.data?.message || "Check your connection and try again.",
   });
 
-const invite = async () => {
-  inviting.value = true;
+const share = async () => {
+  sharing.value = true;
   try {
-    await $fetch(membersUrl.value, {
+    await $fetch(peopleUrl.value, {
       method: "POST",
       body: { email: email.value, role: role.value },
+    });
+    toast.success("Note shared", {
+      description: `We emailed ${email.value} a link to open it.`,
     });
     email.value = "";
     await refresh();
   } catch (e) {
     showError("Couldn't share the note", e);
   } finally {
-    inviting.value = false;
+    sharing.value = false;
   }
 };
 
-const changeRole = async (userId: string, newRole: Role) => {
+const changeRole = async (person: NotePerson, newRole: Role) => {
   try {
-    await $fetch(`${membersUrl.value}/${userId}`, {
+    await $fetch(personUrl(person.email), {
       method: "PATCH",
       body: { role: newRole },
     });
@@ -63,9 +63,9 @@ const changeRole = async (userId: string, newRole: Role) => {
   }
 };
 
-const remove = async (userId: string) => {
+const remove = async (person: NotePerson) => {
   try {
-    await $fetch(`${membersUrl.value}/${userId}`, { method: "DELETE" });
+    await $fetch(personUrl(person.email), { method: "DELETE" });
     await refresh();
   } catch (e) {
     showError("Couldn't remove access", e);
@@ -79,51 +79,55 @@ const remove = async (userId: string) => {
     <p v-if="error" class="text-muted-foreground text-sm">
       Sharing needs an internet connection.
     </p>
-    <form v-if="isOwner && !error" class="flex gap-2" @submit.prevent="invite">
+    <form
+      v-if="isOwner && !error"
+      class="flex flex-col gap-3"
+      @submit.prevent="share"
+    >
       <Input
         v-model="email"
         type="email"
         required
+        autocomplete="off"
         placeholder="Email address"
-        class="flex-1"
       />
-      <Select v-model="role">
-        <SelectTrigger class="w-24"><SelectValue /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="editor">Editor</SelectItem>
-          <SelectItem value="viewer">Viewer</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button type="submit" size="sm" :loading="inviting">Share</Button>
+      <RadioGroup v-model="role" class="flex gap-6">
+        <Label class="flex items-center gap-2 font-normal">
+          <RadioGroupItem value="viewer" />
+          Viewer
+        </Label>
+        <Label class="flex items-center gap-2 font-normal">
+          <RadioGroupItem value="editor" />
+          Editor
+        </Label>
+      </RadioGroup>
+      <Button type="submit" :loading="sharing">Share</Button>
     </form>
     <ul class="flex flex-col gap-2">
       <li
-        v-for="member in members"
-        :key="member.id"
+        v-for="person in people"
+        :key="person.email"
         class="flex items-center gap-2 text-sm"
       >
         <Avatar class="size-7">
-          <AvatarImage :src="member.image || ''" />
-          <AvatarFallback class="text-xs">{{
-            getTwoChars(member.name)
-          }}</AvatarFallback>
+          <AvatarFallback class="text-xs uppercase">
+            {{ getTwoChars(person.email) }}
+          </AvatarFallback>
         </Avatar>
-        <div class="min-w-0 flex-1">
-          <p class="truncate font-medium">{{ member.name }}</p>
-          <p class="text-muted-foreground truncate text-xs">
-            {{ member.email }}
-          </p>
-        </div>
+        <p class="min-w-0 flex-1 truncate">
+          {{ person.email }}
+          <span v-if="isYou(person)" class="text-muted-foreground">(you)</span>
+        </p>
         <span
-          v-if="member.role === 'owner' || !isOwner"
+          v-if="person.role === 'owner' || !isOwner"
           class="text-muted-foreground capitalize"
         >
-          {{ member.role }}
+          {{ person.role }}
         </span>
         <Select
           v-else
-          :model-value="member.role"
-          @update:model-value="changeRole(member.id, $event as Role)"
+          :model-value="person.role"
+          @update:model-value="changeRole(person, $event as Role)"
         >
           <SelectTrigger class="h-8 w-24"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -132,15 +136,16 @@ const remove = async (userId: string) => {
           </SelectContent>
         </Select>
         <Button
-          v-if="isOwner && member.role !== 'owner'"
+          v-if="isOwner && person.role !== 'owner'"
           size="icon"
           variant="ghost"
-          @click="remove(member.id)"
+          aria-label="Remove access"
+          @click="remove(person)"
         >
           <XIcon class="size-4" />
         </Button>
         <Button
-          v-else-if="member.id === user?.id && !isOwner"
+          v-else-if="isYou(person) && !isOwner"
           size="xs"
           variant="ghost"
           @click="noteStore.deleteNoteForever(note)"

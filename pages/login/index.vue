@@ -8,6 +8,13 @@ definePageMeta({
 const { signInWithEmail, signInWithGoogle } = useUser();
 const route = useRoute();
 
+const redirectTo = computed(() => {
+  const { to } = route.query;
+  return typeof to === "string" && to.startsWith(`${authRoutes.app}/`)
+    ? to
+    : authRoutes.app;
+});
+
 onMounted(() => {
   if (!route.query.error) return;
   toast.error("Sign in link is invalid or has expired", {
@@ -24,7 +31,7 @@ const withErrorToast = async (action: () => Promise<void>) => {
 };
 
 const onSubmit = (values: Record<string, any>) =>
-  withErrorToast(() => signInWithEmail(values.email));
+  withErrorToast(() => signInWithEmail(values.email, redirectTo.value));
 </script>
 
 <template>
@@ -81,7 +88,7 @@ const onSubmit = (values: Record<string, any>) =>
               <Button
                 variant="outline"
                 type="button"
-                @click="withErrorToast(signInWithGoogle)"
+                @click="withErrorToast(() => signInWithGoogle(redirectTo))"
               >
                 Google
                 <span class="sr-only">Sign In with Google</span>

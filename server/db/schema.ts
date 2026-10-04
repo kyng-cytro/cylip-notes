@@ -209,6 +209,7 @@ export const notesRelations = relations(note, ({ one, many }) => ({
     references: [label.id],
   }),
   members: many(noteMember),
+  invites: many(noteInvite),
 }));
 
 export const noteMember = sqliteTable(
@@ -253,6 +254,34 @@ export const noteMembersRelations = relations(noteMember, ({ one }) => ({
   user: one(user, {
     fields: [noteMember.userId],
     references: [user.id],
+  }),
+}));
+
+export const noteInvite = sqliteTable(
+  "note_invites",
+  {
+    noteId: text("note_id")
+      .notNull()
+      .references(() => note.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role", { enum: ["editor", "viewer"] }).notNull(),
+    invitedBy: text("invited_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.noteId, t.email] }),
+    index("note_invites_email_idx").on(t.email),
+  ],
+);
+
+export const noteInvitesRelations = relations(noteInvite, ({ one }) => ({
+  note: one(note, {
+    fields: [noteInvite.noteId],
+    references: [note.id],
   }),
 }));
 

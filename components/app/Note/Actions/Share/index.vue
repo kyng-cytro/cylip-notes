@@ -22,7 +22,6 @@ const url = computed(
       </Button>
     </PopoverTrigger>
     <PopoverContent class="flex flex-col gap-6 sm:w-[380px]">
-      <AppNoteActionsShareMembers v-if="open" :note="note" />
       <div v-if="note.role === 'owner'" class="flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-2 sm:justify-between">
           <div class="space-y-0.5">
@@ -55,6 +54,8 @@ const url = computed(
           </Button>
         </Badge>
       </div>
+      <div v-if="note.role === 'owner'" class="bg-border h-px" />
+      <AppNoteActionsShareMembers v-if="open" :note="note" />
     </PopoverContent>
   </Popover>
 </template>

@@ -9,7 +9,7 @@ const closeMobileMenu = () => {
 </script>
 <template>
   <header
-    class="bg-muted/40 flex h-14 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6"
+    class="bg-muted/40 flex h-14 items-center gap-2 border-b px-4 sm:gap-4 lg:h-[60px] lg:px-6"
   >
     <Sheet v-model:open="mobileMenuOpen">
       <SheetTrigger as-child>
@@ -47,10 +47,10 @@ const closeMobileMenu = () => {
         </div>
       </SheetContent>
     </Sheet>
-    <div class="w-full flex-1">
+    <div class="min-w-0 flex-1">
       <AppHeaderSearch />
     </div>
-    <div class="flex items-center gap-x-2">
+    <div class="flex shrink-0 items-center gap-x-1 sm:gap-x-2">
       <AppHeaderFetching />
       <AppNoteLayoutSelect />
       <ColorMode />

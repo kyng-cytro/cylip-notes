@@ -1,12 +1,13 @@
 export default defineAuthenticatedEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
-  const userId = getRouterParam(event, "userId")!;
-  const isLeaving = userId === event.context.user.id;
+  const email = getRouterParam(event, "email", { decode: true })!.toLowerCase();
+  const { user } = event.context;
+  const isLeaving = email === user.email.toLowerCase();
   await requireNoteRole(
     id,
-    event.context.user.id,
+    user.id,
     isLeaving ? ["editor", "viewer"] : ["owner"],
   );
-  await revokeNoteAccess(id, userId);
+  await removeSharedAccess(id, email);
   return { ok: true };
 });
