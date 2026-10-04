@@ -2,12 +2,16 @@
 import { Toaster as Sonner, type ToasterProps } from "vue-sonner";
 
 const props = defineProps<ToasterProps>();
+const colorMode = useColorMode();
+const theme = computed(() => (colorMode.value === "dark" ? "dark" : "light"));
 </script>
 
 <template>
   <Sonner
     class="toaster group"
     v-bind="props"
+    :theme="theme"
+    :toast-options="{ classes: { description: 'text-muted-foreground!' } }"
     :style="{
       '--normal-bg': 'var(--popover)',
       '--normal-text': 'var(--popover-foreground)',
