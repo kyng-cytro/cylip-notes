@@ -3,6 +3,14 @@ import { EditorContent, type Editor } from "@tiptap/vue-3";
 
 const { editor } = defineProps<{ editor: Editor }>();
 
+useEventListener(
+  () => (import.meta.client ? window.visualViewport : null),
+  "resize",
+  () => {
+    if (editor.isFocused) editor.commands.scrollIntoView();
+  },
+);
+
 onBeforeUnmount(() => {
   editor.destroy();
 });

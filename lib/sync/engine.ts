@@ -128,6 +128,7 @@ export class SyncEngine {
 
   private markCaughtUp = () => {
     clearTimeout(this.catchUpTimer);
+    this.flushViews();
     this.caughtUp.value = true;
   };
 
