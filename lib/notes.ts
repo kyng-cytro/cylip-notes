@@ -1,5 +1,7 @@
 import type { ClientNote, NoteScope } from "./types";
 
+export const UNTITLED_NOTE = "Untitled note";
+
 export type ToggleProp =
   "pinned" | "archived" | "trashed" | "preview" | "public";
 

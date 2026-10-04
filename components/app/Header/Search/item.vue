@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isSharedNote } from "@/lib/notes";
+import { isSharedNote, UNTITLED_NOTE } from "@/lib/notes";
 import type { SearchResult } from "@/lib/sync/search";
 
 const { result } = defineProps<{ result: SearchResult }>();
@@ -18,7 +18,7 @@ const tags = computed(() => {
   <div class="flex min-w-0 flex-col gap-1">
     <div class="flex min-w-0 items-center gap-2">
       <span class="truncate text-sm font-semibold">
-        {{ result.note.title || "Untitled note" }}
+        {{ result.note.title || UNTITLED_NOTE }}
       </span>
       <Badge
         v-for="tag in tags"

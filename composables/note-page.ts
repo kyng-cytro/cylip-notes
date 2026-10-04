@@ -12,23 +12,21 @@ export const useNotePage = async (noteId: string) => {
     () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
   const editor = shallowRef<Editor | null>(null);
-  const loading = computed(
-    () => !editor.value && (!noteStore.caughtUp || !!note.value),
-  );
-  const disposed = { value: false };
-  onScopeDispose(() => (disposed.value = true));
+  const loading = computed(() => {
+    if (editor.value) return false;
+    return !!note.value || !noteStore.caughtUp;
+  });
+
+  const page = { unmounted: false };
+  onScopeDispose(() => (page.unmounted = true));
   const createEditor = async () => {
     const created = await useNoteEditor(noteId, canEdit.value);
-    if (disposed.value) return created.destroy();
+    if (page.unmounted) return created.destroy();
     editor.value = created;
   };
-  watch(
-    () => !!note.value,
-    (found) => {
-      if (found && !editor.value) createEditor();
-    },
-    { immediate: true },
-  );
+  whenever(() => note.value && !editor.value, createEditor, {
+    immediate: true,
+  });
   watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
   const title = ref(note.value?.title ?? "");

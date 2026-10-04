@@ -14,8 +14,9 @@ const debouncedQuery = refDebounced(query, 150);
 const shortcut = ref("Ctrl K");
 const noteStore = useNoteStore();
 
+const hasQuery = computed(() => !!debouncedQuery.value.trim());
 const results = computed(() =>
-  debouncedQuery.value.trim() ? noteStore.search(debouncedQuery.value) : [],
+  hasQuery.value ? noteStore.search(debouncedQuery.value) : [],
 );
 
 const openNote = (result: SearchResult) => {
@@ -83,7 +84,7 @@ onMounted(() => {
             v-if="!results.length"
             class="text-muted-foreground py-6 text-center text-sm"
           >
-            {{ debouncedQuery.trim() ? "No notes found." : "Type to search." }}
+            {{ hasQuery ? "No notes found." : "Type to search." }}
           </p>
           <ListboxItem
             v-for="result in results"

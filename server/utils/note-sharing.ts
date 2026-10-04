@@ -1,7 +1,6 @@
+import { UNTITLED_NOTE } from "@/lib/notes";
 import type { NoteRole, SharedRole } from "@/lib/sync/protocol";
 import { CONSTANTS } from "@/utils/helpers";
-
-const UNTITLED_NOTE = "Untitled note";
 
 type Sharer = {
   id: string;
