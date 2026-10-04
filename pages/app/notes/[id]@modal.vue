@@ -2,7 +2,7 @@
 import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
-const { note, editor, title, canEdit, background, suggestTitle } =
+const { note, editor, loading, title, canEdit, background, suggestTitle } =
   await useNotePage(id);
 const viewportBox = useVisualViewportBox();
 useScrollLock(() => (import.meta.client ? document.body : null), true);
@@ -60,6 +60,12 @@ useScrollLock(() => (import.meta.client ? document.body : null), true);
         <EditorToolbar v-if="canEdit" :editor="editor" />
         <AppNoteLastEdited :note="note" class="self-end" />
       </CardFooter>
+    </Card>
+    <Card
+      v-else-if="loading"
+      class="z-50 flex h-full w-full max-w-2xl flex-col p-6 lg:max-h-[80%]"
+    >
+      <EditorLoading />
     </Card>
   </div>
 </template>

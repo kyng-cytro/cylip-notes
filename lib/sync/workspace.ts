@@ -24,6 +24,7 @@ type Options = {
   getToken: () => Promise<string>;
   onChange: () => void;
   onConnect: () => void;
+  onSynced: () => void;
   onNoteChanged: (noteId: string) => void;
   onInvitesChanged: () => void;
 };
@@ -58,6 +59,9 @@ export class Workspace {
     );
     this.provider.on("status", ({ status }: { status: string }) => {
       if (status === "connected") this.options.onConnect();
+    });
+    this.provider.on("synced", (synced: boolean) => {
+      if (synced) this.options.onSynced();
     });
     this.provider.on("custom-message", (message: string) => {
       const parsed = JSON.parse(message) as WorkspaceMessage;

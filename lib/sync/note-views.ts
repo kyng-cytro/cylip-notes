@@ -11,6 +11,7 @@ export type NoteView = NoteMeta & {
   id: string;
   content: JSONContent | null;
   text: string;
+  loaded: boolean;
 };
 
 export const readNoteView = (id: string, doc: Y.Doc): NoteView => {
@@ -21,5 +22,6 @@ export const readNoteView = (id: string, doc: Y.Doc): NoteView => {
     ...readMeta(doc),
     content: fragment.length ? (node.toJSON() as JSONContent) : null,
     text: node.textContent,
+    loaded: doc.store.clients.size > 0,
   };
 };

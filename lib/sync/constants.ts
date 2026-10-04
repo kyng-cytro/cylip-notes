@@ -6,6 +6,7 @@ export const SYNC_TIMING = {
   requestTimeout: 20_000,
   tokenTimeout: 10_000,
   imageUploadTimeout: 30_000,
+  catchUpTimeout: 10_000,
 } as const;
 
 export const SAVE_DEBOUNCE = {

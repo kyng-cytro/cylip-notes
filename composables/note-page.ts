@@ -1,6 +1,7 @@
 import { canEdit as canEditRole } from "@/lib/sync/protocol";
 import { extensions } from "@/lib/tiptap";
 import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
+import type { Editor } from "@tiptap/vue-3";
 
 export const useNotePage = async (noteId: string) => {
   const noteStore = useNoteStore();
@@ -10,8 +11,25 @@ export const useNotePage = async (noteId: string) => {
   const canEdit = computed(
     () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
-  const editor = note.value ? await useNoteEditor(noteId, canEdit.value) : null;
-  watch(canEdit, (editable) => editor?.setEditable(editable));
+  const editor = shallowRef<Editor | null>(null);
+  const loading = computed(
+    () => !editor.value && (!noteStore.caughtUp || !!note.value),
+  );
+  const disposed = { value: false };
+  onScopeDispose(() => (disposed.value = true));
+  const createEditor = async () => {
+    const created = await useNoteEditor(noteId, canEdit.value);
+    if (disposed.value) return created.destroy();
+    editor.value = created;
+  };
+  watch(
+    () => !!note.value,
+    (found) => {
+      if (found && !editor.value) createEditor();
+    },
+    { immediate: true },
+  );
+  watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
   const title = ref(note.value?.title ?? "");
   watch(
@@ -38,7 +56,7 @@ export const useNotePage = async (noteId: string) => {
   const suggestTitle = async () => {
     const text = renderToMarkdown({
       extensions,
-      content: editor?.getJSON() ?? {},
+      content: editor.value?.getJSON() ?? {},
     });
     if (!text) return [];
     const { titles } = await requestAI<{ titles: string[] }>("/api/ai/title", {
@@ -47,5 +65,5 @@ export const useNotePage = async (noteId: string) => {
     return titles;
   };
 
-  return { note, editor, title, canEdit, background, suggestTitle };
+  return { note, editor, loading, title, canEdit, background, suggestTitle };
 };

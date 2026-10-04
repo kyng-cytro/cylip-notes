@@ -47,6 +47,7 @@ export const useNoteStore = defineStore("notes", () => {
   const starting = shallowRef<Promise<void> | null>(null);
 
   const initialized = computed(() => engine.value?.ready.value ?? false);
+  const caughtUp = computed(() => engine.value?.caughtUp.value ?? false);
   const status = computed(() => engine.value?.status.value ?? "offline");
 
   const labels = computed<ClientLabel[]>(() =>
@@ -60,7 +61,7 @@ export const useNoteStore = defineStore("notes", () => {
     const views = engine.value?.views.value ?? {};
     const labelsById = new Map(labels.value.map((label) => [label.id, label]));
     return Object.entries(entries)
-      .filter(([id]) => views[id])
+      .filter(([id]) => views[id]?.loaded)
       .map(([id, entry]) => ({
         ...views[id]!,
         ...entry,
@@ -316,6 +317,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   return {
     initialized,
+    caughtUp,
     status,
     notes,
     labels,

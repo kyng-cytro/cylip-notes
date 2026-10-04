@@ -4,7 +4,7 @@ definePageMeta({
 });
 
 const notesStore = useNoteStore();
-const { initialized } = storeToRefs(notesStore);
+const { caughtUp } = storeToRefs(notesStore);
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
 const notes = computed(() => {
@@ -17,7 +17,7 @@ const notes = computed(() => {
       <AppEmptyPage
         title="No reminders yet"
         subtitle="Note with reminders will appear here"
-        v-if="initialized"
+        v-if="caughtUp"
       />
       <AppScrollContainer v-else :class="layoutStyles">
         <AppNotesLoading />

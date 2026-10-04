@@ -4,7 +4,7 @@ definePageMeta({
 });
 
 const { id } = useRoute("app-notes-id").params;
-const { note, editor, title, canEdit, background, suggestTitle } =
+const { note, editor, loading, title, canEdit, background, suggestTitle } =
   await useNotePage(id);
 </script>
 <template>
@@ -12,8 +12,11 @@ const { note, editor, title, canEdit, background, suggestTitle } =
     :style="background"
     class="transition-colors duration-300 ease-in-out"
   >
+    <div v-if="loading" class="mx-auto h-full w-full max-w-3xl py-6">
+      <EditorLoading />
+    </div>
     <AppEmptyPage
-      v-if="!note || !editor"
+      v-else-if="!note || !editor"
       class="col-span-2"
       title="Note not found"
       subtitle="The note you are looking for does not exist."

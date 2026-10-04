@@ -5,7 +5,7 @@ definePageMeta({
 });
 
 const notesStore = useNoteStore();
-const { initialized } = storeToRefs(notesStore);
+const { caughtUp } = storeToRefs(notesStore);
 const { label } = storeToRefs(useLayoutStore());
 const { containerParentStyles: layoutStyles } = useNoteLayout();
 
@@ -60,7 +60,7 @@ const moveNote = (
         :subtitle="emptyState.subtitle"
         :button="emptyState.button"
         @button-click="createNote"
-        v-if="initialized"
+        v-if="caughtUp"
       />
       <AppScrollContainer v-else :class="layoutStyles">
         <AppNotesLoading />

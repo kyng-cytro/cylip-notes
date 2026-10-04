@@ -30,6 +30,7 @@ export class SyncEngine {
   readonly workspace = shallowRef<WorkspaceSnapshot>({ notes: {}, labels: {} });
   readonly views = shallowRef<Record<string, NoteView>>({});
   readonly ready = ref(false);
+  readonly caughtUp = ref(false);
   readonly status = ref<SyncStatus>("synced");
 
   readonly workspaceDoc: Workspace;
@@ -39,6 +40,8 @@ export class SyncEngine {
 
   private syncTimer: ReturnType<typeof setTimeout> | undefined;
   private syncInterval: ReturnType<typeof setInterval> | undefined;
+  private catchUpTimer: ReturnType<typeof setTimeout> | undefined;
+  private workspaceSynced = false;
   private viewTimer: ReturnType<typeof setTimeout> | undefined;
   private staleViews = new Set<string>();
   private syncing = false;
@@ -55,6 +58,10 @@ export class SyncEngine {
       ...options,
       onChange: () => this.handleWorkspaceChange(),
       onConnect: () => this.requestSync(),
+      onSynced: () => {
+        this.workspaceSynced = true;
+        this.syncNow();
+      },
       onNoteChanged: () => this.requestSync(),
     });
   }
@@ -68,6 +75,10 @@ export class SyncEngine {
       ids.map((id) => [id, readNoteView(id, this.docs.get(id))]),
     );
     this.ready.value = true;
+    this.catchUpTimer = setTimeout(
+      this.markCaughtUp,
+      SYNC_TIMING.catchUpTimeout,
+    );
     this.workspaceDoc.connect();
     window.addEventListener("online", this.requestSync);
     window.addEventListener("offline", this.markOffline);
@@ -79,6 +90,7 @@ export class SyncEngine {
   async stop({ clearData }: { clearData: boolean }) {
     clearTimeout(this.syncTimer);
     clearTimeout(this.viewTimer);
+    clearTimeout(this.catchUpTimer);
     clearInterval(this.syncInterval);
     window.removeEventListener("online", this.requestSync);
     window.removeEventListener("offline", this.markOffline);
@@ -111,6 +123,12 @@ export class SyncEngine {
 
   private markOffline = () => {
     this.status.value = "offline";
+    this.markCaughtUp();
+  };
+
+  private markCaughtUp = () => {
+    clearTimeout(this.catchUpTimer);
+    this.caughtUp.value = true;
   };
 
   private async sync() {
@@ -118,18 +136,16 @@ export class SyncEngine {
       this.syncQueued = true;
       return;
     }
-    if (!navigator.onLine) {
-      this.status.value = "offline";
-      return;
-    }
+    if (!navigator.onLine) return this.markOffline();
     this.syncing = true;
     this.status.value = "syncing";
     try {
       await this.pushChanges();
       await this.pullChanges();
       this.status.value = "synced";
+      if (this.workspaceSynced) this.markCaughtUp();
     } catch {
-      this.status.value = "offline";
+      this.markOffline();
     } finally {
       this.syncing = false;
       if (this.syncQueued) {
