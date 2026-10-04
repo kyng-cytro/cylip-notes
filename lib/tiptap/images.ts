@@ -1,3 +1,4 @@
+import { createId } from "@/lib/id";
 import { toCompressedDataUrl, validateImageFiles } from "@/lib/image-utils";
 import { findChildren, type Editor } from "@tiptap/core";
 import { useFileDialog } from "@vueuse/core";
@@ -31,7 +32,7 @@ const replacePlaceholder = (
 };
 
 const insertImage = async (editor: Editor, file: File, position: number) => {
-  const placeholder = `${PLACEHOLDER_IMAGE}?upload=${crypto.randomUUID()}`;
+  const placeholder = `${PLACEHOLDER_IMAGE}?upload=${createId()}`;
   editor.commands.insertContentAt(position, {
     type: "image",
     attrs: { src: placeholder },

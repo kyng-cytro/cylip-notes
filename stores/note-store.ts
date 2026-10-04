@@ -1,3 +1,4 @@
+import { createId } from "@/lib/id";
 import { SYNC_TIMING } from "@/lib/sync/constants";
 import {
   scopeFilters,
@@ -121,7 +122,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   const createNote = (labelId?: string) => {
     const label = labels.value.find((item) => item.id === labelId);
-    const noteId = crypto.randomUUID();
+    const noteId = createId();
     const now = Date.now();
     updateMeta(noteId, {
       title: "",
@@ -239,7 +240,7 @@ export const useNoteStore = defineStore("notes", () => {
     const slug = slugify(values.name);
     requireUniqueSlug(slug);
     requireLabelAllowance();
-    workspace().addLabel(crypto.randomUUID(), {
+    workspace().addLabel(createId(), {
       ...values,
       slug,
       sortKey: keyBefore(labels.value[0]?.sortKey),
