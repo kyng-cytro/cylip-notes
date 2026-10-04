@@ -18,7 +18,7 @@ defineEmits<{
   >
     <div class="flex flex-col items-center gap-1 text-center">
       <h3 class="text-2xl font-bold tracking-tight">{{ title }}</h3>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-sm text-muted-foreground">
         {{ subtitle }}
       </p>
       <Button

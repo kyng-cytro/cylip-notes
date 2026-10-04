@@ -40,18 +40,18 @@ const closeMobileMenu = () => {
     </nav>
     <Transition name="shutter">
       <div
-        class="bg-background absolute flex h-[91vh] w-full flex-col gap-y-3 px-6 lg:hidden"
+        class="absolute flex h-[91vh] w-full flex-col gap-y-3 bg-background px-6 lg:hidden"
         v-if="mobileMenuOpen"
       >
         <NuxtLink
-          class="hover:text-foreground/80 flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors"
+          class="flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors hover:text-foreground/80"
           active-class="bg-muted"
           to="/app"
           @click="closeMobileMenu"
           >Notes</NuxtLink
         >
         <NuxtLink
-          class="hover:text-foreground/80 flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors"
+          class="flex space-y-3 rounded-md px-1.5 py-2 text-base font-medium transition-colors hover:text-foreground/80"
           active-class="bg-muted"
           to="/pricing"
           @click="closeMobileMenu"
@@ -60,7 +60,7 @@ const closeMobileMenu = () => {
         <hr />
         <Button
           to="/app"
-          class="border-primary dark:border-secondary border-2 font-semibold"
+          class="border-2 border-primary font-semibold dark:border-secondary"
           variant="outline"
           size="lg"
           >Sign In</Button

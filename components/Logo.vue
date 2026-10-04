@@ -57,7 +57,7 @@ defineProps<{
       </svg>
     </NuxtLink>
     <span
-      class="absolute top-1 -right-2 text-xs font-semibold tracking-tight"
+      class="absolute -right-2 top-1 text-xs font-semibold tracking-tight"
       v-if="showBeta"
       >[BETA]</span
     >
