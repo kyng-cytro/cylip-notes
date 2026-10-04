@@ -31,6 +31,8 @@ const placeholderFor = ({ node }: { node: Node }) => {
   return "Type '/' for commands";
 };
 
+export const HIGHLIGHT_COLOR = "#00ffaa70";
+
 export const extensions = [
   TaskList,
   MarkDownCopy,

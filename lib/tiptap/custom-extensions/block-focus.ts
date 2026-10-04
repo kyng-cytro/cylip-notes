@@ -19,9 +19,10 @@ declare module "@tiptap/core" {
 const hoverKey = new PluginKey<number | null>("blockHover");
 
 const hoverDecorations = (state: EditorState) => {
-  const pos = hoverKey.getState(state) ?? null;
-  const node = pos === null ? null : state.doc.nodeAt(pos);
-  if (pos === null || !node) return DecorationSet.empty;
+  const pos = hoverKey.getState(state);
+  if (typeof pos !== "number") return DecorationSet.empty;
+  const node = state.doc.nodeAt(pos);
+  if (!node) return DecorationSet.empty;
   return DecorationSet.create(state.doc, [
     Decoration.node(pos, pos + node.nodeSize, { class: "is-block-hovered" }),
   ]);

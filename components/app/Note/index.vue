@@ -95,7 +95,7 @@ useCodeHighlight(contentRef, content);
 <style scoped>
 .content-enter-active,
 .content-leave-active {
-  overflow: hidden; /* Prevent content from spilling out during animation */
+  overflow: hidden;
 }
 
 .content-enter,

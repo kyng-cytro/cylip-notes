@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import type { SharedRole } from "@/lib/sync/protocol";
 import type { ClientNote } from "@/lib/types";
 import type { NotePerson } from "@/server/utils/note-sharing";
 import { XIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
-
-type Role = "editor" | "viewer";
 
 const props = defineProps<{ note: ClientNote }>();
 
@@ -23,7 +22,7 @@ const {
 } = useFetch<NotePerson[]>(peopleUrl, { server: false });
 
 const email = ref("");
-const role = ref<Role>("editor");
+const role = ref<SharedRole>("editor");
 const sharing = ref(false);
 
 const showError = (title: string, e: any) =>
@@ -50,7 +49,7 @@ const share = async () => {
   }
 };
 
-const changeRole = async (person: NotePerson, newRole: Role) => {
+const changeRole = async (person: NotePerson, newRole: SharedRole) => {
   try {
     await $fetch(personUrl(person.email), {
       method: "PATCH",
@@ -123,7 +122,7 @@ const remove = async (person: NotePerson) => {
         <Select
           v-else
           :model-value="person.role"
-          @update:model-value="changeRole(person, $event as Role)"
+          @update:model-value="changeRole(person, $event as SharedRole)"
         >
           <SelectTrigger class="h-8 w-24"><SelectValue /></SelectTrigger>
           <SelectContent>

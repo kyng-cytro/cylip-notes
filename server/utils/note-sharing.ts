@@ -1,7 +1,7 @@
-import type { NoteRole } from "@/lib/sync/protocol";
+import type { NoteRole, SharedRole } from "@/lib/sync/protocol";
 import { CONSTANTS } from "@/utils/helpers";
 
-type SharedRole = Exclude<NoteRole, "owner">;
+const UNTITLED_NOTE = "Untitled note";
 
 type Sharer = {
   id: string;
@@ -24,10 +24,15 @@ export type PendingInvite = {
 const plural = (count: number, one: string, many: string) =>
   count === 1 ? one : many;
 
+const emailKey = (email: string) => email.trim().toLowerCase();
+
+const displayName = (user: { name: string | null; email: string }) =>
+  user.name || user.email;
+
 const findUserByEmail = (email: string) =>
   useDrizzle().query.user.findFirst({
     columns: { id: true },
-    where: eq(tables.user.email, email),
+    where: eq(sql`lower(${tables.user.email})`, email),
   });
 
 const findCollaborator = async (noteId: string, email: string) => {
@@ -101,8 +106,8 @@ const sendInviteEmail = async (to: string, sharer: Sharer, noteId: string) => {
   const url = `${useRuntimeConfig().public.baseUrl}/app`;
   if (import.meta.dev) return console.log({ invited: to, url });
   const email = await renderNoteSharedEmail({
-    sharer: { name: sharer.name || sharer.email, email: sharer.email },
-    note: { title: note?.title || "Untitled note" },
+    sharer: { name: displayName(sharer), email: sharer.email },
+    note: { title: note?.title || UNTITLED_NOTE },
     url,
   });
   await sendEmail({ ...email, to });
@@ -113,30 +118,31 @@ export const shareNote = async (
   sharer: Sharer,
   person: { email: string; role: SharedRole },
 ) => {
-  if (person.email === sharer.email.toLowerCase()) {
+  const email = emailKey(person.email);
+  const { role } = person;
+  if (email === emailKey(sharer.email)) {
     throw createError({ statusCode: 400, message: "You own this note." });
   }
-  const collaborator = await findCollaborator(noteId, person.email);
-  if (collaborator) {
-    return grantNoteAccess(noteId, collaborator.id, person.role);
-  }
-  if (await updateInviteRole(noteId, person.email, person.role)) return;
+  const collaborator = await findCollaborator(noteId, email);
+  if (collaborator) return grantNoteAccess(noteId, collaborator.id, role);
+  if (await updateInviteRole(noteId, email, role)) return;
   await assertCanInvite(noteId, sharer);
   await useDrizzle()
     .insert(tables.noteInvite)
-    .values({ noteId, ...person, invitedBy: sharer.id });
+    .values({ noteId, email, role, invitedBy: sharer.id });
   await refreshSharedFlag(noteId);
   await Promise.all([
-    notifyRecipient(person.email),
-    sendInviteEmail(person.email, sharer, noteId),
+    notifyRecipient(email),
+    sendInviteEmail(email, sharer, noteId),
   ]);
 };
 
 export const updateSharedRole = async (
   noteId: string,
-  email: string,
+  personEmail: string,
   role: SharedRole,
 ) => {
+  const email = emailKey(personEmail);
   const collaborator = await findCollaborator(noteId, email);
   if (collaborator) return grantNoteAccess(noteId, collaborator.id, role);
   if (!(await updateInviteRole(noteId, email, role))) {
@@ -144,30 +150,33 @@ export const updateSharedRole = async (
   }
 };
 
-export const removeSharedAccess = async (noteId: string, email: string) => {
+export const removeSharedAccess = async (
+  noteId: string,
+  personEmail: string,
+) => {
+  const email = emailKey(personEmail);
   if (await deleteInvite(noteId, email)) {
     await refreshSharedFlag(noteId);
-    return notifyRecipient(email);
+    await notifyRecipient(email);
+    return;
   }
   const collaborator = await findCollaborator(noteId, email);
   if (collaborator) await revokeNoteAccess(noteId, collaborator.id);
 };
 
-const findInvite = (noteId: string, recipient: Recipient) =>
-  useDrizzle().query.noteInvite.findFirst({
-    columns: { role: true },
-    where: inviteFilter(noteId, recipient.email.toLowerCase()),
-  });
-
 export const acceptInvite = async (noteId: string, recipient: Recipient) => {
-  const invite = await findInvite(noteId, recipient);
+  const email = emailKey(recipient.email);
+  const invite = await useDrizzle().query.noteInvite.findFirst({
+    columns: { role: true },
+    where: inviteFilter(noteId, email),
+  });
   if (!invite) throw createError({ statusCode: 404 });
   await grantNoteAccess(noteId, recipient.id, invite.role);
-  await deleteInvite(noteId, recipient.email.toLowerCase());
+  await deleteInvite(noteId, email);
 };
 
 export const declineInvite = async (noteId: string, recipient: Recipient) => {
-  if (!(await deleteInvite(noteId, recipient.email.toLowerCase()))) {
+  if (!(await deleteInvite(noteId, emailKey(recipient.email)))) {
     throw createError({ statusCode: 404 });
   }
   await refreshSharedFlag(noteId);
@@ -178,7 +187,7 @@ export const listPendingInvites = async (
 ): Promise<PendingInvite[]> => {
   const invites = await useDrizzle().query.noteInvite.findMany({
     columns: { noteId: true, role: true },
-    where: eq(tables.noteInvite.email, email.toLowerCase()),
+    where: eq(tables.noteInvite.email, emailKey(email)),
     with: {
       note: { columns: { title: true } },
       inviter: { columns: { name: true, email: true } },
@@ -188,8 +197,8 @@ export const listPendingInvites = async (
   return invites.map(({ noteId, role, note, inviter }) => ({
     noteId,
     role,
-    note: { title: note.title || "Untitled note" },
-    sharer: { name: inviter.name || inviter.email, email: inviter.email },
+    note: { title: note.title || UNTITLED_NOTE },
+    sharer: { name: displayName(inviter), email: inviter.email },
   }));
 };
 

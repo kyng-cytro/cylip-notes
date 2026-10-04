@@ -1,8 +1,8 @@
 export default defineAuthenticatedEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
-  const email = getRouterParam(event, "email", { decode: true })!.toLowerCase();
+  const email = getRouterParam(event, "email", { decode: true })!;
   const { user } = event.context;
-  const isLeaving = email === user.email.toLowerCase();
+  const isLeaving = email.toLowerCase() === user.email.toLowerCase();
   await requireNoteRole(
     id,
     user.id,

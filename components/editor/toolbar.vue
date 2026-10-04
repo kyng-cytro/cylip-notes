@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HIGHLIGHT_COLOR } from "@/lib/tiptap";
 import { pickImage } from "@/lib/tiptap/images";
 import type { Editor } from "@tiptap/vue-3";
 import {
@@ -61,7 +62,7 @@ const disabled = computed(() => !props.editor.isEditable);
       :icon="Highlighter"
       :active="editor.isActive('highlight')"
       @toggled="
-        editor.chain().focus().toggleHighlight({ color: '#00ffaa70' }).run()
+        editor.chain().focus().toggleHighlight({ color: HIGHLIGHT_COLOR }).run()
       "
       :disabled="disabled"
     />

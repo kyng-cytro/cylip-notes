@@ -1,4 +1,8 @@
-import { NOTE_ROLES, type NoteRole } from "@/lib/sync/protocol";
+import {
+  NOTE_ROLES,
+  type NoteRole,
+  type SharedRole,
+} from "@/lib/sync/protocol";
 
 type Membership = { noteId: string; userId: string };
 
@@ -116,7 +120,7 @@ export const refreshSharedFlag = async (noteId: string) => {
 export const grantNoteAccess = async (
   noteId: string,
   userId: string,
-  role: Exclude<NoteRole, "owner">,
+  role: SharedRole,
 ) => {
   await useDrizzle()
     .insert(tables.noteMember)

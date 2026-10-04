@@ -5,6 +5,8 @@ export const NOTE_ROLES = ["owner", "editor", "viewer"] as const;
 
 export type NoteRole = (typeof NOTE_ROLES)[number];
 
+export type SharedRole = Exclude<NoteRole, "owner">;
+
 export const canEdit = (role: NoteRole | undefined) =>
   role === "owner" || role === "editor";
 

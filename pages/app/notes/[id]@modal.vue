@@ -5,11 +5,7 @@ const { id } = useParallelRoute("modal")!.params as { id: string };
 const { note, editor, title, canEdit, background, suggestTitle } =
   await useNotePage(id);
 const viewportBox = useVisualViewportBox();
-const scrollLock = useScrollLock(() =>
-  import.meta.client ? document.body : null,
-);
-onMounted(() => (scrollLock.value = true));
-onBeforeUnmount(() => (scrollLock.value = false));
+useScrollLock(() => (import.meta.client ? document.body : null), true);
 </script>
 <template>
   <div

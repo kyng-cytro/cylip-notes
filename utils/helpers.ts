@@ -30,6 +30,9 @@ export const CONSTANTS = {
   },
 };
 
+export const hasFinePointer = () =>
+  window.matchMedia("(pointer: fine)").matches;
+
 export const hasEnoughContent = (content: string | null) =>
   (content?.length ?? 0) >= CONSTANTS.minContentLength;
 

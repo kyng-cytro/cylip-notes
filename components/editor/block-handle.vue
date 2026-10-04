@@ -25,6 +25,9 @@ const onMenuOpen = (open: boolean) => {
 const withTarget = (action: (editor: Editor, target: BlockTarget) => void) => {
   if (target.value) action(editor, target.value);
 };
+
+const turnInto = (block: EditorBlock) =>
+  withTarget((editor, target) => turnBlockInto(editor, target, block));
 </script>
 <template>
   <div>
@@ -62,7 +65,7 @@ const withTarget = (action: (editor: Editor, target: BlockTarget) => void) => {
               <DropdownMenuItem
                 v-for="block in convertibleBlocks"
                 :key="block.id"
-                @select="withTarget((e, t) => turnBlockInto(e, t, block))"
+                @select="turnInto(block)"
               >
                 <component :is="block.icon" class="size-4" />
                 {{ block.title }}

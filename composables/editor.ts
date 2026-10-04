@@ -18,8 +18,6 @@ import type * as Y from "yjs";
 const EDITOR_CLASS =
   "-mx-2 px-2 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary";
 
-const hasFinePointer = () => window.matchMedia("(pointer: fine)").matches;
-
 const aiProvider = (): AIProvider => {
   const tokens = useUser().user.value?.tokens ?? 0;
   return {

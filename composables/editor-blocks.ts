@@ -1,4 +1,4 @@
-import type { Editor } from "@tiptap/core";
+import type { ChainedCommands, Editor } from "@tiptap/core";
 import type { Node } from "@tiptap/pm/model";
 import {
   ChevronRight,
@@ -25,8 +25,7 @@ export type EditorBlock = SlashItem & {
 export type BlockTarget = { node: Node; pos: number };
 
 const convert =
-  (run: (chain: ReturnType<Editor["chain"]>) => ReturnType<Editor["chain"]>) =>
-  (editor: Editor) =>
+  (run: (chain: ChainedCommands) => ChainedCommands) => (editor: Editor) =>
     run(editor.chain().focus().clearNodes()).run();
 
 const heading = (level: 3 | 4) =>

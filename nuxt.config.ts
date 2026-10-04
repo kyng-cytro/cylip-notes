@@ -1,5 +1,6 @@
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import type { Plugin as RollupPlugin } from "rollup";
 
 export default defineNuxtConfig({
   compatibilityDate: "2024-12-27",
@@ -38,8 +39,7 @@ export default defineNuxtConfig({
     typeCheck: process.env.NODE_ENV === "development",
   },
   nitro: {
-    // @ts-ignore
-    rollupConfig: { plugins: [vue()] },
+    rollupConfig: { plugins: [vue() as unknown as RollupPlugin] },
     experimental: {
       tasks: true,
       openAPI: process.env.NODE_ENV === "production",

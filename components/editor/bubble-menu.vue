@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Editor as BaseEditor } from "@tiptap/core";
+import { HIGHLIGHT_COLOR } from "@/lib/tiptap";
+import type { Editor as BaseEditor, ChainedCommands } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/vue-3";
 import { BubbleMenu } from "@tiptap/vue-3/menus";
@@ -13,6 +14,13 @@ import {
   Underline,
 } from "lucide-vue-next";
 
+type Mark = {
+  name: string;
+  label: string;
+  icon: Component;
+  toggle: (chain: ChainedCommands) => ChainedCommands;
+};
+
 const { editor } = defineProps<{ editor: Editor }>();
 
 const shouldShow = ({ editor }: { editor: BaseEditor }) => {
@@ -22,27 +30,45 @@ const shouldShow = ({ editor }: { editor: BaseEditor }) => {
     selection instanceof TextSelection &&
     !selection.empty &&
     !editor.isActive("codeBlock") &&
-    window.matchMedia("(pointer: fine)").matches
+    hasFinePointer()
   );
 };
 
-const marks = [
-  { name: "bold", label: "Bold", icon: Bold, toggle: "toggleBold" },
-  { name: "italic", label: "Italic", icon: Italic, toggle: "toggleItalic" },
+const marks: Mark[] = [
+  { name: "bold", label: "Bold", icon: Bold, toggle: (chain) => chain.toggleBold() },
+  {
+    name: "italic",
+    label: "Italic",
+    icon: Italic,
+    toggle: (chain) => chain.toggleItalic(),
+  },
   {
     name: "underline",
     label: "Underline",
     icon: Underline,
-    toggle: "toggleUnderline",
+    toggle: (chain) => chain.toggleUnderline(),
   },
   {
     name: "strike",
     label: "Strikethrough",
     icon: Strikethrough,
-    toggle: "toggleStrike",
+    toggle: (chain) => chain.toggleStrike(),
   },
-  { name: "code", label: "Inline code", icon: Code, toggle: "toggleCode" },
-] as const;
+  {
+    name: "code",
+    label: "Inline code",
+    icon: Code,
+    toggle: (chain) => chain.toggleCode(),
+  },
+  {
+    name: "highlight",
+    label: "Highlight",
+    icon: Highlighter,
+    toggle: (chain) => chain.toggleHighlight({ color: HIGHLIGHT_COLOR }),
+  },
+];
+
+const toggleMark = (mark: Mark) => mark.toggle(editor.chain().focus()).run();
 </script>
 <template>
   <div>
@@ -60,17 +86,7 @@ const marks = [
         :tooltip="mark.label"
         :icon="mark.icon"
         :active="editor.isActive(mark.name)"
-        @toggled="editor.chain().focus()[mark.toggle]().run()"
-      />
-      <EditorButton
-        size="sm"
-        label="Highlight"
-        tooltip="Highlight"
-        :icon="Highlighter"
-        :active="editor.isActive('highlight')"
-        @toggled="
-          editor.chain().focus().toggleHighlight({ color: '#00ffaa70' }).run()
-        "
+        @toggled="toggleMark(mark)"
       />
       <div class="bg-border mx-0.5 h-5 w-px" />
       <EditorButton
