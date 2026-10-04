@@ -7,7 +7,6 @@ import { GripVertical, Plus } from "lucide-vue-next";
 const { editor } = defineProps<{ editor: Editor }>();
 
 const target = shallowRef<BlockTarget | null>(null);
-const menuOpen = ref(false);
 const handlePosition = { placement: "left-start" } as const;
 
 const onNodeChange = ({ node, pos }: { node: Node | null; pos: number }) => {
@@ -16,13 +15,12 @@ const onNodeChange = ({ node, pos }: { node: Node | null; pos: number }) => {
 };
 
 const onMenuOpen = (open: boolean) => {
-  menuOpen.value = open;
   editor.commands.setMeta("lockDragHandle", open);
   if (open && target.value) editor.commands.setNodeSelection(target.value.pos);
 };
 
-const withTarget = (action: (editor: Editor, target: BlockTarget) => void) => {
-  if (target.value) action(editor, target.value);
+const addBlockBelow = () => {
+  if (target.value) insertBlockAfter(editor, target.value);
 };
 </script>
 <template>
@@ -37,11 +35,11 @@ const withTarget = (action: (editor: Editor, target: BlockTarget) => void) => {
         type="button"
         aria-label="Add block below"
         class="text-muted-foreground hover:bg-accent hover:text-foreground flex size-6 items-center justify-center rounded"
-        @click="withTarget(insertBlockAfter)"
+        @click="addBlockBelow"
       >
         <Plus class="size-4" />
       </button>
-      <DropdownMenu :open="menuOpen" @update:open="onMenuOpen">
+      <DropdownMenu @update:open="onMenuOpen">
         <DropdownMenuTrigger as-child>
           <button
             type="button"
