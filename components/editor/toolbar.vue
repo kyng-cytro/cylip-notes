@@ -1,22 +1,16 @@
 <script setup lang="ts">
+import { pickImage } from "@/lib/tiptap/images";
+import type { Editor } from "@tiptap/vue-3";
 import {
   Bold,
-  Code,
-  List,
-  Undo2,
-  Redo2,
-  Italic,
-  Heading1,
-  ListTodo,
-  Underline,
   Highlighter,
-  ListOrdered,
-  MessageSquareQuote,
   ImagePlus,
+  Italic,
   Plus,
+  Redo2,
+  Underline,
+  Undo2,
 } from "lucide-vue-next";
-import type { Editor } from "@tiptap/vue-3";
-import { pickImage } from "@/lib/tiptap/images";
 
 const props = defineProps<{
   editor: Editor;
@@ -37,14 +31,6 @@ const disabled = computed(() => !props.editor.isEditable);
       :disabled="disabled"
     />
     <div class="bg-border h-5 w-px shrink-0" />
-    <EditorButton
-      label="Heading"
-      tooltip="Heading"
-      :icon="Heading1"
-      :active="editor.isActive('heading', { level: 2 })"
-      @toggled="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-      :disabled="disabled"
-    />
     <EditorButton
       label="Bold"
       tooltip="Bold"
@@ -67,6 +53,16 @@ const disabled = computed(() => !props.editor.isEditable);
       :icon="Underline"
       :active="editor.isActive('underline')"
       @toggled="editor.chain().focus().toggleUnderline().run()"
+      :disabled="disabled"
+    />
+    <EditorButton
+      label="Highlight"
+      tooltip="Highlight"
+      :icon="Highlighter"
+      :active="editor.isActive('highlight')"
+      @toggled="
+        editor.chain().focus().toggleHighlight({ color: '#00ffaa70' }).run()
+      "
       :disabled="disabled"
     />
     <div class="bg-border h-5 w-px shrink-0" />
@@ -93,57 +89,6 @@ const disabled = computed(() => !props.editor.isEditable);
       :icon="ImagePlus"
       :active="false"
       @toggled="pickImage(editor)"
-      :disabled="disabled"
-    />
-    <EditorButton
-      label="Block Quote"
-      tooltip="Block Quote"
-      :icon="MessageSquareQuote"
-      :active="editor.isActive('blockquote')"
-      @toggled="editor.chain().focus().toggleBlockquote().run()"
-      :disabled="disabled"
-    />
-    <EditorButton
-      label="Code Block"
-      tooltip="Code Block"
-      :icon="Code"
-      :active="editor.isActive('codeBlock')"
-      @toggled="editor.chain().focus().toggleCodeBlock().run()"
-      :disabled="disabled"
-    />
-    <EditorButton
-      label="Highlight"
-      tooltip="Highlight"
-      :icon="Highlighter"
-      :active="editor.isActive('highlight')"
-      @toggled="
-        editor.chain().focus().toggleHighlight({ color: '#00ffaa70' }).run()
-      "
-      :disabled="disabled"
-    />
-    <div class="bg-border h-5 w-px shrink-0" />
-    <EditorButton
-      label="Task List"
-      tooltip="Task List"
-      :icon="ListTodo"
-      :active="editor.isActive('taskList')"
-      @toggled="editor.chain().focus().toggleTaskList().run()"
-      :disabled="disabled"
-    />
-    <EditorButton
-      label="Bullet List"
-      tooltip="Bullet List"
-      :icon="List"
-      :active="editor.isActive('bulletList')"
-      @toggled="editor.chain().focus().toggleBulletList().run()"
-      :disabled="disabled"
-    />
-    <EditorButton
-      label="Numbered List"
-      tooltip="Numbered List"
-      :icon="ListOrdered"
-      :active="editor.isActive('orderedList')"
-      @toggled="editor.chain().focus().toggleOrderedList().run()"
       :disabled="disabled"
     />
   </div>
