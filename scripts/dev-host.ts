@@ -1,3 +1,5 @@
+import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { networkInterfaces } from "node:os";
 
 const lanAddress = Object.values(networkInterfaces())
@@ -18,8 +20,8 @@ const env = {
   NUXT_PUBLIC_SYNC_URL: syncUrl,
 };
 
-const run = (command: string[]) =>
-  Bun.spawn(command, { env, stdio: ["inherit", "inherit", "inherit"] });
+const run = ([command, ...args]: string[]) =>
+  spawn(command!, args, { env, stdio: "inherit" });
 
 const processes = [
   run(["bunx", "nuxt", "dev", "--host", "0.0.0.0"]),
@@ -43,5 +45,5 @@ process.on("SIGTERM", stopAll);
 
 console.log(`\nOpen ${appUrl} on your phone and this computer.\n`);
 
-await Promise.race(processes.map((child) => child.exited));
+await Promise.race(processes.map((child) => once(child, "exit")));
 stopAll();
