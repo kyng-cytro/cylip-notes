@@ -29,7 +29,7 @@ const convert =
   (editor: Editor) =>
     run(editor.chain().focus().clearNodes()).run();
 
-const heading = (level: 4 | 5) =>
+const heading = (level: 3 | 4) =>
   convert((chain) => chain.setHeading({ level }));
 
 export const editorBlocks: EditorBlock[] = [
