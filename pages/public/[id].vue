@@ -63,7 +63,7 @@ useCodeHighlight(contentRef, content);
         <div class="flex h-[calc(100vh-12rem)] flex-col" v-if="!loaded">
           <EditorLoading />
         </div>
-        <p ref="contentRef" v-html="content" v-else />
+        <div ref="contentRef" class="tiptap" v-html="content" v-else />
       </div>
       <div class="flex items-center justify-end gap-2 px-4 py-2">
         <span class="text-sm">⏳ {{ formatToTimeAgo(note.updatedAt) }} </span>

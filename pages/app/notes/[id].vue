@@ -30,23 +30,25 @@ const { note, editor, title, canEdit, background, suggestTitle } =
           :cb="() => navigateTo('/app')"
         />
       </div>
-      <AppNoteTitleInput
-        large
-        v-model="title"
-        :disabled="!canEdit"
-        :suggest="{
-          fn: suggestTitle,
-          enabled: canEdit && !title && hasEnoughContent(editor.getText()),
-        }"
-      />
-      <EditorToolbar :editor="editor" />
+      <div class="lg:pl-12">
+        <AppNoteTitleInput
+          large
+          v-model="title"
+          :disabled="!canEdit"
+          :suggest="{
+            fn: suggestTitle,
+            enabled: canEdit && !title && hasEnoughContent(editor.getText()),
+          }"
+        />
+      </div>
       <div
-        class="relative -mx-6 max-h-[calc(100vh-22rem)] flex-1 overflow-hidden p-6"
+        class="relative -mx-6 max-h-[calc(100dvh-18rem)] min-h-0 flex-1 overflow-hidden p-6 lg:pl-18"
       >
         <Editor :editor="editor" />
       </div>
-      <div class="flex justify-end px-4 py-2">
-        <AppNoteLastEdited :note="note" />
+      <div class="flex flex-col items-stretch gap-2 px-4 py-2">
+        <EditorToolbar v-if="canEdit" :editor="editor" />
+        <AppNoteLastEdited :note="note" class="self-end" />
       </div>
     </div>
   </AppMainContainer>

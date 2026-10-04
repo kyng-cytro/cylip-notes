@@ -50,7 +50,8 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: "en" },
       charset: "UTF-8",
       title: "cylip|notes",
-      viewport: "width=device-width, initial-scale=1",
+      viewport:
+        "width=device-width, initial-scale=1, interactive-widget=resizes-content",
       meta: [
         {
           name: "description",

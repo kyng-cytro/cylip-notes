@@ -13,8 +13,10 @@ import {
   ListOrdered,
   MessageSquareQuote,
   ImagePlus,
+  Plus,
 } from "lucide-vue-next";
 import type { Editor } from "@tiptap/vue-3";
+import { pickImage } from "@/lib/tiptap/images";
 
 const props = defineProps<{
   editor: Editor;
@@ -24,14 +26,23 @@ const disabled = computed(() => !props.editor.isEditable);
 </script>
 <template>
   <div
-    class="flex flex-wrap items-center justify-start gap-2 pb-2 lg:gap-4 lg:pb-0"
+    class="-mx-1 flex scrollbar-none items-center gap-1 overflow-x-auto px-1 lg:hidden"
   >
+    <EditorButton
+      label="Insert block"
+      tooltip="Insert block"
+      :icon="Plus"
+      :active="false"
+      @toggled="openBlockMenu(editor)"
+      :disabled="disabled"
+    />
+    <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Heading"
       tooltip="Heading"
       :icon="Heading1"
-      :active="editor.isActive('heading', { level: 4 })"
-      @toggled="editor.chain().focus().toggleHeading({ level: 4 }).run()"
+      :active="editor.isActive('heading', { level: 2 })"
+      @toggled="editor.chain().focus().toggleHeading({ level: 2 }).run()"
       :disabled="disabled"
     />
     <EditorButton
@@ -58,12 +69,12 @@ const disabled = computed(() => !props.editor.isEditable);
       @toggled="editor.chain().focus().toggleUnderline().run()"
       :disabled="disabled"
     />
-    <div class="bg-border h-5 w-px" />
+    <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Undo"
       tooltip="Undo"
       :icon="Undo2"
-      :active="editor.isActive('undo')"
+      :active="false"
       @toggled="editor.chain().focus().undo().run()"
       :disabled="disabled"
     />
@@ -71,11 +82,11 @@ const disabled = computed(() => !props.editor.isEditable);
       label="Redo"
       tooltip="Redo"
       :icon="Redo2"
-      :active="editor.isActive('redo')"
+      :active="false"
       @toggled="editor.chain().focus().redo().run()"
       :disabled="disabled"
     />
-    <div class="bg-border h-5 w-px" />
+    <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Image"
       tooltip="Image"
@@ -110,7 +121,7 @@ const disabled = computed(() => !props.editor.isEditable);
       "
       :disabled="disabled"
     />
-    <div class="bg-border h-5 w-px" />
+    <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Task List"
       tooltip="Task List"

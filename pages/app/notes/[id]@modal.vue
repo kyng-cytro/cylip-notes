@@ -4,10 +4,17 @@ import { XCircle } from "lucide-vue-next";
 const { id } = useParallelRoute("modal")!.params as { id: string };
 const { note, editor, title, canEdit, background, suggestTitle } =
   await useNotePage(id);
+const viewportBox = useVisualViewportBox();
+const scrollLock = useScrollLock(() =>
+  import.meta.client ? document.body : null,
+);
+onMounted(() => (scrollLock.value = true));
+onBeforeUnmount(() => (scrollLock.value = false));
 </script>
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+    class="fixed inset-x-0 top-0 z-50 flex h-dvh items-center justify-center bg-black/80 p-4"
+    :style="viewportBox"
   >
     <Card
       v-motion-slide-left
@@ -39,21 +46,23 @@ const { note, editor, title, canEdit, background, suggestTitle } =
             />
           </div>
         </div>
-        <AppNoteTitleInput
-          v-model="title"
-          :disabled="!canEdit"
-          :suggest="{
-            fn: suggestTitle,
-            enabled: canEdit && !title && hasEnoughContent(editor.getText()),
-          }"
-        />
-        <EditorToolbar :editor="editor" />
+        <div class="lg:pl-12">
+          <AppNoteTitleInput
+            v-model="title"
+            :disabled="!canEdit"
+            :suggest="{
+              fn: suggestTitle,
+              enabled: canEdit && !title && hasEnoughContent(editor.getText()),
+            }"
+          />
+        </div>
       </CardHeader>
-      <CardContent class="relative -m-1 flex-1 overflow-hidden">
+      <CardContent class="relative min-h-0 flex-1 overflow-hidden lg:pl-18">
         <Editor :editor="editor" />
       </CardContent>
-      <CardFooter class="flex justify-end px-4 py-2">
-        <AppNoteLastEdited :note="note" />
+      <CardFooter class="flex flex-col items-stretch gap-2 px-4 py-2">
+        <EditorToolbar v-if="canEdit" :editor="editor" />
+        <AppNoteLastEdited :note="note" class="self-end" />
       </CardFooter>
     </Card>
   </div>

@@ -130,10 +130,10 @@ const handlePaste = async () => {
       <ContextMenuCheckboxItem
         inset
         :checked="editor.isActive('heading')"
-        @click="editor.chain().focus().toggleHeading({ level: 4 }).run()"
+        @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
         :disabled="disabled"
         >Heading
-        <ContextMenuShortcut>⌘4</ContextMenuShortcut>
+        <ContextMenuShortcut>⌘⌥2</ContextMenuShortcut>
       </ContextMenuCheckboxItem>
       <ContextMenuCheckboxItem
         inset
