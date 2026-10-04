@@ -39,15 +39,22 @@ onMounted(() => {
 </script>
 <template>
   <Button
+    variant="ghost"
+    size="icon"
+    aria-label="Search notes"
+    class="md:hidden"
+    @click="open = true"
+  >
+    <Search class="size-4" />
+  </Button>
+  <Button
     variant="outline"
-    class="bg-background text-muted-foreground w-full justify-start gap-2 px-3 font-normal shadow-none md:w-2/3 lg:w-1/3"
+    class="bg-background text-muted-foreground hidden w-72 justify-start gap-2 px-3 font-normal shadow-none md:flex"
     @click="open = true"
   >
     <Search class="size-4 shrink-0" />
     <span class="truncate">Search notes...</span>
-    <kbd
-      class="bg-muted ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-medium sm:inline"
-    >
+    <kbd class="bg-muted ml-auto rounded px-1.5 py-0.5 text-[10px] font-medium">
       {{ shortcut }}
     </kbd>
   </Button>
