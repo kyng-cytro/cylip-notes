@@ -10,6 +10,7 @@ import { endOfSelection, handleImageFiles } from "@/lib/tiptap/images";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import FileHandler from "@tiptap/extension-file-handler";
+import { Focus } from "@tiptap/extensions";
 import { Editor } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 import YProvider from "y-partyserver/provider";
@@ -77,6 +78,7 @@ export const useNoteEditor = async (noteId: string, editable: boolean) => {
       }),
       AI.configure({ provider: aiProvider() }),
       BlockFocus,
+      Focus.configure({ className: "is-block-current", mode: "shallowest" }),
       SlashCommand.configure({
         items: filterBlocks,
         render: slashMenuRenderer,

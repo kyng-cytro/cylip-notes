@@ -55,6 +55,7 @@
   content: "";
 }
 
+.tiptap > .is-block-current,
 .tiptap > .is-block-hovered {
   background-color: color-mix(in oklab, var(--primary) 5%, transparent);
 }

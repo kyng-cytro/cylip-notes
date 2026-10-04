@@ -20,6 +20,10 @@
   padding-inline: 0.5rem;
 }
 
+.tiptap > :is(ul, ol):not([data-type="taskList"]) {
+  padding-left: 2rem;
+}
+
 .tiptap > h3 {
   margin-top: 1.25rem;
 }
