@@ -32,3 +32,5 @@ logs
 .wrangler
 .dev.vars
 
+.vercel
+.env*.local
