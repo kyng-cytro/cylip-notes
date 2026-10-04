@@ -1,6 +1,5 @@
 @reference "@/assets/css/tailwind.css";
 
-/* collaboration cursor */
 .collaboration-carets__caret {
   border-left: 1px solid #0d0d0d;
   border-right: 1px solid #0d0d0d;
@@ -11,7 +10,6 @@
   word-break: normal;
 }
 
-/* render the username above the caret */
 .collaboration-carets__label {
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;
@@ -28,10 +26,11 @@
 }
 
 .tiptap img.ProseMirror-selectednode {
-  @apply outline-ring outline;
+  @apply outline-2 outline-sky-500;
 }
 
-.ProseMirror-noderangeselection *::selection {
+.ProseMirror-noderangeselection *::selection,
+.ProseMirror-selectednode *::selection {
   background: transparent;
 }
 
@@ -42,19 +41,24 @@
 .ProseMirror-selectednode,
 .ProseMirror-selectednoderange {
   position: relative;
-  z-index: 1;
+  isolation: isolate;
 }
 
-.ProseMirror-selectednode::before,
-.ProseMirror-selectednoderange::before {
+.ProseMirror-selectednode::after,
+.ProseMirror-selectednoderange::after {
+  @apply bg-sky-500/15;
   position: absolute;
-  pointer-events: none;
+  inset: 0;
   z-index: -1;
+  border-radius: 0.375rem;
+  pointer-events: none;
   content: "";
-  top: -0.25rem;
-  left: -0.25rem;
-  right: -0.25rem;
-  bottom: -0.25rem;
-  border-radius: 0.2rem;
-  @apply bg-secondary;
+}
+
+.tiptap > .is-block-hovered {
+  background-color: color-mix(in oklab, var(--primary) 5%, transparent);
+}
+
+.drop-cursor {
+  @apply rounded-full bg-sky-500;
 }

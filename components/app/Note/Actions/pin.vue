@@ -10,16 +10,11 @@ defineEmits<{
 </script>
 
 <template>
-  <TooltipWrapper tooltip="Pin note">
+  <TooltipWrapper :tooltip="pinned ? 'Unpin note' : 'Pin note'">
     <Button variant="ghost" size="icon" @click.stop="$emit('toggle-pinned')">
-      <template v-if="pinned">
-        <PinOff class="size-5 rotate-45" />
-        <span class="sr-only">Pin note</span>
-      </template>
-      <template v-else>
-        <Pin class="size-5 rotate-45" />
-        <span class="sr-only">Unpin note</span>
-      </template>
+      <PinOff v-if="pinned" class="size-5 rotate-45" />
+      <Pin v-else class="size-5 rotate-45" />
+      <span class="sr-only">{{ pinned ? "Unpin note" : "Pin note" }}</span>
     </Button>
   </TooltipWrapper>
 </template>

@@ -11,7 +11,7 @@ const { user, logout } = useUser();
           }}</span>
           <Button variant="secondary" size="icon" class="rounded-full">
             <Avatar class="size-6 rounded-full">
-              <AvatarImage :src="user?.picture || ''" alt="Display Picture" />
+              <AvatarImage :src="user?.image || ''" alt="Display Picture" />
               <AvatarFallback
                 class="bg-muted text-muted-foreground font-semibold"
               >

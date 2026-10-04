@@ -5,16 +5,33 @@ definePageMeta({
   layout: "auth",
 });
 
-const { signIn } = useUser();
+const { signInWithEmail, signInWithGoogle } = useUser();
+const route = useRoute();
 
-const onSubmit = async (values: Record<string, any>) => {
+const redirectTo = computed(() => {
+  const { to } = route.query;
+  return typeof to === "string" && to.startsWith(`${authRoutes.app}/`)
+    ? to
+    : authRoutes.app;
+});
+
+onMounted(() => {
+  if (!route.query.error) return;
+  toast.error("Sign in link is invalid or has expired", {
+    description: "Please request a new one.",
+  });
+});
+
+const withErrorToast = async (action: () => Promise<void>) => {
   try {
-    await signIn({ type: "magic-link", email: values.email });
+    await action();
   } catch (e: any) {
-    toast.error("Something went wrong", { description: e.data.message });
-  } finally {
+    toast.error("Something went wrong", { description: e.message });
   }
 };
+
+const onSubmit = (values: Record<string, any>) =>
+  withErrorToast(() => signInWithEmail(values.email, redirectTo.value));
 </script>
 
 <template>
@@ -71,7 +88,7 @@ const onSubmit = async (values: Record<string, any>) => {
               <Button
                 variant="outline"
                 type="button"
-                @click="signIn({ type: 'google' })"
+                @click="withErrorToast(() => signInWithGoogle(redirectTo))"
               >
                 Google
                 <span class="sr-only">Sign In with Google</span>

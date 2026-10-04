@@ -1,33 +1,28 @@
 <script setup lang="ts">
-import { Share2Icon, CopyIcon } from "lucide-vue-next";
-import type { NoteOptions } from "@/schemas/note";
-const props = defineProps<{
-  noteId: string;
-  public?: NoteOptions["public"];
-}>();
+import type { ClientNote } from "@/lib/types";
+import { CopyIcon, Share2Icon } from "lucide-vue-next";
 
-defineEmits<{
-  (e: "set-public", value: boolean): void;
-}>();
+const props = defineProps<{ note: ClientNote }>();
 
+const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
+const open = ref(false);
 
-const url = computed(() => {
-  return `${useRuntimeConfig().public.baseUrl}/public/${
-    !props.public?.enabled ? "[...]" : props.noteId
-  }`;
-});
+const url = computed(
+  () =>
+    `${useRuntimeConfig().public.baseUrl}/public/${props.note.public ? props.note.id : "[...]"}`,
+);
 </script>
 
 <template>
-  <Popover>
+  <Popover v-model:open="open">
     <PopoverTrigger>
       <Button variant="ghost" size="xs">
         <Share2Icon class="size-4" />
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="sm:w-[350px]">
-      <div class="flex flex-col gap-4">
+    <PopoverContent class="flex flex-col gap-6 sm:w-[380px]">
+      <div v-if="note.role === 'owner'" class="flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-2 sm:justify-between">
           <div class="space-y-0.5">
             <Label class="font-semibold">Public Note</Label>
@@ -36,8 +31,8 @@ const url = computed(() => {
             </p>
           </div>
           <Switch
-            :modelValue="public?.enabled"
-            @update:modelValue="$emit('set-public', $event)"
+            :modelValue="note.public"
+            @update:modelValue="noteStore.toggleNoteProp(note, 'public')"
           />
         </div>
         <Badge variant="secondary" class="relative w-full px-2 py-3">
@@ -45,12 +40,13 @@ const url = computed(() => {
             :to="url"
             target="_blank"
             class="mr-8 w-full truncate hover:underline"
-            >{{ url }}</NuxtLink
           >
+            {{ url }}
+          </NuxtLink>
           <Button
             size="icon"
             variant="ghost"
-            :disabled="!public"
+            :disabled="!note.public"
             class="absolute right-1"
             @click="copy(url)"
           >
@@ -58,6 +54,8 @@ const url = computed(() => {
           </Button>
         </Badge>
       </div>
+      <div v-if="note.role === 'owner'" class="bg-border h-px" />
+      <AppNoteActionsShareMembers v-if="open" :note="note" />
     </PopoverContent>
   </Popover>
 </template>

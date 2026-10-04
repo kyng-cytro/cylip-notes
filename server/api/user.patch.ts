@@ -1,72 +1,31 @@
-import { updateUserSchema } from "@/schemas/user";
-import { blob } from "hub:blob";
+import type { H3Event } from "h3";
+import { updateProfileSchema } from "@/schemas/user";
 
-export default defineAuthenticatedEventHandler(async (event) => {
+const readProfileForm = async (event: H3Event) => {
   const form = await readFormData(event);
-  const name = form.get("name");
-  const email = form.get("email");
-  const picture = form.get("picture");
-
-  const res = updateUserSchema.safeParse({ name, picture, email });
-  if (!res.success) {
+  const result = updateProfileSchema.safeParse({
+    name: form.get("name"),
+    picture: form.get("picture") || undefined,
+  });
+  if (!result.success) {
     throw createError({
       statusCode: 400,
-      message: res.error.message,
+      message: result.error.issues[0]?.message,
     });
   }
+  return result.data;
+};
 
-  const data = res.data;
-  if (data.picture && data.picture instanceof File && data.picture.size) {
-    try {
-      ensureBlob(data.picture, {
-        maxSize: "1MB",
-        types: ["image"],
-      });
-      await blob.put(event.context.user.id, data.picture, {
-        addRandomSuffix: false,
-        prefix: "profile-pictures",
-      });
-    } catch (e) {
-      throw createError({
-        statusCode: 500,
-        message: `Failed to upload profile picture.`,
-      });
-    }
-  }
-
-  try {
-    const db = useDrizzle();
-    const { id } = event.context.user;
-    await db
-      .update(tables.user)
-      .set({
-        ...data,
-        email: undefined,
-        picture: data.picture instanceof File ? getImagePath(id) : data.picture,
-      })
-      .where(eq(tables.user.id, id));
-    const user = await db.query.user.findFirst({
-      where: eq(tables.user.id, id),
-    });
-
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        message: "Failed to update user.",
-      });
-    }
-    // Invalidate cache if profile picture is updated
-    if (data.picture && data.picture instanceof File) {
-      await useStorage("cache").removeItem(
-        `nitro:functions:profile-picture-data:${id}.json`,
-      );
-    }
-    return user;
-  } catch (e) {
-    console.error({ e });
-    throw createError({
-      statusCode: 500,
-      message: `Failed to update user.`,
-    });
-  }
+export default defineAuthenticatedEventHandler(async (event) => {
+  const { name, picture } = await readProfileForm(event);
+  const { id } = event.context.user;
+  const image =
+    picture instanceof File ? await putProfilePicture(id, picture) : picture;
+  const [user] = await useDrizzle()
+    .update(tables.user)
+    .set({ name, image })
+    .where(eq(tables.user.id, id))
+    .returning();
+  if (!user) throw createError({ statusCode: 404 });
+  return user;
 });

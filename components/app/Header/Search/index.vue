@@ -1,30 +1,12 @@
 <script setup lang="ts">
-import { LoaderCircle, Search } from "lucide-vue-next";
+import { Search } from "lucide-vue-next";
 import { PopoverClose } from "reka-ui";
-const results = ref<
-  {
-    id: string;
-    title: string;
-    score: number;
-    snippet: string;
-  }[]
->();
-const q = ref();
-const loading = ref(false);
-watchDebounced(
-  q,
-  async () => {
-    loading.value = true;
-    try {
-      if (!q.value) return;
-      const res = await useNoteStore().methods.searchNotes(q.value);
-      results.value = res || [];
-    } catch (e: any) {
-    } finally {
-      loading.value = false;
-    }
-  },
-  { debounce: 500 },
+
+const q = ref("");
+const query = refDebounced(q, 200);
+const noteStore = useNoteStore();
+const results = computed(() =>
+  query.value ? noteStore.search(query.value) : [],
 );
 
 const replace = computed(() => {
@@ -49,18 +31,14 @@ const replace = computed(() => {
             placeholder="Search notes..."
             class="bg-background no-clear w-full appearance-none pl-8 shadow-none"
           />
-          <LoaderCircle
-            v-if="loading"
-            class="text-muted-foreground absolute top-2.5 right-2.5 size-4 animate-spin transition-all duration-300"
-          />
         </div>
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary max-h-96 overflow-y-auto p-2 md:w-[450px]"
+        class="scrollbar-thumb-secondary max-h-96 scrollbar-thin scrollbar-track-transparent overflow-y-auto p-2 md:w-[450px]"
       >
         <div class="flex h-full flex-col items-center gap-4">
-          <template v-if="!results?.length">
+          <template v-if="!results.length">
             <h3 class="text-muted-foreground p-4 text-sm">
               {{ q ? "No results found." : "Search notes..." }}
             </h3>
@@ -73,7 +51,6 @@ const replace = computed(() => {
             </template>
           </template>
         </div>
-        <!-- Arrow -->
         <div
           class="bg-background absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l"
         />

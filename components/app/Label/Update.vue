@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LabelOptions } from "@/lib/sync/protocol";
 import type { ClientLabel } from "@/lib/types";
 import { toast } from "vue-sonner";
 
@@ -10,26 +11,26 @@ const open = ref(false);
 const noteStore = useNoteStore();
 
 const initialValues = computed(() => ({
-  name: props.label.name ?? "",
+  name: props.label.name,
   options: {
-    preview: props.label.options?.preview ?? true,
-    background: props.label.options?.background?.value
-      ? {
-          type: props.label.options.background.type,
-          value: props.label.options.background.value,
-        }
+    preview: props.label.options.preview,
+    background: props.label.options.background?.value
+      ? props.label.options.background
       : undefined,
   },
 }));
 
-const onSubmit = async (values: Record<string, any>) => {
+const onSubmit = (values: Record<string, any>) => {
   try {
-    await noteStore.methods.updateLabel(props.label.id, values);
+    noteStore.updateLabel(
+      props.label.id,
+      values as { name: string; options: LabelOptions },
+    );
     toast.success("Label updated successfully");
     open.value = false;
   } catch (e: any) {
     toast.error("Could not update label", {
-      description: e.data?.message || e.message,
+      description: e.message,
     });
   }
 };

@@ -1,19 +1,23 @@
+const TRANSITION = "height 0.3s ease-in-out, opacity 0.3s ease-in-out";
+
 export const useHeightMotion = () => {
-  const beforeEnter = (el: any) => {
+  const beforeEnter = (element: Element) => {
+    const el = element as HTMLElement;
     el.style.height = "0";
     el.style.opacity = "0";
     void el.offsetHeight;
   };
-  const enter = (el: any) => {
-    const height = el.scrollHeight;
-    el.style.transition = "height 0.3s ease-in-out, opacity 0.3s ease-in-out";
-    el.style.height = `${height}px`;
+  const enter = (element: Element) => {
+    const el = element as HTMLElement;
+    el.style.transition = TRANSITION;
+    el.style.height = `${el.scrollHeight}px`;
     el.style.opacity = "1";
   };
-  const leave = (el: any) => {
-    el.style.transition = "height 0.3s ease-in-out, opacity 0.3s ease-in-out";
+  const leave = (element: Element) => {
+    const el = element as HTMLElement;
+    el.style.transition = TRANSITION;
     el.style.height = "0";
     el.style.opacity = "0";
   };
-  return { enter, leave, beforeEnter };
+  return { beforeEnter, enter, leave };
 };

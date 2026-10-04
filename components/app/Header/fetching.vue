@@ -1,16 +1,33 @@
 <script setup lang="ts">
-import { RotateCw } from "lucide-vue-next";
+import { CloudOff, RotateCw } from "lucide-vue-next";
+
 const noteStore = useNoteStore();
-const { fetching } = storeToRefs(noteStore);
+const { status } = storeToRefs(noteStore);
+
+const tooltip = computed(
+  () =>
+    ({
+      offline: "Offline: changes are saved on this device",
+      syncing: "Syncing...",
+      synced: "All changes synced",
+    })[status.value],
+);
 </script>
 <template>
-  <Button
-    variant="ghost"
-    size="icon"
-    :class="{ 'text-muted-foreground': !fetching }"
-    @click="noteStore.methods.refreshData"
-  >
-    <RotateCw class="size-4" :class="{ 'animate-spin': fetching }" />
-    <span class="sr-only">Refresh</span>
-  </Button>
+  <TooltipWrapper :tooltip="tooltip">
+    <Button
+      variant="ghost"
+      size="icon"
+      :class="{ 'text-muted-foreground': status === 'synced' }"
+      @click="noteStore.syncNow()"
+    >
+      <CloudOff v-if="status === 'offline'" class="size-4" />
+      <RotateCw
+        v-else
+        class="size-4"
+        :class="{ 'animate-spin': status === 'syncing' }"
+      />
+      <span class="sr-only">{{ tooltip }}</span>
+    </Button>
+  </TooltipWrapper>
 </template>

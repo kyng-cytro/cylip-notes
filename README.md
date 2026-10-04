@@ -2,42 +2,69 @@
 
 Snap, Note, Remember
 
-A lightweight, real-time note-taking application powered by AI, designed to run efficiently on Cloudflare.
+A local-first note-taking PWA with real-time collaboration and AI helpers. Every note lives on your device and stays editable offline; changes sync and merge when you reconnect.
 
-## Features
+## Architecture
 
-- **Real-time Collaboration:** Take notes with others in real-time, with instant updates across all connected devices.
-- **AI-Powered:** Get smart suggestions, summaries, and searches powered by AI to enhance your note-taking process.
+| Piece       | Where                                         | Role                                                                                                   |
+| ----------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Nuxt app    | Vercel                                        | UI, auth (Better Auth), AI, sharing API, scheduled tasks                                               |
+| Database    | Turso (SQLite)                                | Users, sessions, sharing permissions, and a projection of notes for search, reminders and public pages |
+| Images      | Vercel Blob                                   | Note images and profile pictures                                                                       |
+| Sync server | Cloudflare Worker + Durable Objects (`sync/`) | One `NoteDoc` per note and one `WorkspaceDoc` per user, storing Yjs state                              |
 
-## Installation
+On the device:
 
-To get started with building cylip|notes, follow these steps:
+- Each note is a Yjs document persisted in IndexedDB (`y-indexeddb`) and edited with TipTap.
+- Each user has a workspace document with their per-note state (pinned, archived, label, order, reminder) and labels.
+- The sync engine (`lib/sync/engine.ts`) pushes local changes and pulls remote ones over HTTP, while the open note and the workspace also stay connected over WebSockets for live edits and cursors.
+- A service worker caches the app shell so `/app` opens without a network connection.
 
-1. **Clone the Repository:**
+Shared state (title, content, background, public, trash) lives in the note document; per-user state lives in each user's workspace, so collaborators can pin, label and order shared notes independently. Who can read or edit a note is decided by the server (`note_members`), never by the documents.
 
+## Development
+
+```bash
+cp .env.example .env
+cp sync/.dev.vars.example sync/.dev.vars
+bun install
+bun dev
+```
+
+`bun dev` runs the Nuxt app on `:3000` and the sync worker on `:8787`. Set the same secret in `NUXT_SYNC_SECRET` (`.env`) and `SYNC_SECRET` (`sync/.dev.vars`), and set `NUXT_AUTH_SECRET` (`openssl rand -base64 32`).
+
+Useful scripts:
+
+- `bun dev:host` runs both on your LAN address so you can test on a phone. Open the printed URL on every device, including this computer, because sign-in only accepts that origin. Google sign-in, offline mode and install need HTTPS, so test those with `bun run build && bun preview` or a deploy.
+- `bun sync:typecheck` type checks the worker.
+- `bun db:generate` generates a migration after editing `server/db/schema.ts`.
+
+## Deployment
+
+1. **Sync worker**:
    ```bash
-   git clone https://github.com/yourusername/cylip-notes.git
-   cd cylip-notes
+   bunx wrangler secret put SYNC_SECRET -c sync/wrangler.jsonc
+   bun sync:deploy --var APP_URL:https://<app-domain>
    ```
+2. **App (Vercel)**: set these for both build and runtime, since `/app` is prerendered with its public config:
+   - `NUXT_AUTH_SECRET`
+   - `NUXT_SYNC_SECRET` (same value as the worker's `SYNC_SECRET`)
+   - `NUXT_SYNC_URL` and `NUXT_PUBLIC_SYNC_URL` (the worker's URL)
+   - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `BLOB_READ_WRITE_TOKEN` and the existing keys in `.env.example`
 
-2. Install Dependencies: Ensure you have Node.js installed, then run:
+   Database migrations run during the Vercel build. Sharing sends invite emails through Resend, so the sending domain must be verified.
 
-   ```bash
-   npm install
-   ```
+3. **Google sign-in**: add `https://<app-domain>/api/auth/callback/google` as an authorized redirect URI.
 
-3. Set Up Environment Variables: Copy the example environment file and populate it with your settings:
+## Migrating existing data
 
-   ```bash
-   cp .env.example .env
-   ```
+Legacy notes migrate lazily the first time their Durable Object loads: the content is converted to Yjs, inline base64 images move to Vercel Blob, and each user's workspace is built from their notes and labels. To migrate everything at once after deploying (safe to re-run):
 
-4. Run the Development Server and PartyKit: Start the Nuxt 3 development server and PartyKit for WebSockets:
+```bash
+APP_URL=https://<app-domain> NUXT_TASK_API_KEY=<key> bun migrate:local-first
+```
 
-   ```bash
-   npm run dev
-   npm run partykit:dev
-   ```
+Back up the Turso database before deploying.
 
 ## License
 

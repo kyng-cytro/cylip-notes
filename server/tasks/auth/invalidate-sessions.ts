@@ -1,29 +1,26 @@
 export default defineTask({
   meta: {
     name: "auth:invalidate-sessions",
-    description: "Invalidate in active or selected sessions",
+    description: "Invalidate expired or selected sessions",
   },
   async run(event) {
-    const lucia = initializeLucia();
-    const { sessionId, userId } = event.payload as {
-      sessionId: string;
-      userId: string;
+    const db = useDrizzle();
+    const { sessionId, userId } = (event.payload ?? {}) as {
+      sessionId?: string;
+      userId?: string;
     };
     if (sessionId) {
-      await lucia.invalidateSession(sessionId);
+      await db.delete(tables.session).where(eq(tables.session.id, sessionId));
       return { result: `Invalidated session ${sessionId}` };
     }
     if (userId) {
-      await lucia.invalidateUserSessions(userId);
+      await db.delete(tables.session).where(eq(tables.session.userId, userId));
       return { result: `Invalidated user ${userId} sessions` };
     }
-    const db = useDrizzle();
-    const sessions = await db.query.session.findMany({
-      where: gt(tables.session.expiresAt, new Date().getTime()),
-    });
-    for (const session of sessions) {
-      await lucia.invalidateSession(session.id);
-    }
-    return { result: `Invalidated ${sessions.length} expired sessions` };
+    const expired = await db
+      .delete(tables.session)
+      .where(lt(tables.session.expiresAt, new Date()))
+      .returning({ id: tables.session.id });
+    return { result: `Invalidated ${expired.length} expired sessions` };
   },
 });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const labelOptionsSchema = z.object({
+const labelOptionsSchema = z.object({
   preview: z.boolean(),
   background: z
     .object({
@@ -24,8 +24,4 @@ export const labelCreateSchema = z.object({
     .trim()
     .toLowerCase(),
   options: labelOptionsSchema,
-});
-
-export const labelReorderSchema = z.object({
-  orderedIds: z.array(z.string().min(1)).min(1),
 });

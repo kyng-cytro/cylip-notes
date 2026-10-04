@@ -1,8 +1,4 @@
 import * as chrono from "chrono-node";
 
-export const parseDateString = (
-  str: string,
-  opts: { forwardDate?: boolean } = { forwardDate: true },
-) => {
-  return chrono.parseDate(str, undefined, opts);
-};
+export const parseDateString = (text: string) =>
+  chrono.parseDate(text, undefined, { forwardDate: true });

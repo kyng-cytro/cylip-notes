@@ -1,37 +1,14 @@
-import { generateId } from "lucia";
 import { Resend } from "resend";
 
-const {
-  resend: { apiKey },
-} = useRuntimeConfig();
+const resend = new Resend(useRuntimeConfig().resend.apiKey);
 
-const resend = new Resend(apiKey);
+type Email = { to: string; subject: string; html: string; text: string };
 
-export const sendEmail = async ({
-  to,
-  html,
-  text,
-  subject,
-  category,
-}: {
-  to: string;
-  html: string;
-  text: string;
-  subject: string;
-  category?: "welcome" | "sign-in";
-}) => {
-  const { error: e } = await resend.emails.send({
+export const sendEmail = async (email: Email) => {
+  const { error } = await resend.emails.send({
     from: "cylip|notes <no-reply@cylip-notes.cytro.com.ng>",
-    to,
-    subject,
-    html,
-    text,
-    headers: {
-      "X-Entity-Ref-ID": generateId(9),
-    },
-    ...(category && { tags: [{ name: "category", value: category }] }),
+    ...email,
+    headers: { "X-Entity-Ref-ID": generateId(9) },
   });
-  if (e) {
-    console.error({ e });
-  }
+  if (error) console.error(error);
 };

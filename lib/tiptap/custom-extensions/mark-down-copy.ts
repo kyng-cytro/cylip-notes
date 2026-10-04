@@ -1,6 +1,6 @@
 import { DOMSerializer } from "@tiptap/pm/model";
 import { Extension } from "@tiptap/vue-3";
-import { convertToMarkDown } from "~/lib/turndown";
+import { htmlToMarkdown } from "@/lib/turndown";
 
 export const MarkDownCopy = Extension.create({
   name: "markDownCopy",
@@ -18,7 +18,7 @@ export const MarkDownCopy = Extension.create({
       const div = document.createElement("div");
       div.appendChild(fragment);
       const html = div.innerHTML;
-      event.clipboardData?.setData("text/plain", convertToMarkDown(html));
+      event.clipboardData?.setData("text/plain", htmlToMarkdown(html));
     });
   },
 });

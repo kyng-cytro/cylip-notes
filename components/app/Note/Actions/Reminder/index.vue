@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { BellPlusIcon } from "lucide-vue-next";
 defineProps<{
-  reminderAt: string | null;
+  reminderAt: number | null;
 }>();
 const emits = defineEmits<{
   (e: "set-reminder", value: Date | null): void;
 }>();
 
-const date = ref();
+const date = ref<Date>();
 const open = ref(false);
 
 const { onesignal } = useOneSignalSetup();
 
 const handleSetReminder = () => {
-  emits("set-reminder", date.value || null);
+  emits("set-reminder", date.value ?? null);
   date.value = undefined;
   open.value = false;
-  // request permission if not already granted
   if (!onesignal.Notifications.permission) {
     onesignal.Notifications.requestPermission();
   }

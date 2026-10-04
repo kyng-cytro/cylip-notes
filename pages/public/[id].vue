@@ -1,41 +1,35 @@
 <script setup lang="ts">
-import hljs from "highlight.js";
+import { contentToHtml } from "@/lib/tiptap";
 import { CopyIcon } from "lucide-vue-next";
+
 const { id } = useRoute("public-id").params;
-const contentRef = ref<HTMLElement | null>(null);
 const { data: note, pending } = await useFetch(`/api/notes/${id}/public`, {
   lazy: true,
 });
-useHead({
-  title: note.value?.title || "cylip|notes",
-  meta: [
-    {
-      name: "description",
-      content: "View this note on cylip|notes.",
-    },
-  ],
-});
-const content = ref("");
-const loaded = ref(false);
 const { copy } = useCustomClipboard();
 const { formatToTimeAgo } = useDateUtils();
-onMounted(async () => {
-  if (!note.value?.content) return;
-  const { convertToHtml } = useEditorUtils();
-  content.value = convertToHtml(note.value.content);
-  if (note.value.background && note.value.background.value) {
-    useState("background", () =>
-      applyBackground(useColorMode().value === "dark", note.value!.background),
-    );
-  }
-  loaded.value = true;
-  await nextTick();
-  if (!contentRef.value) return;
-  const blocks = contentRef.value.querySelectorAll("pre code");
-  blocks.forEach((block) => {
-    hljs.highlightElement(block as HTMLElement);
-  });
+
+useHead({
+  title: () => note.value?.title || "cylip|notes",
+  meta: [{ name: "description", content: "View this note on cylip|notes." }],
 });
+
+const contentRef = ref<HTMLElement | null>(null);
+const content = ref("");
+const loaded = ref(false);
+const pageBackground = useState<string>("background");
+
+onMounted(() => {
+  if (!note.value?.content) return;
+  content.value = contentToHtml(note.value.content);
+  pageBackground.value = applyBackground(
+    useColorMode().value === "dark",
+    note.value.background ?? undefined,
+  );
+  loaded.value = true;
+});
+
+useCodeHighlight(contentRef, content);
 </script>
 
 <template>
@@ -65,16 +59,16 @@ onMounted(async () => {
       >
         <CopyIcon class="size-5" />
       </Button>
-      <div class="scrollbar-thin max-h-[calc(100vh-12rem)] overflow-y-auto">
+      <div class="max-h-[calc(100vh-12rem)] scrollbar-thin overflow-y-auto">
         <div class="flex h-[calc(100vh-12rem)] flex-col" v-if="!loaded">
           <EditorLoading />
         </div>
-        <p ref="contentRef" v-html="content" v-else />
+        <div ref="contentRef" class="tiptap" v-html="content" v-else />
       </div>
       <div class="flex items-center justify-end gap-2 px-4 py-2">
         <span class="text-sm">⏳ {{ formatToTimeAgo(note.updatedAt) }} </span>
         <span>•</span>
-        <span class="text-sm">👀 {{ note.vists }} </span>
+        <span class="text-sm">👀 {{ note.visits }} </span>
         <span>•</span>
         <NuxtLink
           to="/"

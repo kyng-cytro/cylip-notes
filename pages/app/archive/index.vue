@@ -5,10 +5,10 @@ definePageMeta({
 
 const notesStore = useNoteStore();
 const { initialized } = storeToRefs(notesStore);
-const { containerParentStyles: layoutStyles } = useLayout();
+const { containerParentStyles: layoutStyles } = useNoteLayout();
 
 const notes = computed(() => {
-  return notesStore.methods.retrieveNotes("archived");
+  return notesStore.retrieveNotes("archived");
 });
 </script>
 <template>
@@ -25,7 +25,7 @@ const notes = computed(() => {
     </template>
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
-        <p class="text-sm font-semibold text-muted-foreground">Archived</p>
+        <p class="text-muted-foreground text-sm font-semibold">Archived</p>
         <AppNoteContainer :notes="notes" :disabled="true" />
       </AppScrollContainer>
     </template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-defineProps<{
+const { size = "default" } = defineProps<{
   icon: Component;
   label: string;
   tooltip: string;
   active: boolean;
   disabled?: boolean;
+  size?: "default" | "sm";
 }>();
 
 defineEmits<{
@@ -15,15 +16,16 @@ defineEmits<{
 <template>
   <TooltipProvider>
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger as-child>
         <Toggle
-          class="p-2"
+          :size="size"
+          :class="size === 'sm' ? 'p-1.5' : 'p-2'"
           :aria-label="label"
-          :pressed="active"
+          :model-value="active"
           @click="$emit('toggled')"
           :disabled="disabled"
         >
-          <component :is="icon" class="size-5" />
+          <component :is="icon" :class="size === 'sm' ? 'size-4' : 'size-5'" />
         </Toggle>
       </TooltipTrigger>
       <TooltipContent>

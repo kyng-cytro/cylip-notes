@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import "vue-sonner/style.css";
-onMounted(() => {
-  // init Note Store
-  useNoteStore().initStore();
-  useOneSignalSetup().init();
-});
+const { refresh: refreshInvites } = useInvites();
 
-onBeforeUnmount(() => {
-  useNoteStore().$dispose();
+onMounted(() => {
+  useNoteStore().ensureStarted();
+  refreshInvites();
+  useOneSignalSetup().init();
 });
 </script>
 
@@ -34,7 +32,6 @@ onBeforeUnmount(() => {
 @import "@/assets/css/tiptap-default.css";
 @import "@/assets/css/tiptap-extended.css";
 
-/* modal */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;

@@ -1,36 +1,34 @@
 <script setup lang="ts">
-import type { ClientLabel } from "@/lib/types";
-import type { NoteOptions } from "@/schemas/note";
+import { isSharedNote } from "@/lib/notes";
+import type { ClientNote } from "@/lib/types";
 
 const { formatToTimeAgo } = useDateUtils();
-defineProps<{
-  trashed?: boolean;
-  updatedAt: string;
-  label: ClientLabel | null;
-  reminderAt: string | null;
-  public?: NoteOptions["public"];
-}>();
+defineProps<{ note: ClientNote }>();
 </script>
 <template>
   <p
-    class="flex items-center space-x-2 whitespace-nowrap text-sm font-medium leading-none"
+    class="flex items-center space-x-2 text-sm leading-none font-medium whitespace-nowrap"
   >
-    <template v-if="public?.enabled">
-      <AppNoteActionsShareBadge :vists="public.vists" />
+    <template v-if="note.public">
+      <AppNoteActionsShareBadge />
       <span>•</span>
     </template>
-    <template v-if="reminderAt">
-      <AppNoteActionsReminderBadge :date="reminderAt" no-clear />
+    <template v-if="isSharedNote(note)">
+      <AppNoteSharedBadge :note="note" />
       <span>•</span>
     </template>
-    <template v-if="label">
-      <AppLabelDisplay :name="label.name" />
+    <template v-if="note.reminderAt">
+      <AppNoteActionsReminderBadge :date="note.reminderAt" no-clear />
       <span>•</span>
     </template>
-    <template v-if="trashed">
+    <template v-if="note.label">
+      <AppLabelDisplay :name="note.label.name" />
+      <span>•</span>
+    </template>
+    <template v-if="note.trashed">
       <span>Note in Trash</span>
       <span>•</span>
     </template>
-    <span>⏳ {{ formatToTimeAgo(updatedAt) }} </span>
+    <span>⏳ {{ formatToTimeAgo(note.updatedAt || note.createdAt) }} </span>
   </p>
 </template>

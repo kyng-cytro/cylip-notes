@@ -1,5 +1,6 @@
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import type { Plugin as RollupPlugin } from "rollup";
 
 export default defineNuxtConfig({
   compatibilityDate: "2024-12-27",
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@vueuse/motion/nuxt",
     "pinia-plugin-persistedstate/nuxt",
+    "@vite-pwa/nuxt",
   ],
   css: ["@/assets/css/tailwind.css"],
   vite: {
@@ -25,16 +27,19 @@ export default defineNuxtConfig({
   shadcn: {
     prefix: "",
   },
+  pagesPlus: {
+    namedViewsAsParallelRoutes: true,
+  },
   colorMode: {
     classSuffix: "",
   },
   typescript: {
     strict: true,
+    tsConfig: { exclude: ["../sync"] },
     typeCheck: process.env.NODE_ENV === "development",
   },
   nitro: {
-    // @ts-ignore
-    rollupConfig: { plugins: [vue()] },
+    rollupConfig: { plugins: [vue() as unknown as RollupPlugin] },
     experimental: {
       tasks: true,
       openAPI: process.env.NODE_ENV === "production",
@@ -45,7 +50,8 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: "en" },
       charset: "UTF-8",
       title: "cylip|notes",
-      viewport: "width=device-width, initial-scale=1",
+      viewport:
+        "width=device-width, initial-scale=1, interactive-widget=resizes-content",
       meta: [
         {
           name: "description",
@@ -64,7 +70,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
+      syncUrl: process.env.NUXT_PUBLIC_SYNC_URL,
       onesignal: {
         url: process.env.NUXT_PUBLIC_ONESIGNAL_URL,
         appId: process.env.NUXT_PUBLIC_ONESIGNAL_APP_ID,
@@ -86,6 +92,9 @@ export default defineNuxtConfig({
     task: {
       apiKey: process.env.NUXT_TASK_API_KEY,
     },
+    auth: {
+      secret: process.env.NUXT_AUTH_SECRET,
+    },
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
       clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
@@ -96,11 +105,9 @@ export default defineNuxtConfig({
     resend: {
       apiKey: process.env.NUXT_RESEND_API_KEY,
     },
-    websocket: {
-      apiKey: process.env.NUXT_WEBSOCKET_API_KEY,
-    },
-    serverSentEvents: {
-      interval: process.env.NUXT_SERVER_SENT_EVENTS_INTERVAL,
+    sync: {
+      url: process.env.NUXT_SYNC_URL,
+      secret: process.env.NUXT_SYNC_SECRET,
     },
     onesignal: {
       apiKey: process.env.NUXT_ONESIGNAL_API_KEY,
@@ -109,5 +116,28 @@ export default defineNuxtConfig({
   routeRules: {
     "/": { prerender: true },
     "/pricing": { prerender: true },
+    "/app": { ssr: false, prerender: true },
+    "/app/**": { ssr: false },
+  },
+  pwa: {
+    registerType: "autoUpdate",
+    manifest: false,
+    client: { installPrompt: false },
+    workbox: {
+      navigateFallback: "/app",
+      navigateFallbackAllowlist: [/^\/app(\/|$)/],
+      globPatterns: ["**/*.{js,css,html,svg,png,webp,ico,woff2}"],
+      globIgnores: ["screenshots/**", "push/**"],
+      runtimeCaching: [
+        {
+          urlPattern: /\/(images|profile-pictures)\//,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "note-images",
+            expiration: { maxEntries: 500 },
+          },
+        },
+      ],
+    },
   },
 });

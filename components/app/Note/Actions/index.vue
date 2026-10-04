@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { canEdit as canEditRole } from "@/lib/sync/protocol";
 import type { ClientNote } from "@/lib/types";
 import type { Editor } from "@tiptap/vue-3";
 import { ArchiveIcon, Repeat2Icon, Trash2Icon } from "lucide-vue-next";
@@ -8,22 +9,23 @@ const props = defineProps<{
   editor?: Editor;
   canOpen?: boolean;
   cb?: () => void;
-  refresh?: () => void;
 }>();
 
 const noteStore = useNoteStore();
-
 const { copy } = useCustomClipboard();
 
-const runWithCallback = async (action: () => Promise<void>) => {
+const isOwner = computed(() => props.note.role === "owner");
+const canEdit = computed(() => canEditRole(props.note.role));
+
+const runAndClose = async (action: () => void | Promise<void>) => {
   await action();
-  if (props.cb) props.cb();
+  props.cb?.();
 };
 
-const runWithRefresh = async (action: () => Promise<void>) => {
-  await action();
-  if (props.refresh) props.refresh();
-};
+const removeNote = () =>
+  isOwner.value
+    ? noteStore.toggleNoteProp(props.note, "trashed")
+    : noteStore.deleteNoteForever(props.note);
 </script>
 
 <template>
@@ -32,7 +34,7 @@ const runWithRefresh = async (action: () => Promise<void>) => {
       tooltip="Restore note"
       :icon="Repeat2Icon"
       @button-click="
-        runWithCallback(() => noteStore.methods.toggleNoteProp(note, 'trashed'))
+        runAndClose(() => noteStore.toggleNoteProp(note, 'trashed'))
       "
     />
     <TooltipWrapper tooltip="Delete forever">
@@ -43,9 +45,7 @@ const runWithRefresh = async (action: () => Promise<void>) => {
           confirm: { text: 'Delete forever' },
           cancel: { text: 'Cancel' },
         }"
-        @confirm="
-          runWithCallback(() => noteStore.methods.permenentlyDeleteNote(note))
-        "
+        @confirm="runAndClose(() => noteStore.deleteNoteForever(note))"
       >
         <Button variant="ghost" size="xs">
           <Trash2Icon class="size-4" />
@@ -56,47 +56,30 @@ const runWithRefresh = async (action: () => Promise<void>) => {
   <template v-else>
     <AppNoteActionsReminder
       :reminder-at="note.reminderAt"
-      @set-reminder="
-        runWithRefresh(() => noteStore.methods.setReminder(note, $event))
-      "
+      @set-reminder="noteStore.setReminder(note.id, $event)"
     />
-    <AppNoteActionsShare
-      :note-id="note.id"
-      :public="note.options?.public"
-      @set-public="
-        runWithRefresh(() => noteStore.methods.toggleNoteProp(note, 'public'))
-      "
-    />
+    <AppNoteActionsShare :note="note" />
     <AppNoteActionsBackgroundOptions
-      :background="note.options?.background"
-      @set-background="
-        runWithRefresh(() => noteStore.methods.setBackground(note, $event))
-      "
+      v-if="canEdit"
+      :background="note.background"
+      @set-background="noteStore.setBackground(note, $event)"
     />
     <AppNoteActionsButton
       :tooltip="note.archived ? 'Unarchive' : 'Archive'"
       :icon="ArchiveIcon"
       @button-click="
-        runWithCallback(() =>
-          noteStore.methods.toggleNoteProp(note, 'archived'),
-        )
+        runAndClose(() => noteStore.toggleNoteProp(note, 'archived'))
       "
     />
     <AppNoteActionsDropdown
       :can-open="canOpen"
       :label-id="note.labelId"
-      @copy="() => copy(editor?.getHTML(), true)"
-      @delete="
-        runWithCallback(() => noteStore.methods.toggleNoteProp(note, 'trashed'))
-      "
+      :delete-text="isOwner ? 'Delete Note' : 'Leave Note'"
+      @copy="copy(editor?.getHTML(), true)"
+      @delete="runAndClose(removeNote)"
       @full-screen="navigateTo(`/app/notes/${note.id}`, { external: true })"
-      @assign-label="
-        (labelId: string | null) =>
-          runWithRefresh(() => noteStore.methods.assignLabel(note, labelId))
-      "
-      @toggle-show-preview="
-        runWithRefresh(() => noteStore.methods.toggleNoteProp(note, 'preview'))
-      "
+      @assign-label="noteStore.assignLabel(note, $event)"
+      @toggle-show-preview="noteStore.toggleNoteProp(note, 'preview')"
     />
   </template>
 </template>

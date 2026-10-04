@@ -1,129 +1,91 @@
 import { markdownToHTML } from "@/lib/marked";
-import { Editor, Extension } from "@tiptap/core";
+import { hasEnoughContent } from "@/utils/helpers";
+import { Editor, Extension, type JSONContent } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
 import { extensions } from "..";
 
 export interface AIProvider {
-  permissions?: {
-    refine?: boolean;
-    suggest?: boolean;
-  };
+  permissions?: { refine?: boolean; suggest?: boolean };
   onError?: (action: string, message: string) => void;
   getSuggestion: (text: string) => Promise<string | null>;
   refine: (text: string, mode: string) => Promise<string | null>;
 }
 
+type Storage = {
+  loading: boolean;
+  suggestion: string;
+  key: PluginKey;
+  decorations: DecorationSet;
+};
+
 declare module "@tiptap/core" {
-  interface Editor {
-    ai: {
-      accept: () => boolean;
-      suggest: () => boolean;
-      discard: () => boolean;
-      refine: (mode: string) => boolean;
-    };
-  }
   interface Commands<ReturnType> {
-    accept: {
+    ai: {
       accept: () => ReturnType;
-    };
-    discard: {
       discard: () => ReturnType;
-    };
-    suggest: {
       suggest: () => ReturnType;
-    };
-    refine: {
       refine: (mode: string) => ReturnType;
     };
   }
 }
 
-const setDecorations = ({
-  editor,
-  storage,
-  decorations,
-}: {
-  editor: Editor;
-  storage: any;
-  decorations: Decoration[];
-}) => (
-  (storage.decorations = DecorationSet.create(editor.state.doc, decorations)),
+const toMarkdown = (content: JSONContent) =>
+  renderToMarkdown({ content, extensions });
+
+const errorMessage = (error: any) =>
+  error?.data?.message ?? error?.message ?? String(error);
+
+const showDecorations = (
+  editor: Editor,
+  storage: Storage,
+  decorations: Decoration[],
+) => {
+  storage.decorations = DecorationSet.create(editor.state.doc, decorations);
   editor.view.dispatch(
     editor.state.tr.setMeta(storage.key, storage.decorations),
-  )
-);
-
-const clearDecorations = ({
-  editor,
-  storage,
-}: {
-  editor: Editor;
-  storage: any;
-}) => setDecorations({ editor, storage, decorations: [] });
-
-const safeCall = async ({
-  action,
-  provider,
-  run,
-  clearDecorations,
-}: {
-  action: string;
-  provider: AIProvider;
-  run: () => Promise<void>;
-  clearDecorations?: () => void;
-}) => {
-  try {
-    await run();
-  } catch (e: any) {
-    provider.onError?.(action, e.data.message ?? String(e));
-    clearDecorations?.();
-  }
+  );
 };
 
-const createLoadingWidget = (
-  opts:
-    | { type: "inline"; from: number; to: number }
-    | { type: "widget"; from: number },
-) => {
-  switch (opts.type) {
-    case "inline":
-      return Decoration.inline(opts.from, opts.to, {
-        nodeName: "span",
-        class: "opacity-50 rainbow-animation",
-      });
-    case "widget":
-      return Decoration.widget(opts.from, () => {
-        const span = document.createElement("span");
-        span.innerText = "getting suggestion...";
-        span.classList.add(
-          "ml-.5",
-          "opacity-50",
-          "rainbow-animation",
-          "pointer-events-none",
-        );
-        return span;
-      });
-  }
+const clearDecorations = (editor: Editor, storage: Storage) =>
+  showDecorations(editor, storage, []);
+
+const hintElement = (text: string, classes: string[]) => {
+  const span = document.createElement("span");
+  span.innerText = text;
+  span.classList.add(
+    "ml-.5",
+    "rainbow-animation",
+    "pointer-events-none",
+    ...classes,
+  );
+  return span;
 };
 
-const createSuggestionWidget = ({
-  from,
-  text,
-}: {
-  from: number;
-  text: string;
-}) => {
-  return Decoration.widget(from, () => {
-    const span = document.createElement("span");
-    span.classList.add("ml-.5", "rainbow-animation", "pointer-events-none");
-    span.innerText = text + " ↹";
-    return span;
+const loadingWidget = (from: number) =>
+  Decoration.widget(from, () =>
+    hintElement("getting suggestion...", ["opacity-50"]),
+  );
+
+const loadingSelection = (from: number, to: number) =>
+  Decoration.inline(from, to, {
+    nodeName: "span",
+    class: "opacity-50 rainbow-animation",
   });
+
+const suggestionWidget = (from: number, text: string) =>
+  Decoration.widget(from, () => hintElement(`${text} ↹`, []));
+
+const insertMarkdown = (editor: Editor, markdown: string) =>
+  editor.chain().focus().insertContent(markdownToHTML(markdown)).run();
+
+const withLeadingSpace = (editor: Editor, from: number, text: string) => {
+  const previous = editor.state.doc.textBetween(Math.max(0, from - 1), from);
+  return /\S/.test(previous) && /^\w/.test(text) ? ` ${text}` : text;
 };
 
-export const AI = Extension.create<{ provider: AIProvider }>({
+export const AI = Extension.create<{ provider: AIProvider }, Storage>({
   name: "ai",
   addStorage: () => ({
     loading: false,
@@ -139,138 +101,123 @@ export const AI = Extension.create<{ provider: AIProvider }>({
     },
   }),
   addCommands() {
+    const { provider } = this.options;
+    const storage = this.storage;
+
+    const run = async (
+      editor: Editor,
+      action: string,
+      task: () => Promise<void>,
+    ) => {
+      storage.loading = true;
+      try {
+        await task();
+      } catch (error) {
+        provider.onError?.(action, errorMessage(error));
+        clearDecorations(editor, storage);
+      } finally {
+        storage.loading = false;
+      }
+    };
+
+    const fetchSuggestion = async (
+      editor: Editor,
+      from: number,
+      text: string,
+    ) => {
+      const suggestion = await provider.getSuggestion(text);
+      storage.suggestion = suggestion
+        ? withLeadingSpace(editor, from, suggestion)
+        : "";
+      if (!suggestion) {
+        clearDecorations(editor, storage);
+        provider.onError?.(
+          "suggest",
+          "Couldn't suggest a continuation. Keep typing for more context.",
+        );
+        return;
+      }
+      showDecorations(editor, storage, [
+        suggestionWidget(from, storage.suggestion),
+      ]);
+    };
+
+    const fetchRefinement = async (
+      editor: Editor,
+      text: string,
+      mode: string,
+    ) => {
+      const refined = await provider.refine(text, mode);
+      clearDecorations(editor, storage);
+      if (!refined) {
+        provider.onError?.(
+          "refine",
+          "Couldn't refine the text. Please try again.",
+        );
+        return;
+      }
+      insertMarkdown(editor, refined);
+    };
+
     return {
       suggest:
         () =>
         ({ editor, dispatch }) => {
           const { from } = editor.state.selection;
-          const content = editor.state.doc.toJSON();
-          const text = renderToMarkdown({ content, extensions });
-          const can =
-            !!this.options.provider.permissions?.suggest &&
-            hasEnoughContent(text);
-          if (!dispatch) return can;
-          if (!can) {
-            this.options.provider.onError?.(
+          const text = toMarkdown(editor.state.doc.toJSON());
+          const allowed =
+            !!provider.permissions?.suggest && hasEnoughContent(text);
+          if (!dispatch) return allowed;
+          if (!allowed) {
+            provider.onError?.(
               "suggest",
               "Suggestion is disabled or the content is too short",
             );
             return false;
           }
-          this.storage.loading = true;
-          setDecorations({
-            editor,
-            storage: this.storage,
-            decorations: [createLoadingWidget({ type: "widget", from })],
-          });
-          safeCall({
-            action: "suggest",
-            provider: this.options.provider,
-            run: async () => {
-              const suggestion =
-                await this.options.provider.getSuggestion(text);
-              if (!suggestion) {
-                this.storage.suggestion = "";
-                clearDecorations({ editor, storage: this.storage });
-                this.options.provider.onError?.(
-                  "suggest",
-                  "Couldn't suggest a continuation. Keep typing for more context.",
-                );
-                return;
-              }
-              this.storage.suggestion = suggestion;
-              setDecorations({
-                editor,
-                storage: this.storage,
-                decorations: [
-                  createSuggestionWidget({ from, text: suggestion }),
-                ],
-              });
-            },
-            clearDecorations: () =>
-              clearDecorations({ editor, storage: this.storage }),
-          }).finally(() => {
-            this.storage.loading = false;
-            editor.commands.focus();
-          });
+          showDecorations(editor, storage, [loadingWidget(from)]);
+          run(editor, "suggest", () =>
+            fetchSuggestion(editor, from, text),
+          ).finally(() => editor.commands.focus());
           return true;
         },
       accept:
         () =>
         ({ editor, dispatch }) => {
-          const can = !!this.storage.suggestion;
-          if (!dispatch) return can;
-          if (!can) return false;
-          const suggestion = this.storage.suggestion;
-          this.storage.suggestion = "";
-          clearDecorations({ editor, storage: this.storage });
-          // HACK: to make sure it's set in the next tick
-          setTimeout(
-            () =>
-              editor
-                .chain()
-                .focus()
-                .insertContent(markdownToHTML(suggestion))
-                .run(),
-            0,
-          );
+          const { suggestion } = storage;
+          if (!dispatch || !suggestion) return !!suggestion;
+          storage.suggestion = "";
+          clearDecorations(editor, storage);
+          setTimeout(() => insertMarkdown(editor, suggestion));
           return true;
         },
       discard:
         () =>
         ({ editor, dispatch }) => {
-          const can = !!this.storage.suggestion;
-          if (!dispatch) return can;
-          if (!can) return false;
-          this.storage.suggestion = "";
-          clearDecorations({ editor, storage: this.storage });
+          if (!dispatch || !storage.suggestion) return !!storage.suggestion;
+          storage.suggestion = "";
+          clearDecorations(editor, storage);
           return true;
         },
       refine:
         (mode: string) =>
         ({ editor, dispatch }) => {
           const { from, to } = editor.state.selection;
-          const content = editor.state.doc.cut(from, to).toJSON();
-          const text = renderToMarkdown({ content, extensions });
-          const can =
-            !!this.options.provider.permissions?.refine &&
+          const text = toMarkdown(editor.state.doc.cut(from, to).toJSON());
+          const allowed =
+            !!provider.permissions?.refine &&
             from !== to &&
             hasEnoughContent(text);
-          if (!dispatch) return can;
-          if (!can) {
-            this.options.provider.onError?.(
+          if (!dispatch) return allowed;
+          if (!allowed) {
+            provider.onError?.(
               "refine",
               "Refinement is disabled or the content is too short",
             );
             return false;
           }
-          this.storage.loading = true;
-          setDecorations({
-            editor,
-            storage: this.storage,
-            decorations: [createLoadingWidget({ type: "inline", from, to })],
-          });
-          safeCall({
-            action: "refine",
-            provider: this.options.provider,
-            run: async () => {
-              const refined = await this.options.provider.refine(text, mode);
-              if (!refined) {
-                return this.options.provider.onError?.(
-                  "refine",
-                  "Couldn't refine the text. Please try again.",
-                );
-              }
-              editor
-                .chain()
-                .focus()
-                .insertContent(markdownToHTML(refined))
-                .run();
-            },
-          }).finally(() => {
-            this.storage.loading = false;
-            clearDecorations({ editor, storage: this.storage });
-          });
+          showDecorations(editor, storage, [loadingSelection(from, to)]);
+          run(editor, "refine", () => fetchRefinement(editor, text, mode));
           return true;
         },
     };
@@ -295,14 +242,6 @@ export const AI = Extension.create<{ provider: AIProvider }>({
       "Mod-Alt-f": () => this.editor.commands.refine("formal"),
       "Mod-Alt-s": () => this.editor.commands.refine("shorten"),
       "Mod-Alt-l": () => this.editor.commands.refine("lengthen"),
-    };
-  },
-  onCreate() {
-    this.editor.ai = {
-      accept: () => this.editor.commands.accept(),
-      discard: () => this.editor.commands.discard(),
-      suggest: () => this.editor.commands.suggest(),
-      refine: (mode: string) => this.editor.commands.refine(mode),
     };
   },
 });

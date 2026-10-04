@@ -1,53 +1,35 @@
-import { verifyRequestOrigin } from "lucia";
-import type { Session, User } from "lucia";
+import { APP_ROUTES } from "@/lib/sync/constants";
+import type { H3Event } from "h3";
+
+const isSameOrigin = (event: H3Event) => {
+  const origin = getHeader(event, "Origin");
+  const host = getHeader(event, "Host");
+  if (!origin || !host) return false;
+  return URL.parse(origin)?.host === host;
+};
+
+const isServerToServer = (path: string) =>
+  path.startsWith(APP_ROUTES.prefix) || path.includes("_hub");
+
+const needsOriginCheck = (event: H3Event) =>
+  !import.meta.dev && event.method !== "GET" && !isServerToServer(event.path);
 
 export default defineEventHandler(async (event) => {
   if (import.meta.prerender) return;
-  if (
-    !import.meta.dev &&
-    event.method !== "GET" &&
-    !event.path.includes("_hub") &&
-    !event.path.includes("websocket")
-  ) {
-    const originHeader = getHeader(event, "Origin") ?? null;
-    const hostHeader = getHeader(event, "Host") ?? null;
-    if (
-      !originHeader ||
-      !hostHeader ||
-      !verifyRequestOrigin(originHeader, [hostHeader])
-    ) {
-      return setResponseStatus(event, 403);
-    }
+  if (needsOriginCheck(event) && !isSameOrigin(event)) {
+    return setResponseStatus(event, 403);
   }
-  const lucia = initializeLucia();
-  const sessionId = getCookie(event, lucia.sessionCookieName) ?? null;
-  if (!sessionId) {
-    event.context.session = null;
-    event.context.user = null;
+  if (event.path.startsWith("/api/auth/") || isServerToServer(event.path)) {
     return;
   }
-  const { session, user } = await lucia.validateSession(sessionId);
-  if (session && session.fresh) {
-    appendResponseHeader(
-      event,
-      "Set-Cookie",
-      lucia.createSessionCookie(session.id).serialize(),
-    );
-  }
-  if (!session) {
-    appendResponseHeader(
-      event,
-      "Set-Cookie",
-      lucia.createBlankSessionCookie().serialize(),
-    );
-  }
-  event.context.session = session;
-  event.context.user = user;
+  const data = await auth.api.getSession({ headers: event.headers });
+  event.context.session = data?.session ?? null;
+  event.context.user = data?.user ?? null;
 });
 
 declare module "h3" {
   interface H3EventContext {
-    user: User | null;
-    session: Session | null;
+    user: AuthUser | null;
+    session: AuthSession | null;
   }
 }

@@ -1,146 +1,66 @@
-import { getDataUrl, imagePreProcessChecks } from "@/lib/image-utils";
+import { PARTIES } from "@/lib/sync/constants";
 import { extensions } from "@/lib/tiptap";
-import { AI, type AIProvider } from "@/lib/tiptap/custom-extensions";
-import FileHandler from "@tiptap/extension-file-handler";
+import {
+  AI,
+  BlockFocus,
+  SlashCommand,
+  type AIProvider,
+} from "@/lib/tiptap/custom-extensions";
+import { endOfSelection, handleImageFiles } from "@/lib/tiptap/images";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
-import { Editor, generateHTML, type JSONContent } from "@tiptap/vue-3";
+import FileHandler from "@tiptap/extension-file-handler";
+import { Editor } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
-import YPartyKitProvider from "y-partykit/provider";
-import * as Y from "yjs";
+import YProvider from "y-partyserver/provider";
+import type * as Y from "yjs";
 
-type EditorOpts = {
-  roomId: string;
-  disabled?: boolean;
-  autofocus?: boolean;
-  placeholder?: string;
-  initialValue?: JSONContent | null;
-};
+const EDITOR_CLASS =
+  "-mx-2 px-2 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary";
 
-const proccessImage = async (editor: Editor, file: File, pos: number) => {
-  editor.commands.insertContentAt(
-    pos,
-    {
-      type: "image",
-      attrs: {
-        src: "/image-placeholder.jpg",
-      },
-    },
-    { updateSelection: true },
-  );
-  const placeholdPos = editor.state.selection.anchor;
-  getDataUrl(file)
-    .then((dataUrl) => {
-      editor
-        .chain()
-        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
-        .insertContentAt(placeholdPos, {
-          type: "image",
-          attrs: {
-            src: dataUrl,
-          },
-        })
-        .focus()
-        .run();
-    })
-    .catch((err) => {
-      toast.error("Something went wrong", {
-        description: err.message,
-      });
-      editor
-        .chain()
-        .deleteRange({ from: placeholdPos, to: placeholdPos + 1 })
-        .focus()
-        .run();
-    });
-};
-
-const getAIProvider = (): AIProvider => {
-  const user = useUser().user.value;
-  const tokens = user?.tokens ?? 0;
+const aiProvider = (): AIProvider => {
+  const tokens = useUser().user.value?.tokens ?? 0;
   return {
     permissions: {
       refine: tokens >= CONSTANTS.rates.refine,
       suggest: tokens >= CONSTANTS.rates.suggest,
     },
-    async getSuggestion(text) {
-      const { suggestion } = await $fetch("/api/ai/suggest", {
-        method: "POST",
-        body: JSON.stringify({ text }),
-      });
-      return suggestion;
-    },
-    async refine(text, mode) {
-      const { refined } = await $fetch("/api/ai/refine", {
-        method: "POST",
-        body: JSON.stringify({ text, mode }),
-      });
-      return refined;
-    },
-    onError(action, message) {
-      toast.error(`Failed to ${action}`, { description: message });
-    },
+    getSuggestion: async (text) =>
+      (
+        await requestAI<{ suggestion: string | null }>("/api/ai/suggest", {
+          text,
+        })
+      ).suggestion,
+    refine: async (text, mode) =>
+      (
+        await requestAI<{ refined: string | null }>("/api/ai/refine", {
+          text,
+          mode,
+        })
+      ).refined,
+    onError: (action, message) =>
+      toast.error(`Failed to ${action}`, { description: message }),
   };
 };
 
-export const useEditorUtils = () => {
-  const convertToHtml = (doc: JSONContent | null) => {
-    if (!doc) return "";
-    return generateHTML(doc, extensions);
-  };
-  const addImage = (editor: Editor) => {
-    const { open, onChange } = useFileDialog({
-      accept: "image/*",
-      multiple: false,
-    });
-    open();
-    onChange((filelist) => {
-      if (!filelist) return;
-      const files = Array.from(filelist);
-      if (!files.length) return;
-      const result = imagePreProcessChecks(editor, files);
-      if (!result.valid) return toast.warning(result.message);
-      proccessImage(
-        editor,
-        result.file,
-        editor.state.doc.resolve(editor.state.selection.to).end(),
-      );
-    });
-  };
-  return { addImage, convertToHtml };
-};
+const connectNote = (noteId: string, doc: Y.Doc) =>
+  new YProvider(useRuntimeConfig().public.syncUrl, noteId, doc, {
+    party: PARTIES.note,
+    params: async () => ({ token: await useUser().getToken() }),
+  });
 
-export const useEditor = async ({
-  roomId,
-  disabled,
-  autofocus,
-}: EditorOpts) => {
-  const initialized = ref(false);
-  const yDoc = new Y.Doc();
-  const provider = new YPartyKitProvider(
-    useRuntimeConfig().public.webSocketUrl,
-    roomId,
-    yDoc,
-    { params: { auth_session: await useUser().getToken() } },
-  );
-  const editor = new Editor({
-    autofocus,
-    editable: !disabled,
-    editorProps: {
-      attributes: {
-        class:
-          "px-1 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary",
-      },
-    },
+export const useNoteEditor = async (noteId: string, editable: boolean) => {
+  const doc = await useNoteStore().loadNoteDoc(noteId);
+  const provider = connectNote(noteId, doc);
+  return new Editor({
+    editable,
+    editorProps: { attributes: { class: EDITOR_CLASS } },
     extensions: [
       ...extensions,
-      Collaboration.configure({ document: yDoc }),
+      Collaboration.configure({ document: doc }),
       CollaborationCaret.configure({
-        provider: provider,
-        user: {
-          name: `${useUser().user.value?.name || "Guest"}`,
-          color: "#00ffaa",
-        },
+        provider,
+        user: { name: useUser().user.value?.name || "Guest", color: "#00ffaa" },
       }),
       FileHandler.configure({
         allowedMimeTypes: [
@@ -149,40 +69,24 @@ export const useEditor = async ({
           "image/gif",
           "image/svg+xml",
         ],
-        onDrop: (currentEditor, files, pos) => {
-          const result = imagePreProcessChecks(currentEditor as Editor, files);
-          if (!result.valid) return toast.warning(result.message);
-          proccessImage(currentEditor as Editor, result.file, pos);
-        },
-        onPaste: (currentEditor, files, htmlContent) => {
-          if (htmlContent) return;
-          const result = imagePreProcessChecks(currentEditor as Editor, files);
-          if (!result.valid) return toast.warning(result.message);
-          proccessImage(
-            currentEditor as Editor,
-            result.file,
-            currentEditor.state.doc
-              .resolve(currentEditor.state.selection.to)
-              .end(),
-          );
+        onDrop: (editor, files, position) =>
+          handleImageFiles(editor, files, position),
+        onPaste: (editor, files, html) => {
+          if (!html) handleImageFiles(editor, files, endOfSelection(editor));
         },
       }),
-      AI.configure({
-        provider: getAIProvider(),
+      AI.configure({ provider: aiProvider() }),
+      BlockFocus,
+      SlashCommand.configure({
+        items: filterBlocks,
+        render: slashMenuRenderer,
       }),
     ],
-    onFocus: ({ event }) => {
-      event.preventDefault();
+    onCreate: ({ editor }) => {
+      if (editable && hasFinePointer()) {
+        editor.commands.focus("end", { scrollIntoView: false });
+      }
     },
-    onCreate: () => {
-      provider.on("synced", () => {
-        initialized.value = true;
-      });
-    },
-    onDestroy: () => {
-      provider.destroy();
-      yDoc.destroy();
-    },
+    onDestroy: () => provider.destroy(),
   });
-  return { editor, initialized };
 };

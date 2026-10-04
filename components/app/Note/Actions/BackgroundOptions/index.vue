@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { NoteOptions } from "@/schemas/note";
+import type { Background } from "@/lib/sync/protocol";
 import { DropletOffIcon, PaletteIcon } from "lucide-vue-next";
 
 const props = defineProps<{
-  background: NoteOptions["background"];
+  background: Background;
 }>();
 
 defineEmits<{
@@ -24,13 +24,12 @@ const isDark = computed(() => useColorMode().value === "dark");
       </Button>
     </PopoverTrigger>
     <PopoverContent class="sm:w-[450px]">
-      <!-- Solid Colors -->
       <div class="flex flex-wrap gap-2 sm:justify-between">
         <AppNoteActionsBackgroundOptionsPlaceholder
           label="no-background"
           :icon="DropletOffIcon"
           @select="$emit('set-background', null)"
-          :selected="props.background?.value === null"
+          :selected="!props.background?.value"
         />
         <template
           v-for="option in getBackgroundOptions(isDark)"

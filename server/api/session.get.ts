@@ -1,3 +1,4 @@
-export default defineEventHandler((event) => {
-  return event.context.session;
-});
+export default defineEventHandler((event) => ({
+  token: event.context.session?.token ?? null,
+  userId: event.context.user?.id ?? null,
+}));

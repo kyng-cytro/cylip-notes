@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { BellRingIcon, XIcon } from "lucide-vue-next";
 const { formatToTimeAgo } = useDateUtils();
 defineProps<{
-  date: string | null;
+  date: number | null;
   noClear?: boolean;
 }>();
 defineEmits<{

@@ -14,7 +14,8 @@ const { labels, initialized } = storeToRefs(useNoteStore());
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="all-notes" selected> All Notes </SelectItem>
+          <SelectItem :value="ALL_NOTES">All Notes</SelectItem>
+          <SelectItem :value="SHARED_WITH_ME">Shared with me</SelectItem>
           <SelectItem :value="label.id" v-for="label in labels" :key="label.id">
             {{ capitalize(label.name) }}
           </SelectItem>

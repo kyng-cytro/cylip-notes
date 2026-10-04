@@ -7,32 +7,47 @@ definePageMeta({
 const notesStore = useNoteStore();
 const { initialized } = storeToRefs(notesStore);
 const { label } = storeToRefs(useLayoutStore());
-const { containerParentStyles: layoutStyles } = useLayout();
+const { containerParentStyles: layoutStyles } = useNoteLayout();
 
-const notes = computed(() => {
-  return notesStore.methods.retrieveNotes("active", label.value);
+const emptyState = computed(() => {
+  if (label.value === ALL_NOTES) {
+    return {
+      title: "No notes yet",
+      subtitle: "Create your first note to get started",
+      button: { text: "Create Note" },
+    };
+  }
+  if (label.value === SHARED_WITH_ME) {
+    return {
+      title: "Nothing shared with you yet",
+      subtitle: "Notes people share with you will show up here.",
+    };
+  }
+  return {
+    title: "No notes in this label",
+    subtitle: "Notes with this label will show up here.",
+  };
 });
+const notes = computed(() => notesStore.retrieveNotes("active", label.value));
+const pinnedNotes = computed(() =>
+  notesStore.retrieveNotes("pinned", label.value),
+);
 
-const pinnedNotes = computed(() => {
-  return notesStore.methods.retrieveNotes("pinned", label.value);
-});
-
-const createNote = async () => {
-  await notesStore.methods.createNote(label.value);
+const createNote = () => {
+  const noteId = notesStore.createNote(label.value);
+  useModalRouter().push(`/app/notes/${noteId}`);
 };
 
-const reorderNotes = async (orderedIds: string[]) => {
-  await notesStore.methods.reorderNotes({
-    scope: label.value === "all-notes" ? "all" : "label",
-    labelId: label.value === "all-notes" ? undefined : label.value,
-    orderedIds,
-  });
-};
+const moveNote = (
+  noteId: string,
+  beforeId: string | null,
+  afterId: string | null,
+) => notesStore.moveNote(noteId, label.value, beforeId, afterId);
 </script>
 
 <template>
   <AppMainContainer>
-    <div class="flex items-center justify-between pl-1 pr-2">
+    <div class="flex items-center justify-between pr-2 pl-1">
       <AppLabelSelect />
       <Button class="font-semibold" variant="default" @click="createNote">
         New Note <Plus class="ml-1 size-5" />
@@ -41,15 +56,9 @@ const reorderNotes = async (orderedIds: string[]) => {
     </div>
     <template v-if="!notes.length && !pinnedNotes.length">
       <AppEmptyPage
-        :title="
-          label === 'all-notes' ? 'No notes yet' : 'No notes in this label'
-        "
-        :subtitle="
-          label === 'all-notes'
-            ? 'Create your first note to get started'
-            : 'Notes with this label will show up here.'
-        "
-        :button="label === 'all-notes' ? { text: 'Create Note' } : undefined"
+        :title="emptyState.title"
+        :subtitle="emptyState.subtitle"
+        :button="emptyState.button"
         @button-click="createNote"
         v-if="initialized"
       />
@@ -60,7 +69,7 @@ const reorderNotes = async (orderedIds: string[]) => {
     <template v-else>
       <AppScrollContainer :class="layoutStyles">
         <p
-          class="text-sm font-semibold text-muted-foreground"
+          class="text-muted-foreground text-sm font-semibold"
           v-if="pinnedNotes.length"
         >
           Pinned
@@ -68,15 +77,15 @@ const reorderNotes = async (orderedIds: string[]) => {
         <AppNoteContainer
           :notes="pinnedNotes"
           v-if="pinnedNotes.length"
-          @reorder="reorderNotes"
+          @move="moveNote"
         />
         <p
-          class="text-sm font-semibold text-muted-foreground"
+          class="text-muted-foreground text-sm font-semibold"
           v-if="pinnedNotes.length"
         >
           Others
         </p>
-        <AppNoteContainer :notes="notes" @reorder="reorderNotes" />
+        <AppNoteContainer :notes="notes" @move="moveNote" />
       </AppScrollContainer>
     </template>
     <PlusModalPage name="modal" />

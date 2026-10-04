@@ -1,33 +1,29 @@
-import type { Component } from "vue";
-import { render } from "@vue-email/render";
-import welcomeTempate from "@/emails/welcome.vue";
+import noteSharedTemplate from "@/emails/note-shared.vue";
 import signInTemplate from "@/emails/sign-in.vue";
+import { render } from "@vue-email/render";
+import type { Component } from "vue";
 
-const getHTML = (template: Component, data: any) => {
-  return render(template, data, {
-    pretty: true,
-  });
-};
-
-const getText = (template: Component, data: any) => {
-  return render(template, data, {
-    plainText: true,
-  });
-};
-
-export const renderWelcomeEmail = async (props: { name: string }) => {
-  const subject = `Hi ${props.name}, Welcome to cylip|notes`;
-  const html = await getHTML(welcomeTempate, props);
-  const text = await getText(welcomeTempate, props);
-  return { html, text, subject };
+const renderEmail = async (template: Component, props: object) => {
+  const [html, text] = await Promise.all([
+    render(template, props, { pretty: true }),
+    render(template, props, { plainText: true }),
+  ]);
+  return { html, text };
 };
 
 export const renderSignInEmail = async (props: {
   name: string;
   url: string;
-}) => {
-  const subject = `Login Initiated`;
-  const html = await getHTML(signInTemplate, props);
-  const text = await getText(signInTemplate, props);
-  return { html, text, subject };
-};
+}) => ({
+  ...(await renderEmail(signInTemplate, props)),
+  subject: "Login Initiated",
+});
+
+export const renderNoteSharedEmail = async (props: {
+  sharer: { name: string; email: string };
+  note: { title: string };
+  url: string;
+}) => ({
+  ...(await renderEmail(noteSharedTemplate, props)),
+  subject: `${props.sharer.name} invited you to “${props.note.title}”`,
+});
