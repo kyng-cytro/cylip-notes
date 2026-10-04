@@ -14,7 +14,7 @@ import type {
   NoteMeta,
   WorkspaceNote,
 } from "@/lib/sync/protocol";
-import { searchNotes } from "@/lib/sync/search";
+import { createSearchIndex } from "@/lib/sync/search";
 import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
 import { toast } from "vue-sonner";
 
@@ -311,7 +311,9 @@ export const useNoteStore = defineStore("notes", () => {
     }
   };
 
-  const search = (query: string) => searchNotes(notes.value, query);
+  const searchIndex = computed(() => createSearchIndex(notes.value));
+
+  const search = (query: string) => searchIndex.value(query);
 
   const syncNow = () => engine.value?.syncNow();
 

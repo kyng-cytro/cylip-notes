@@ -1,63 +1,94 @@
 <script setup lang="ts">
+import type { SearchResult } from "@/lib/sync/search";
 import { Search } from "lucide-vue-next";
-import { PopoverClose } from "reka-ui";
+import {
+  ListboxContent,
+  ListboxFilter,
+  ListboxItem,
+  ListboxRoot,
+} from "reka-ui";
 
-const q = ref("");
-const query = refDebounced(q, 200);
+const open = ref(false);
+const query = ref("");
+const debouncedQuery = refDebounced(query, 150);
+const shortcut = ref("Ctrl K");
 const noteStore = useNoteStore();
+
 const results = computed(() =>
-  query.value ? noteStore.search(query.value) : [],
+  debouncedQuery.value.trim() ? noteStore.search(debouncedQuery.value) : [],
 );
 
-const replace = computed(() => {
-  const path = useRoute().path;
-  return path !== "/app" && !["reminders", "archive", "trash"].includes(path);
+const openNote = (result: SearchResult) => {
+  open.value = false;
+  useModalRouter().push(`/app/notes/${result.note.id}`);
+};
+
+onKeyStroke("k", (event) => {
+  if (!event.metaKey && !event.ctrlKey) return;
+  event.preventDefault();
+  open.value = true;
+});
+
+watch(open, (isOpen) => {
+  if (!isOpen) query.value = "";
+});
+
+onMounted(() => {
+  if (/Mac|iPhone|iPad/.test(navigator.userAgent)) shortcut.value = "⌘K";
 });
 </script>
 <template>
-  <ClientOnly>
-    <Popover>
-      <PopoverTrigger as-child>
-        <div class="relative md:w-2/3 lg:w-1/3">
-          <Search
-            class="text-muted-foreground absolute top-2.5 left-2.5 size-4"
-          />
-          <Input
-            v-model="q"
-            id="search"
-            type="search"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="Search notes..."
-            class="bg-background no-clear w-full appearance-none pl-8 shadow-none"
+  <Button
+    variant="outline"
+    class="bg-background text-muted-foreground w-full justify-start gap-2 px-3 font-normal shadow-none md:w-2/3 lg:w-1/3"
+    @click="open = true"
+  >
+    <Search class="size-4 shrink-0" />
+    <span class="truncate">Search notes...</span>
+    <kbd
+      class="bg-muted ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-medium sm:inline"
+    >
+      {{ shortcut }}
+    </kbd>
+  </Button>
+  <Dialog v-model:open="open">
+    <DialogContent
+      class="top-[15%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-lg"
+    >
+      <DialogTitle class="sr-only">Search notes</DialogTitle>
+      <DialogDescription class="sr-only">
+        Search note titles, content and labels.
+      </DialogDescription>
+      <ListboxRoot highlight-on-hover class="flex flex-col">
+        <div class="flex h-12 items-center gap-2 border-b px-3">
+          <Search class="text-muted-foreground size-4 shrink-0" />
+          <ListboxFilter
+            v-model="query"
+            auto-focus
+            placeholder="Search titles, content and labels"
+            class="placeholder:text-muted-foreground h-full w-full bg-transparent text-sm outline-none"
           />
         </div>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        class="scrollbar-thumb-secondary max-h-96 scrollbar-thin scrollbar-track-transparent overflow-y-auto p-2 md:w-[450px]"
-      >
-        <div class="flex h-full flex-col items-center gap-4">
-          <template v-if="!results.length">
-            <h3 class="text-muted-foreground p-4 text-sm">
-              {{ q ? "No results found." : "Search notes..." }}
-            </h3>
-          </template>
-          <template v-else>
-            <template :key="result.id" v-for="result in results">
-              <PopoverClose as-child>
-                <AppHeaderSearchItem :replace :item="result" />
-              </PopoverClose>
-            </template>
-          </template>
-        </div>
-        <div
-          class="bg-background absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-t border-l"
-        />
-      </PopoverContent>
-    </Popover>
-    <template #fallback>
-      <Skeleton class="h-9 w-full md:w-2/3 lg:w-1/3" />
-    </template>
-  </ClientOnly>
+        <ListboxContent
+          class="max-h-[60dvh] scrollbar-thin overflow-y-auto p-2"
+        >
+          <p
+            v-if="!results.length"
+            class="text-muted-foreground py-6 text-center text-sm"
+          >
+            {{ debouncedQuery.trim() ? "No notes found." : "Type to search." }}
+          </p>
+          <ListboxItem
+            v-for="result in results"
+            :key="result.note.id"
+            :value="result.note.id"
+            class="data-[highlighted]:bg-accent cursor-pointer rounded-md p-2 outline-none"
+            @select="openNote(result)"
+          >
+            <AppHeaderSearchItem :result="result" />
+          </ListboxItem>
+        </ListboxContent>
+      </ListboxRoot>
+    </DialogContent>
+  </Dialog>
 </template>
