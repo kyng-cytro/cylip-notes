@@ -35,7 +35,12 @@ const shouldShow = ({ editor }: { editor: BaseEditor }) => {
 };
 
 const marks: Mark[] = [
-  { name: "bold", label: "Bold", icon: Bold, toggle: (chain) => chain.toggleBold() },
+  {
+    name: "bold",
+    label: "Bold",
+    icon: Bold,
+    toggle: (chain) => chain.toggleBold(),
+  },
   {
     name: "italic",
     label: "Italic",

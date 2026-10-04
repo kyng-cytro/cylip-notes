@@ -34,7 +34,7 @@ onBeforeUnmount(() => {
   <ContextMenu :modal="false">
     <EditorBlockHandle v-if="finePointer" :editor />
     <EditorBubbleMenu :editor />
-    <ContextMenuTrigger>
+    <ContextMenuTrigger :disabled="!finePointer">
       <editor-content :editor class="h-full w-full" />
     </ContextMenuTrigger>
     <ContextMenuContent class="w-64">

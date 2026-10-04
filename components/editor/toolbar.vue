@@ -18,10 +18,14 @@ const props = defineProps<{
 }>();
 
 const disabled = computed(() => !props.editor.isEditable);
+const touch = ref(false);
+
+onMounted(() => (touch.value = !hasFinePointer()));
 </script>
 <template>
   <div
-    class="-mx-1 flex scrollbar-none items-center gap-1 overflow-x-auto px-1 lg:hidden"
+    class="-mx-1 flex scrollbar-none items-center gap-1 overflow-x-auto px-1"
+    :class="{ 'lg:hidden': !touch }"
   >
     <EditorButton
       label="Insert block"
@@ -66,6 +70,7 @@ const disabled = computed(() => !props.editor.isEditable);
       "
       :disabled="disabled"
     />
+    <EditorAiMenu :editor="editor" />
     <div class="bg-border h-5 w-px shrink-0" />
     <EditorButton
       label="Undo"
