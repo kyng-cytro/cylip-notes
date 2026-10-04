@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { ClientNote } from "@/lib/types";
 import type { NotePerson } from "@/server/utils/note-sharing";
 import { XIcon } from "lucide-vue-next";
@@ -91,16 +90,13 @@ const remove = async (person: NotePerson) => {
         autocomplete="off"
         placeholder="Email address"
       />
-      <RadioGroup v-model="role" class="flex gap-6">
-        <Label class="flex items-center gap-2 font-normal">
-          <RadioGroupItem value="viewer" />
-          Viewer
-        </Label>
-        <Label class="flex items-center gap-2 font-normal">
-          <RadioGroupItem value="editor" />
-          Editor
-        </Label>
-      </RadioGroup>
+      <Select v-model="role">
+        <SelectTrigger class="w-full"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="editor">Editor</SelectItem>
+          <SelectItem value="viewer">Viewer</SelectItem>
+        </SelectContent>
+      </Select>
       <Button type="submit" :loading="sharing">Share</Button>
     </form>
     <ul class="flex flex-col gap-2">

@@ -34,6 +34,7 @@ export type WorkspaceNote = {
   reminderAt: number | null;
   preview: boolean;
   addedAt: number;
+  shared?: boolean;
 };
 
 export type LabelOptions = {

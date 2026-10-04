@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isSharedNote } from "@/lib/notes";
 import type { ClientNote } from "@/lib/types";
 
 const { formatToTimeAgo } = useDateUtils();
@@ -10,6 +11,10 @@ defineProps<{ note: ClientNote }>();
   >
     <template v-if="note.public">
       <AppNoteActionsShareBadge />
+      <span>•</span>
+    </template>
+    <template v-if="isSharedNote(note)">
+      <AppNoteSharedBadge :note="note" />
       <span>•</span>
     </template>
     <template v-if="note.reminderAt">

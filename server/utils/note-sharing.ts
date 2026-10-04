@@ -57,8 +57,12 @@ export const shareNote = async (
     throw createError({ statusCode: 400, message: "You own this note." });
   }
   const recipient = await findUserByEmail(person.email);
-  if (recipient) await grantNoteAccess(noteId, recipient.id, person.role);
-  else await saveInvite(noteId, person.email, person.role, sharer.id);
+  if (recipient) {
+    await grantNoteAccess(noteId, recipient.id, person.role);
+  } else {
+    await saveInvite(noteId, person.email, person.role, sharer.id);
+    await refreshSharedFlag(noteId);
+  }
   await sendNoteSharedEmail(person.email, sharer, noteId);
 };
 
@@ -85,11 +89,12 @@ export const updateSharedRole = async (
 };
 
 export const removeSharedAccess = async (noteId: string, email: string) => {
-  const collaborator = await findCollaborator(noteId, email);
-  if (collaborator) await revokeNoteAccess(noteId, collaborator.id);
   await useDrizzle()
     .delete(tables.noteInvite)
     .where(inviteFilter(noteId, email));
+  const collaborator = await findCollaborator(noteId, email);
+  if (collaborator) await revokeNoteAccess(noteId, collaborator.id);
+  else await refreshSharedFlag(noteId);
 };
 
 export const acceptNoteInvites = async (userId: string) => {

@@ -24,3 +24,6 @@ export const sortKeyIn = (
   note: ClientNote | undefined,
   labelId: string | null,
 ) => (labelId ? note?.labelSortKey : note?.sortKey);
+
+export const isSharedNote = (note: ClientNote) =>
+  note.role !== "owner" || !!note.shared;

@@ -52,6 +52,7 @@ export const CLIENT_ROUTES = {
 export const WORKER_ROUTES = {
   prefix: "/internal/",
   workspaceNote: "/internal/workspaces/:userId/notes/:noteId",
+  workspaceNoteShared: "/internal/workspaces/:userId/notes/:noteId/shared",
   noteConnections: "/internal/notes/:noteId/connections/:userId",
   note: "/internal/notes/:noteId",
   loadNote: "/internal/notes/:noteId/load",

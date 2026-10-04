@@ -31,6 +31,14 @@ const routes = [
     },
   ),
   route(
+    "POST",
+    WORKER_ROUTES.workspaceNoteShared,
+    async (env, { userId, noteId }, request) => {
+      const { shared } = await request.json<{ shared: boolean }>();
+      return (await workspaceDoc(env, userId)).setShared(noteId, shared);
+    },
+  ),
+  route(
     "DELETE",
     WORKER_ROUTES.workspaceNote,
     async (env, { userId, noteId }) =>

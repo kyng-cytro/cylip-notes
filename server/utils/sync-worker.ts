@@ -23,6 +23,18 @@ export const addToWorkspace = (
 ) =>
   callWorker("POST", WORKER_ROUTES.workspaceNote, { userId, noteId }, { role });
 
+export const setWorkspaceNoteShared = (
+  userId: string,
+  noteId: string,
+  shared: boolean,
+) =>
+  callWorker(
+    "POST",
+    WORKER_ROUTES.workspaceNoteShared,
+    { userId, noteId },
+    { shared },
+  );
+
 export const removeFromWorkspace = (userId: string, noteId: string) =>
   callWorker("DELETE", WORKER_ROUTES.workspaceNote, { userId, noteId });
 

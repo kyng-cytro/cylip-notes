@@ -3,6 +3,7 @@ import {
   getNotesMap,
   readWorkspace,
   toYMap,
+  writeMap,
   writeWorkspace,
   type NoteChangedMessage,
   type NoteRole,
@@ -50,7 +51,7 @@ export class WorkspaceDoc extends YServer<Env> {
     const notes = getNotesMap(this.document);
     const existing = notes.get(noteId);
     if (existing) {
-      existing.set("role", role);
+      writeMap(existing, { role, shared: true });
       return;
     }
     const entry: WorkspaceNote = {
@@ -63,8 +64,14 @@ export class WorkspaceDoc extends YServer<Env> {
       reminderAt: null,
       preview: true,
       addedAt: Date.now(),
+      shared: true,
     };
     notes.set(noteId, toYMap(entry));
+  }
+
+  setShared(noteId: string, shared: boolean) {
+    const entry = getNotesMap(this.document).get(noteId);
+    if (entry) writeMap(entry, { shared });
   }
 
   removeNote(noteId: string) {

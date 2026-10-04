@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isSharedNote } from "@/lib/notes";
 import { contentToHtml } from "@/lib/tiptap";
 import type { ClientNote } from "@/lib/types";
 
@@ -70,9 +71,10 @@ useCodeHighlight(contentRef, content);
     </template>
     <div
       class="mt-3 flex flex-wrap items-center gap-4"
-      v-if="note.label || note.reminderAt || note.public"
+      v-if="note.label || note.reminderAt || note.public || isSharedNote(note)"
     >
       <AppNoteActionsShareBadge v-if="note.public" />
+      <AppNoteSharedBadge v-if="isSharedNote(note)" :note="note" />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />
       <AppNoteActionsReminderBadge
         v-if="note.reminderAt"

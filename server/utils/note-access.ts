@@ -92,6 +92,27 @@ export const deleteNotes = async (noteIds: string[]) => {
   ]);
 };
 
+export const refreshSharedFlag = async (noteId: string) => {
+  const db = useDrizzle();
+  const [note, member, invite] = await Promise.all([
+    db.query.note.findFirst({
+      columns: { userId: true },
+      where: eq(tables.note.id, noteId),
+    }),
+    db.query.noteMember.findFirst({
+      columns: { userId: true },
+      where: eq(tables.noteMember.noteId, noteId),
+    }),
+    db.query.noteInvite.findFirst({
+      columns: { email: true },
+      where: eq(tables.noteInvite.noteId, noteId),
+    }),
+  ]);
+  if (note) {
+    await setWorkspaceNoteShared(note.userId, noteId, !!(member || invite));
+  }
+};
+
 export const grantNoteAccess = async (
   noteId: string,
   userId: string,
@@ -106,6 +127,7 @@ export const grantNoteAccess = async (
     });
   await addToWorkspace(userId, noteId, role);
   await disconnectFromNote(noteId, userId);
+  await refreshSharedFlag(noteId);
 };
 
 export const revokeNoteAccess = async (noteId: string, userId: string) => {
@@ -119,4 +141,5 @@ export const revokeNoteAccess = async (noteId: string, userId: string) => {
     );
   await removeFromWorkspace(userId, noteId);
   await disconnectFromNote(noteId, userId);
+  await refreshSharedFlag(noteId);
 };

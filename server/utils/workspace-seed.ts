@@ -24,6 +24,23 @@ const withSortKeys = <T extends Keyed>(
   }));
 };
 
+const sharedNoteIds = async (userId: string) => {
+  const db = useDrizzle();
+  const [members, invites] = await Promise.all([
+    db
+      .selectDistinct({ id: tables.noteMember.noteId })
+      .from(tables.noteMember)
+      .innerJoin(tables.note, eq(tables.note.id, tables.noteMember.noteId))
+      .where(eq(tables.note.userId, userId)),
+    db
+      .selectDistinct({ id: tables.noteInvite.noteId })
+      .from(tables.noteInvite)
+      .innerJoin(tables.note, eq(tables.note.id, tables.noteInvite.noteId))
+      .where(eq(tables.note.userId, userId)),
+  ]);
+  return new Set([...members, ...invites].map((row) => row.id));
+};
+
 const loadRows = (userId: string) => {
   const db = useDrizzle();
   return Promise.all([
@@ -39,12 +56,13 @@ const loadRows = (userId: string) => {
       where: eq(tables.label.userId, userId),
       orderBy: (l, { desc }) => [desc(l.order), desc(l.createdAt)],
     }),
+    sharedNoteIds(userId),
   ]);
 };
 
 type Rows = Awaited<ReturnType<typeof loadRows>>;
 
-const toEntries = ([owned, memberships]: Rows) => [
+const toEntries = ([owned, memberships, , shared]: Rows) => [
   ...owned.map((note) => ({
     id: note.id,
     role: "owner" as const,
@@ -57,6 +75,7 @@ const toEntries = ([owned, memberships]: Rows) => [
     reminderAt: note.reminderAt?.getTime() ?? null,
     preview: note.options?.preview ?? true,
     addedAt: note.createdAt.getTime(),
+    shared: shared.has(note.id),
   })),
   ...memberships.map((member) => ({
     id: member.noteId,
@@ -70,6 +89,7 @@ const toEntries = ([owned, memberships]: Rows) => [
     reminderAt: member.reminderAt?.getTime() ?? null,
     preview: member.preview,
     addedAt: member.createdAt.getTime(),
+    shared: true,
   })),
 ];
 
