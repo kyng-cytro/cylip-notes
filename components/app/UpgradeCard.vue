@@ -8,9 +8,7 @@
       </CardDescription>
     </CardHeader>
     <CardContent>
-      <Button size="sm" to="/app/upgrade" class="w-full">
-        Upgrade
-      </Button>
+      <Button size="sm" to="/app/upgrade" class="w-full"> Upgrade </Button>
     </CardContent>
   </Card>
 </template>

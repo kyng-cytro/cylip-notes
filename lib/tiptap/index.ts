@@ -2,6 +2,8 @@ import lowlight from "@/lib/lowlight";
 import {
   Callout,
   CodeBlock,
+  Heading,
+  HEADING_LEVELS,
   MarkDownCopy,
 } from "@/lib/tiptap/custom-extensions";
 import {
@@ -20,7 +22,11 @@ import { generateHTML, type JSONContent } from "@tiptap/vue-3";
 import type { Node } from "@tiptap/pm/model";
 
 const placeholderFor = ({ node }: { node: Node }) => {
-  if (node.type.name === "heading") return `Heading ${node.attrs.level}`;
+  if (node.type.name === "heading") {
+    return node.attrs.level === HEADING_LEVELS.heading
+      ? "Heading"
+      : "Subheading";
+  }
   if (node.type.name === "detailsSummary") return "Toggle";
   return "Type '/' for commands";
 };
@@ -40,6 +46,7 @@ export const extensions = [
   CodeBlock.configure({
     lowlight,
   }),
+  Heading,
   Callout,
   Details,
   DetailsSummary,
@@ -51,7 +58,7 @@ export const extensions = [
     link: {
       linkOnPaste: true,
     },
-    heading: { levels: [1, 2, 3, 4] },
+    heading: false,
     dropcursor: { color: false, width: 2, class: "drop-cursor" },
     horizontalRule: { HTMLAttributes: { class: "bg-primary border-1" } },
   }),

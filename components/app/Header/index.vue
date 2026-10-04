@@ -31,7 +31,7 @@ const closeMobileMenu = () => {
           >Snap, Note, Remember</SheetDescription
         >
         <nav
-          class="scrollbar-thin grid min-h-20 gap-y-3 overflow-y-auto font-medium"
+          class="grid min-h-20 scrollbar-thin gap-y-3 overflow-y-auto font-medium"
         >
           <AppHeaderItem
             @click="closeMobileMenu"

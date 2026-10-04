@@ -3,9 +3,7 @@ import type { Node } from "@tiptap/pm/model";
 import {
   ChevronRight,
   Code,
-  Heading1,
-  Heading2,
-  Heading3,
+  Heading,
   ImagePlus,
   Lightbulb,
   List,
@@ -14,8 +12,9 @@ import {
   Minus,
   Pilcrow,
   Quote,
+  Type,
 } from "lucide-vue-next";
-import type { SlashItem } from "@/lib/tiptap/custom-extensions";
+import { HEADING_LEVELS, type SlashItem } from "@/lib/tiptap/custom-extensions";
 import { pickImage } from "@/lib/tiptap/images";
 
 export type EditorBlock = SlashItem & {
@@ -30,7 +29,7 @@ const convert =
   (editor: Editor) =>
     run(editor.chain().focus().clearNodes()).run();
 
-const heading = (level: 1 | 2 | 3) =>
+const heading = (level: 4 | 5) =>
   convert((chain) => chain.setHeading({ level }));
 
 export const editorBlocks: EditorBlock[] = [
@@ -43,28 +42,20 @@ export const editorBlocks: EditorBlock[] = [
     apply: convert((chain) => chain),
   },
   {
-    id: "heading-1",
-    title: "Heading 1",
-    icon: Heading1,
-    keywords: ["h1", "title"],
+    id: "heading",
+    title: "Heading",
+    icon: Heading,
+    keywords: ["h1", "title", "header"],
     convertible: true,
-    apply: heading(1),
+    apply: heading(HEADING_LEVELS.heading),
   },
   {
-    id: "heading-2",
-    title: "Heading 2",
-    icon: Heading2,
+    id: "subheading",
+    title: "Subheading",
+    icon: Type,
     keywords: ["h2", "subtitle"],
     convertible: true,
-    apply: heading(2),
-  },
-  {
-    id: "heading-3",
-    title: "Heading 3",
-    icon: Heading3,
-    keywords: ["h3"],
-    convertible: true,
-    apply: heading(3),
+    apply: heading(HEADING_LEVELS.subheading),
   },
   {
     id: "todo",

@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <NuxtLink
     :to="to"
-    class="flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+    class="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
     active-class="bg-muted text-primary"
   >
     <component class="h-5 w-5" :is="icon" />

@@ -16,13 +16,13 @@ defineProps<{
 <template>
   <Card class="flex h-full w-full flex-col">
     <CardHeader>
-      <CardTitle class="text-2xl font-semibold leading-8">{{
+      <CardTitle class="text-2xl leading-8 font-semibold">{{
         title
       }}</CardTitle>
       <CardDescription class="text-md mt-3">{{ description }}</CardDescription>
-      <CardDescription class="text-md mt-4 gap-x-1 text-primary">
+      <CardDescription class="text-md text-primary mt-4 gap-x-1">
         <span class="text-4xl font-bold tracking-tight">${{ price }}</span>
-        <span class="text-sm font-semibold leading-6" v-if="!onetime"
+        <span class="text-sm leading-6 font-semibold" v-if="!onetime"
           >/month</span
         >
       </CardDescription>
@@ -44,7 +44,7 @@ defineProps<{
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            class="h-6 w-5 flex-none text-primary"
+            class="text-primary h-6 w-5 flex-none"
             aria-hidden="true"
           >
             <path
@@ -58,7 +58,7 @@ defineProps<{
       </ul>
       <ul>
         <li
-          class="flex gap-x-3 text-xs text-muted-foreground"
+          class="text-muted-foreground flex gap-x-3 text-xs"
           v-for="extra in extras"
         >
           {{ extra }}
