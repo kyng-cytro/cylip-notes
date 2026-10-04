@@ -36,10 +36,15 @@ export const useUser = () => {
   };
 
   const getToken = async () => {
-    const { token } = await $fetch<{ token: string | null }>("/api/session", {
-      timeout: SYNC_TIMING.tokenTimeout,
-    });
-    return token ?? "";
+    const session = await $fetch<{
+      token: string | null;
+      userId: string | null;
+    }>("/api/session", { timeout: SYNC_TIMING.tokenTimeout });
+    if (session.userId !== user.value?.id) {
+      reloadNuxtApp();
+      throw new Error("The signed-in account changed in another tab.");
+    }
+    return session.token ?? "";
   };
 
   const logout = async () => {
