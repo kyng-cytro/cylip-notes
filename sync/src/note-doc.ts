@@ -1,4 +1,4 @@
-import { CLOSE_CODES, SAVE_DEBOUNCE } from "@/lib/sync/constants";
+import { CLOSE_CODES, SAVE_DEBOUNCE } from "@/constants";
 import { fromBase64, toBase64 } from "@/lib/sync/protocol";
 import type { Connection, ConnectionContext } from "partyserver";
 import { YServer } from "y-partyserver";

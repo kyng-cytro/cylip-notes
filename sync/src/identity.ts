@@ -1,4 +1,4 @@
-import { HEADERS } from "@/lib/sync/constants";
+import { HEADERS } from "@/constants";
 import type { Identity } from "./env";
 
 export const withIdentity = (request: Request, identity: Identity) => {

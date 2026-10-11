@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ALL_NOTES } from "@/constants";
 import type { ClientLabel } from "@/lib/types";
 import { Check, Plus } from "lucide-vue-next";
 defineProps<{

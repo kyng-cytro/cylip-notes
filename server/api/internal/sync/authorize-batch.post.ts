@@ -6,6 +6,7 @@ const bodySchema = z.object({
   ids: z.array(z.string().min(1).max(64)).max(5000),
   create: z.boolean().default(false),
   since: z.number().nullish(),
+  unlocks: z.record(z.string(), z.string()).default({}),
 });
 
 const loadAccess = (noteIds: string[], userId: string) => {
@@ -41,8 +42,24 @@ const resolveRoles = ([notes, memberships]: Access, userId: string) => {
   );
 };
 
+const lockedWithoutAccess = async (
+  roles: Record<string, NoteRole>,
+  userId: string,
+  unlocks: Record<string, string>,
+) => {
+  const locks = await getNoteLocks(Object.keys(roles));
+  const checks = await Promise.all(
+    [...locks].map(async ([noteId, lockedAt]) => {
+      const claims = { noteId, userId, lockedAt };
+      const valid = await isValidUnlockToken(unlocks[noteId], claims);
+      return valid ? null : noteId;
+    }),
+  );
+  return checks.filter((noteId) => noteId !== null);
+};
+
 export default defineSyncEventHandler(async (event) => {
-  const { token, ids, create, since } = await readValidatedBody(
+  const { token, ids, create, since, unlocks } = await readValidatedBody(
     event,
     bodySchema.parse,
   );
@@ -54,6 +71,9 @@ export default defineSyncEventHandler(async (event) => {
 
   const roles: Record<string, NoteRole> = {};
   for (const [id, role] of noteRoles) if (role) roles[id] = role;
+  for (const id of await lockedWithoutAccess(roles, user.id, unlocks)) {
+    delete roles[id];
+  }
   const denied = [
     ...[...noteRoles].filter(([, role]) => !role).map(([id]) => id),
     ...tombstones.map((tombstone) => tombstone.id),

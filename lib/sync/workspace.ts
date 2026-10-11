@@ -3,7 +3,7 @@ import {
   NOTE_CHANGED,
   PARTIES,
   STORAGE_NAMES,
-} from "./constants";
+} from "@/constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import YProvider from "y-partyserver/provider";
 import * as Y from "yjs";

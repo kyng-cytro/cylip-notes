@@ -294,6 +294,21 @@ export const noteInvitesRelations = relations(noteInvite, ({ one }) => ({
   }),
 }));
 
+export const noteLock = sqliteTable("note_locks", {
+  noteId: text("note_id")
+    .notNull()
+    .primaryKey()
+    .references(() => note.id, { onDelete: "cascade" }),
+  passwordHash: text("password_hash").notNull(),
+  lockedAt: integer("locked_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const unlockAttempt = sqliteTable("unlock_attempts", {
+  key: text("key").notNull().primaryKey(),
+  failures: integer("failures").notNull(),
+  windowStart: integer("window_start", { mode: "timestamp_ms" }).notNull(),
+});
+
 export const deletedNote = sqliteTable("deleted_notes", {
   id: text("id").notNull().primaryKey(),
   deletedAt: integer("deleted_at", { mode: "timestamp_ms" })

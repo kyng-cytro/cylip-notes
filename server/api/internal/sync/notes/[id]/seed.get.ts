@@ -21,15 +21,6 @@ export default defineSyncEventHandler(async (event) => {
   if (!note || (note.content === null && note.title === null)) {
     throw createError({ statusCode: 404 });
   }
-  const doc = buildNoteDoc(await loadNoteContent(note), {
-    title: note.title ?? "",
-    background: note.options?.background ?? null,
-    public: note.options?.public?.enabled ?? false,
-    trashed: note.trashed,
-    trashedAt: note.trashedAt?.getTime() ?? null,
-    createdAt: note.createdAt.getTime(),
-    updatedAt: note.updatedAt.getTime(),
-    ownerId: note.userId,
-  });
+  const doc = buildNoteDoc(await loadNoteContent(note), toNoteMeta(note));
   return { state: encodeNoteDoc(doc) };
 });

@@ -1,4 +1,4 @@
-import { DOC_KEYS } from "@/lib/sync/constants";
+import { DOC_KEYS } from "@/constants";
 import { extensions } from "@/lib/tiptap";
 import {
   getMeta,
@@ -15,6 +15,19 @@ import {
 import * as Y from "yjs";
 
 const schema = getSchema(extensions);
+
+type NoteRow = typeof tables.note.$inferSelect;
+
+export const toNoteMeta = (note: NoteRow): NoteMeta => ({
+  title: note.title ?? "",
+  background: note.options?.background ?? null,
+  public: note.options?.public?.enabled ?? false,
+  trashed: note.trashed,
+  trashedAt: note.trashedAt?.getTime() ?? null,
+  createdAt: note.createdAt.getTime(),
+  updatedAt: note.updatedAt.getTime(),
+  ownerId: note.userId,
+});
 
 export const buildNoteDoc = (content: JSONContent | null, meta: NoteMeta) => {
   const doc = new Y.Doc();

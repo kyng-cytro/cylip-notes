@@ -8,12 +8,13 @@ export const useNotePage = async (noteId: string) => {
   await noteStore.ensureStarted();
 
   const note = computed(() => noteStore.getNoteById(noteId));
+  const locked = computed(() => !!note.value?.locked);
   const canEdit = computed(
     () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
   const editor = shallowRef<Editor | null>(null);
   const loading = computed(() => {
-    if (editor.value) return false;
+    if (editor.value || locked.value) return false;
     return !!note.value || !noteStore.caughtUp;
   });
 
@@ -24,9 +25,16 @@ export const useNotePage = async (noteId: string) => {
     if (page.unmounted) return created.destroy();
     editor.value = created;
   };
-  whenever(() => note.value && !editor.value, createEditor, {
+  whenever(() => note.value && !locked.value && !editor.value, createEditor, {
     immediate: true,
   });
+  whenever(locked, () => {
+    editor.value?.destroy();
+    editor.value = null;
+  });
+
+  const unlock = (password: string) => noteStore.unlockNote(noteId, password);
+  const reset = (password: string) => noteStore.lockNote(noteId, password);
   watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
   const title = ref(note.value?.title ?? "");
@@ -63,5 +71,16 @@ export const useNotePage = async (noteId: string) => {
     return titles;
   };
 
-  return { note, editor, loading, title, canEdit, background, suggestTitle };
+  return {
+    note,
+    editor,
+    loading,
+    locked,
+    unlock,
+    reset,
+    title,
+    canEdit,
+    background,
+    suggestTitle,
+  };
 };

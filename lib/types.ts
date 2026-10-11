@@ -12,7 +12,7 @@ export type SerializeDates<T> = T extends Date
 export type ClientLabel = WorkspaceLabel & { id: string };
 
 export type ClientNote = NoteView &
-  WorkspaceNote & { label: ClientLabel | null };
+  WorkspaceNote & { label: ClientLabel | null; locked: boolean };
 
 export type NoteScope =
   "active" | "pinned" | "trashed" | "archived" | "reminders";

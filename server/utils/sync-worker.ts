@@ -1,5 +1,5 @@
-import { HEADERS, toPath, WORKER_ROUTES } from "@/lib/sync/constants";
-import type { NoteRole } from "@/lib/sync/protocol";
+import { HEADERS, WORKER_ROUTES, toPath } from "@/constants";
+import type { NoteLockState, NoteRole } from "@/lib/sync/protocol";
 
 const callWorker = (
   method: "POST" | "DELETE",
@@ -34,6 +34,13 @@ export const setWorkspaceNoteShared = (
     { userId, noteId },
     { shared },
   );
+
+export const setWorkspaceNoteLock = (
+  userId: string,
+  noteId: string,
+  lock: NoteLockState,
+) =>
+  callWorker("POST", WORKER_ROUTES.workspaceNoteLock, { userId, noteId }, lock);
 
 export const notifyInvitesChanged = (userId: string) =>
   callWorker("POST", WORKER_ROUTES.workspaceInvites, { userId });

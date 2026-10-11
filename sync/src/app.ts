@@ -1,4 +1,4 @@
-import { APP_ROUTES, HEADERS, toPath } from "@/lib/sync/constants";
+import { APP_ROUTES, HEADERS, toPath } from "@/constants";
 import type { NoteRole, WorkspaceSnapshot } from "@/lib/sync/protocol";
 import type { Env, Identity } from "./env";
 
@@ -42,7 +42,12 @@ export type BatchAccess = {
 
 export const authorize = (
   env: Env,
-  body: { token: string; kind: "note" | "workspace"; id: string },
+  body: {
+    token: string;
+    kind: "note" | "workspace";
+    id: string;
+    unlock?: string;
+  },
 ) => callApp<Identity & { created: boolean }>(env, APP_ROUTES.authorize, body);
 
 export const authorizeBatch = (
@@ -52,6 +57,7 @@ export const authorizeBatch = (
     ids: string[];
     create: boolean;
     since?: number | null;
+    unlocks: Record<string, string>;
   },
 ) => callApp<BatchAccess>(env, APP_ROUTES.authorizeBatch, body);
 

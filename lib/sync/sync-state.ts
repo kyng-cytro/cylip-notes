@@ -1,5 +1,5 @@
+import { STORAGE_NAMES } from "@/constants";
 import { clear, createStore, del, get, set, type UseStore } from "idb-keyval";
-import { STORAGE_NAMES } from "./constants";
 
 const VECTOR = "vector:";
 

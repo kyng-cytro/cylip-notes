@@ -3,6 +3,8 @@ import { EllipsisVertical, MaximizeIcon } from "lucide-vue-next";
 
 defineProps<{
   canOpen?: boolean;
+  canCopy: boolean;
+  canDelete: boolean;
   labelId: string | null;
   deleteText: string;
 }>();
@@ -48,7 +50,7 @@ const assign = (labelId: string | null) => {
             <DropdownMenuItem @click="$emit('toggle-show-preview')"
               >Toggle Preview</DropdownMenuItem
             >
-            <DropdownMenuItem @click="$emit('copy')"
+            <DropdownMenuItem v-if="canCopy" @click="$emit('copy')"
               >Copy to Clipboard</DropdownMenuItem
             >
           </DropdownMenuGroup>
@@ -63,12 +65,14 @@ const assign = (labelId: string | null) => {
               />
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem class="text-red-600" @click="$emit('delete')">{{
-              deleteText
-            }}</DropdownMenuItem>
-          </DropdownMenuGroup>
+          <template v-if="canDelete">
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem class="text-red-600" @click="$emit('delete')">{{
+                deleteText
+              }}</DropdownMenuItem>
+            </DropdownMenuGroup>
+          </template>
         </DropdownMenuContent>
       </DropdownMenu>
     </ClientOnly>

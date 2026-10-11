@@ -1,4 +1,4 @@
-import { SYNC_TIMING } from "@/lib/sync/constants";
+import { SYNC_TIMING } from "@/constants";
 import type { SerializeDates } from "@/lib/types";
 import {
   defaultPreferences,

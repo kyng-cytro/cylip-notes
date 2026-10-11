@@ -11,14 +11,6 @@ const decodeNoteDoc = (state: string) => {
   return readNoteDoc(doc);
 };
 
-const getAudience = async (noteId: string, ownerId: string) => {
-  const members = await useDrizzle().query.noteMember.findMany({
-    columns: { userId: true },
-    where: eq(tables.noteMember.noteId, noteId),
-  });
-  return [ownerId, ...members.map((member) => member.userId)];
-};
-
 export default defineSyncEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
   const { state } = await readValidatedBody(event, bodySchema.parse);
@@ -34,7 +26,15 @@ export default defineSyncEventHandler(async (event) => {
       options: sql`json_set(coalesce(${tables.note.options}, '{}'), '$.public.enabled', json(${JSON.stringify(meta.public)}), '$.background', json(${JSON.stringify(meta.background)}))`,
     })
     .where(eq(tables.note.id, id))
-    .returning({ userId: tables.note.userId });
+    .returning({ id: tables.note.id });
   if (!note) throw createError({ statusCode: 404 });
-  return { audience: await getAudience(id, note.userId) };
+  const audience = await getNoteAudience(id);
+  const lock = await getNoteLock(id);
+  if (lock) {
+    await publishNoteLock(id, audience, {
+      lockedAt: lock.lockedAt.getTime(),
+      meta,
+    });
+  }
+  return { audience };
 });

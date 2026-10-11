@@ -4,8 +4,18 @@ definePageMeta({
 });
 
 const { id } = useRoute("app-notes-id").params;
-const { note, editor, loading, title, canEdit, background, suggestTitle } =
-  await useNotePage(id);
+const {
+  note,
+  editor,
+  loading,
+  locked,
+  unlock,
+  reset,
+  title,
+  canEdit,
+  background,
+  suggestTitle,
+} = await useNotePage(id);
 </script>
 <template>
   <AppMainContainer
@@ -15,6 +25,7 @@ const { note, editor, loading, title, canEdit, background, suggestTitle } =
     <div v-if="loading" class="mx-auto h-full w-full max-w-3xl py-6">
       <EditorLoading />
     </div>
+    <AppNoteUnlock v-else-if="locked" :unlock :reset />
     <AppEmptyPage
       v-else-if="!note || !editor"
       class="col-span-2"

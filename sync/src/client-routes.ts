@@ -20,6 +20,7 @@ export const pull = async (
     ids,
     create: false,
     since: body.since,
+    unlocks: body.unlocks,
   });
   const missingLocally = ids.filter((id) => !body.docs[id] && access.roles[id]);
   const targets = [...new Set([...access.changed, ...missingLocally])];
@@ -42,7 +43,12 @@ export const push = async (
   body: PushRequest,
 ): Promise<PushResponse> => {
   const ids = Object.keys(body.docs);
-  const access = await authorizeBatch(env, { token, ids, create: true });
+  const access = await authorizeBatch(env, {
+    token,
+    ids,
+    create: true,
+    unlocks: body.unlocks,
+  });
   const writable = ids.filter((id) => canEdit(access.roles[id]));
   const readonly = ids.filter((id) => access.roles[id] === "viewer");
   await Promise.all(

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { contentToHtml } from "@/lib/tiptap";
+import type { JSONContent } from "@tiptap/core";
 import { CopyIcon } from "lucide-vue-next";
 
 const { id } = useRoute("public-id").params;
@@ -19,21 +20,36 @@ const content = ref("");
 const loaded = ref(false);
 const pageBackground = useState<string>("background");
 
-onMounted(() => {
-  if (!note.value?.content) return;
-  content.value = contentToHtml(note.value.content);
+const unlocked = ref(false);
+const locked = computed(() => !!note.value?.locked && !unlocked.value);
+
+const showContent = (noteContent: JSONContent) => {
+  content.value = contentToHtml(noteContent);
   pageBackground.value = applyBackground(
     useColorMode().value === "dark",
-    note.value.background ?? undefined,
+    note.value?.background ?? undefined,
   );
   loaded.value = true;
+};
+
+const unlock = async (password: string) => {
+  const result = await $fetch(`/api/notes/${id}/public/unlock`, {
+    method: "POST",
+    body: { password },
+  });
+  unlocked.value = true;
+  if (result.content) showContent(result.content);
+};
+
+onMounted(() => {
+  if (note.value?.content) showContent(note.value.content);
 });
 
 useCodeHighlight(contentRef, content);
 </script>
 
 <template>
-  <div class="mx-auto h-full max-w-3xl flex-1 px-4 pt-8">
+  <div class="mx-auto flex min-h-screen max-w-3xl flex-col px-4 pt-8">
     <div v-if="pending" class="flex h-[calc(100vh-12rem)] flex-col gap-10">
       <Skeleton class="h-16 w-full" />
       <EditorLoading />
@@ -46,9 +62,10 @@ useCodeHighlight(contentRef, content);
         :button="{ text: 'Go Back', to: '/' }"
       />
     </div>
+    <AppNoteUnlock v-else-if="locked" :unlock />
     <div
       v-else
-      class="prose text-primary dark:prose-invert h-full max-w-none space-y-2 px-1 outline-none"
+      class="prose text-primary dark:prose-invert flex max-w-none flex-1 flex-col space-y-2 px-1 outline-none"
     >
       <h2>{{ note.title }}</h2>
       <Button
@@ -65,7 +82,7 @@ useCodeHighlight(contentRef, content);
         </div>
         <div ref="contentRef" class="tiptap" v-html="content" v-else />
       </div>
-      <div class="flex items-center justify-end gap-2 px-4 py-2">
+      <div class="mt-auto flex items-center justify-end gap-2 px-4 py-2">
         <span class="text-sm">⏳ {{ formatToTimeAgo(note.updatedAt) }} </span>
         <span>•</span>
         <span class="text-sm">👀 {{ note.visits }} </span>

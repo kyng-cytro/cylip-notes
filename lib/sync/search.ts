@@ -1,12 +1,10 @@
+import { SEARCH } from "@/constants";
 import MiniSearch from "minisearch";
 import type { ClientNote } from "@/lib/types";
 
 export type SearchResult = { note: ClientNote; snippet: string };
 
 type IndexedNote = { id: string; title: string; text: string; label: string };
-
-const MAX_RESULTS = 20;
-const SNIPPET_RADIUS = 60;
 
 const escapeHtml = (text: string) =>
   text.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
@@ -32,8 +30,8 @@ const highlight = (html: string, terms: string[]) =>
 
 const snippetFor = (text: string, query: string, terms: string[]) => {
   const index = firstMatch(text, query, terms);
-  const start = Math.max(0, index - SNIPPET_RADIUS);
-  const end = index + SNIPPET_RADIUS * 2;
+  const start = Math.max(0, index - SEARCH.snippetRadius);
+  const end = index + SEARCH.snippetRadius * 2;
   const excerpt = highlight(escapeHtml(text.slice(start, end)), terms);
   return `${start > 0 ? "…" : ""}${excerpt}${end < text.length ? "…" : ""}`;
 };
@@ -41,7 +39,7 @@ const snippetFor = (text: string, query: string, terms: string[]) => {
 const toIndexed = (note: ClientNote): IndexedNote => ({
   id: note.id,
   title: note.title,
-  text: note.text,
+  text: note.lockedAt ? "" : note.text,
   label: note.label?.name ?? "",
 });
 
@@ -61,11 +59,12 @@ export const createSearchIndex = (notes: ClientNote[]) => {
     const results = index.search(query).map((result) => {
       const note = notesById.get(result.id)!;
       const terms = [...new Set([...result.terms, ...result.queryTerms])];
-      return { note, snippet: snippetFor(note.text, query, terms) };
+      const text = note.lockedAt ? "" : note.text;
+      return { note, snippet: snippetFor(text, query, terms) };
     });
     return [
       ...results.filter(({ note }) => !note.trashed),
       ...results.filter(({ note }) => note.trashed),
-    ].slice(0, MAX_RESULTS);
+    ].slice(0, SEARCH.maxResults);
   };
 };

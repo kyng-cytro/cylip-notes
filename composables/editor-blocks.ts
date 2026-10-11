@@ -1,3 +1,4 @@
+import { HEADING_LEVELS } from "@/constants";
 import type { ChainedCommands, Editor } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 import type { Node } from "@tiptap/pm/model";
@@ -15,7 +16,7 @@ import {
   Quote,
   Type,
 } from "lucide-vue-next";
-import { HEADING_LEVELS, type SlashItem } from "@/lib/tiptap/custom-extensions";
+import { type SlashItem } from "@/lib/tiptap/custom-extensions";
 import { pickImage } from "@/lib/tiptap/images";
 
 export type EditorBlock = SlashItem & {

@@ -1,4 +1,4 @@
-import { DOC_KEYS } from "./constants";
+import { DOC_KEYS } from "@/constants";
 import * as Y from "yjs";
 
 const isInlineImage = (node: Y.AbstractType<unknown>) =>

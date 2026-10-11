@@ -1,8 +1,5 @@
-import {
-  NOTE_ROLES,
-  type NoteRole,
-  type SharedRole,
-} from "@/lib/sync/protocol";
+import { NOTE_ROLES } from "@/constants";
+import { type NoteRole, type SharedRole } from "@/lib/sync/protocol";
 
 type Membership = { noteId: string; userId: string };
 
@@ -40,6 +37,22 @@ export const requireNoteRole = async (
     });
   }
   return role;
+};
+
+export const getNoteAudience = async (noteId: string) => {
+  const db = useDrizzle();
+  const [note, members] = await Promise.all([
+    db.query.note.findFirst({
+      columns: { userId: true },
+      where: eq(tables.note.id, noteId),
+    }),
+    db.query.noteMember.findMany({
+      columns: { userId: true },
+      where: eq(tables.noteMember.noteId, noteId),
+    }),
+  ]);
+  if (!note) return [];
+  return [note.userId, ...members.map((member) => member.userId)];
 };
 
 export const isDeletedNote = async (noteId: string) => {
@@ -130,6 +143,7 @@ export const grantNoteAccess = async (
       set: { role },
     });
   await addToWorkspace(userId, noteId, role);
+  await publishNoteLock(noteId, [userId], await currentLockState(noteId));
   await disconnectFromNote(noteId, userId);
   await refreshSharedFlag(noteId);
 };

@@ -2,8 +2,18 @@
 import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
-const { note, editor, loading, title, canEdit, background, suggestTitle } =
-  await useNotePage(id);
+const {
+  note,
+  editor,
+  loading,
+  locked,
+  unlock,
+  reset,
+  title,
+  canEdit,
+  background,
+  suggestTitle,
+} = await useNotePage(id);
 const viewportBox = useVisualViewportBox();
 useScrollLock(() => (import.meta.client ? document.body : null), true);
 </script>
@@ -60,6 +70,23 @@ useScrollLock(() => (import.meta.client ? document.body : null), true);
         <EditorToolbar v-if="canEdit" :editor="editor" />
         <AppNoteLastEdited :note="note" class="self-end" />
       </CardFooter>
+    </Card>
+    <Card
+      v-else-if="locked"
+      @click.stop
+      class="z-50 flex h-full w-full max-w-2xl flex-col p-6 lg:max-h-[80%]"
+    >
+      <TooltipWrapper tooltip="Close note">
+        <Button
+          size="icon"
+          class="-ml-2"
+          variant="ghost"
+          @click="useModalRouter().close()"
+        >
+          <XCircle class="size-5" />
+        </Button>
+      </TooltipWrapper>
+      <AppNoteUnlock :unlock :reset />
     </Card>
     <Card
       v-else-if="loading"

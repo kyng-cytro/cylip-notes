@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HIGHLIGHT_COLOR } from "@/lib/tiptap";
+import { HIGHLIGHT_COLOR } from "@/constants";
 import { pickImage } from "@/lib/tiptap/images";
 import type { Editor } from "@tiptap/vue-3";
 import {

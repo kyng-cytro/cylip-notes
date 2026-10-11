@@ -1,10 +1,9 @@
+import { IMAGE_PLACEHOLDER } from "@/constants";
 import { createId } from "@/lib/id";
 import { toCompressedDataUrl, validateImageFiles } from "@/lib/image-utils";
 import { findChildren, type Editor } from "@tiptap/core";
 import { useFileDialog } from "@vueuse/core";
 import { toast } from "vue-sonner";
-
-const PLACEHOLDER_IMAGE = "/image-placeholder.jpg";
 
 export const endOfSelection = (editor: Editor) =>
   editor.state.doc.resolve(editor.state.selection.to).end();
@@ -32,7 +31,7 @@ const replacePlaceholder = (
 };
 
 const insertImage = async (editor: Editor, file: File, position: number) => {
-  const placeholder = `${PLACEHOLDER_IMAGE}?upload=${createId()}`;
+  const placeholder = `${IMAGE_PLACEHOLDER}?upload=${createId()}`;
   editor.commands.insertContentAt(position, {
     type: "image",
     attrs: { src: placeholder },
