@@ -1,5 +1,6 @@
 import type { LabelOptions } from "@/schemas/label";
 import type { NoteOptions } from "@/schemas/note";
+import type { UserPreferences } from "../../schemas/preferences";
 import type { JSONContent } from "@tiptap/core";
 import { relations } from "drizzle-orm";
 import {
@@ -24,6 +25,10 @@ export const user = sqliteTable("users", {
   accountType: text("account_type", { enum: ["free", "premium"] })
     .notNull()
     .default("free"),
+  preferences: text("preferences", { mode: "json" })
+    .notNull()
+    .default({})
+    .$type<Partial<UserPreferences>>(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

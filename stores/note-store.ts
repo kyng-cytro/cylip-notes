@@ -8,11 +8,12 @@ import {
 } from "@/lib/notes";
 import { SyncEngine } from "@/lib/sync/engine";
 import { byKey, keyBefore, keyBetween } from "@/lib/sync/ordering";
-import type {
-  Background,
-  LabelOptions,
-  NoteMeta,
-  WorkspaceNote,
+import {
+  canEdit,
+  type Background,
+  type LabelOptions,
+  type NoteMeta,
+  type WorkspaceNote,
 } from "@/lib/sync/protocol";
 import { createSearchIndex } from "@/lib/sync/search";
 import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
@@ -41,7 +42,7 @@ const uploadImage = async (file: Blob) => {
 };
 
 export const useNoteStore = defineStore("notes", () => {
-  const { user, getToken } = useUser();
+  const { user, preferences, getToken } = useUser();
   const { refresh: refreshInvites } = useInvites();
   const engine = shallowRef<SyncEngine | null>(null);
   const starting = shallowRef<Promise<void> | null>(null);
@@ -162,10 +163,15 @@ export const useNoteStore = defineStore("notes", () => {
 
   const assignLabel = (note: ClientNote, labelId: string | null) => {
     if (labelId === note.labelId) return;
+    const label = labels.value.find((item) => item.id === labelId);
+    const applyDefaults = label && preferences.value.applyLabelDefaults;
     updateEntry(note.id, {
       labelId,
       labelSortKey: labelId ? keyBefore(firstSortKey(labelId)) : null,
+      ...(applyDefaults && { preview: label.options.preview }),
     });
+    if (applyDefaults && canEdit(note.role))
+      updateMeta(note.id, { background: label.options.background ?? null });
     toast.success("Label updated successfully.");
   };
 

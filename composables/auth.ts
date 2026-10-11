@@ -1,5 +1,9 @@
 import { SYNC_TIMING } from "@/lib/sync/constants";
 import type { SerializeDates } from "@/lib/types";
+import {
+  defaultPreferences,
+  type UserPreferences,
+} from "@/schemas/preferences";
 import type { AuthUser } from "@/server/utils/auth";
 
 type User = SerializeDates<AuthUser>;
@@ -12,6 +16,10 @@ export const useUser = () => {
   const user = useState<User | null>("user", () => null);
   const loggedIn = computed(() => !!user.value);
   const isPremium = computed(() => user.value?.accountType === "premium");
+  const preferences = computed<UserPreferences>(() => ({
+    ...defaultPreferences,
+    ...(user.value?.preferences as Partial<UserPreferences> | undefined),
+  }));
 
   const signInWithGoogle = async (callbackURL = authRoutes.app) => {
     const { $authClient } = useNuxtApp();
@@ -67,15 +75,25 @@ export const useUser = () => {
     user.value = updated;
   };
 
+  const updatePreferences = async (values: Partial<UserPreferences>) => {
+    const preferences = await $fetch("/api/user/preferences", {
+      method: "PATCH",
+      body: values,
+    });
+    if (user.value) user.value = { ...user.value, preferences };
+  };
+
   return {
     user,
     loggedIn,
     isPremium,
+    preferences,
     signInWithGoogle,
     signInWithEmail,
     getToken,
     refreshUser,
     logout,
     updateUser,
+    updatePreferences,
   };
 };

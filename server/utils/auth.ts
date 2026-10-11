@@ -48,6 +48,7 @@ export const auth = betterAuth({
         required: false,
         input: false,
       },
+      preferences: { type: "json", required: false, input: false },
     },
   },
   account: {

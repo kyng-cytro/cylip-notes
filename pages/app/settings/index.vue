@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ClientLabel } from "@/lib/types";
+import type { UserPreferences } from "@/schemas/preferences";
 import { updateUserSchema } from "@/schemas/user";
 import { PlusIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
@@ -8,7 +9,7 @@ definePageMeta({
   layout: "app",
 });
 
-const { user, updateUser } = useUser();
+const { user, preferences, updateUser, updatePreferences } = useUser();
 const noteStore = useNoteStore();
 const { labels } = storeToRefs(noteStore);
 
@@ -17,6 +18,16 @@ const onSubmit = async (values: Record<string, string | File>) => {
   try {
     await updateUser(values);
     toast.success("Account information updated successfully");
+  } catch (e: any) {
+    toast.error("Something went wrong", {
+      description: e.data?.message ?? e.message,
+    });
+  }
+};
+
+const savePreferences = async (values: Partial<UserPreferences>) => {
+  try {
+    await updatePreferences(values);
   } catch (e: any) {
     toast.error("Something went wrong", {
       description: e.data?.message ?? e.message,
@@ -131,6 +142,32 @@ const deleteLabel = (label: ClientLabel) => {
         >Update Account</Button
       >
     </Form>
+    <div class="flex flex-col gap-y-2">
+      <h3 class="text-xl font-bold">Preferences</h3>
+      <p class="text-muted-foreground">
+        Customize how the app behaves when working with your notes.
+      </p>
+      <hr class="bg-muted my-2" />
+    </div>
+    <div class="mb-8 grid gap-2">
+      <div
+        class="flex flex-wrap items-center gap-2 rounded-lg border p-4 sm:justify-between"
+      >
+        <div class="space-y-0.5">
+          <Label for="apply-label-defaults" class="font-semibold"
+            >Apply label defaults</Label
+          >
+          <p class="text-muted-foreground text-sm">
+            Use the label's preview and background when moving a note to it.
+          </p>
+        </div>
+        <Switch
+          id="apply-label-defaults"
+          :model-value="preferences.applyLabelDefaults"
+          @update:model-value="savePreferences({ applyLabelDefaults: $event })"
+        />
+      </div>
+    </div>
     <div class="flex flex-col gap-y-2">
       <div class="flex items-end justify-between gap-4">
         <div class="space-y-2">
