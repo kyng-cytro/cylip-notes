@@ -1,1 +1,2 @@
 SYNC_SECRET="same value as NUXT_SYNC_SECRET"
+APP_URL=http://localhost:3000
