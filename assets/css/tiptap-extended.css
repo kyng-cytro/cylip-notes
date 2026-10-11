@@ -63,3 +63,11 @@
 .drop-cursor {
   @apply rounded-full bg-sky-500;
 }
+
+.tiptap [data-version-change="added"] {
+  @apply rounded-sm bg-emerald-500/20;
+}
+
+.tiptap [data-version-change="removed"] {
+  @apply rounded-sm bg-red-500/15 text-red-700 line-through dark:text-red-300;
+}

@@ -64,6 +64,13 @@
       "when": 1791713435354,
       "tag": "0009_material_falcon",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791745787477,
+      "tag": "0010_dark_husk",
+      "breakpoints": true
     }
   ]
 }

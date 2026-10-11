@@ -13,6 +13,8 @@ export const useNotePage = async (noteId: string) => {
     () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
   const editor = shallowRef<Editor | null>(null);
+  const history = useNoteHistory(noteId);
+  onScopeDispose(history.close);
   const loading = computed(() => {
     if (editor.value || locked.value) return false;
     return !!note.value || !noteStore.caughtUp;
@@ -29,6 +31,7 @@ export const useNotePage = async (noteId: string) => {
     immediate: true,
   });
   whenever(locked, () => {
+    history.close();
     editor.value?.destroy();
     editor.value = null;
   });
@@ -37,15 +40,15 @@ export const useNotePage = async (noteId: string) => {
   const reset = (password: string) => noteStore.lockNote(noteId, password);
   watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
-  const title = ref(note.value?.title ?? "");
+  const draftTitle = ref(note.value?.title ?? "");
   watch(
     () => note.value?.title,
     (remoteTitle) => {
-      if (remoteTitle !== undefined) title.value = remoteTitle;
+      if (remoteTitle !== undefined) draftTitle.value = remoteTitle;
     },
   );
   watchDebounced(
-    title,
+    draftTitle,
     (value) => {
       if (canEdit.value && value !== note.value?.title) {
         noteStore.updateTitle(noteId, value);
@@ -53,6 +56,15 @@ export const useNotePage = async (noteId: string) => {
     },
     { debounce: 500 },
   );
+
+  const canEditTitle = computed(() => canEdit.value && !history.open.value);
+  const title = computed({
+    get: () =>
+      history.open.value
+        ? (history.selected.value?.title ?? "")
+        : draftTitle.value,
+    set: (value: string) => (draftTitle.value = value),
+  });
 
   const isDark = computed(() => useColorMode().value === "dark");
   const background = computed(() =>
@@ -76,10 +88,12 @@ export const useNotePage = async (noteId: string) => {
     editor,
     loading,
     locked,
+    historyOpen: history.open,
     unlock,
     reset,
     title,
     canEdit,
+    canEditTitle,
     background,
     suggestTitle,
   };

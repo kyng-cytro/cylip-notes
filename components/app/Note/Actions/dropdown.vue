@@ -4,18 +4,20 @@ import { EllipsisVertical, MaximizeIcon } from "lucide-vue-next";
 defineProps<{
   canOpen?: boolean;
   canCopy: boolean;
+  canViewHistory?: boolean;
   canDelete: boolean;
   labelId: string | null;
   deleteText: string;
 }>();
 
 const open = ref(false);
-const { labels } = storeToRefs(useNoteStore());
+const { labels, status } = storeToRefs(useNoteStore());
 
 const emits = defineEmits<{
   (e: "copy"): void;
   (e: "delete"): void;
   (e: "full-screen"): void;
+  (e: "history"): void;
   (e: "toggle-show-preview"): void;
   (e: "assign-label", labelId: string | null): void;
 }>();
@@ -52,6 +54,12 @@ const assign = (labelId: string | null) => {
             >
             <DropdownMenuItem v-if="canCopy" @click="$emit('copy')"
               >Copy to Clipboard</DropdownMenuItem
+            >
+            <DropdownMenuItem
+              v-if="canViewHistory"
+              :disabled="status === 'offline'"
+              @click="$emit('history')"
+              >Version History</DropdownMenuItem
             >
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

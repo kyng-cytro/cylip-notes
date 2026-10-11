@@ -1,4 +1,4 @@
-import { LIMITS, PARTIES } from "@/constants";
+import { EDITOR_CLASS, LIMITS, PARTIES } from "@/constants";
 import { extensions } from "@/lib/tiptap";
 import {
   AI,
@@ -15,9 +15,6 @@ import { Editor } from "@tiptap/vue-3";
 import { toast } from "vue-sonner";
 import YProvider from "y-partyserver/provider";
 import type * as Y from "yjs";
-
-const EDITOR_CLASS =
-  "-mx-2 px-2 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary";
 
 const aiProvider = (): AIProvider => {
   const tokens = useUser().user.value?.tokens ?? 0;

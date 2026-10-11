@@ -36,6 +36,7 @@ export const CLOSE_CODES = { accessChanged: 4003, noteDeleted: 4004 } as const;
 export const HEADERS = {
   syncSecret: "x-sync-secret",
   identity: "x-sync-identity",
+  unlock: "x-note-unlock",
 } as const;
 
 export const CHANNELS = {

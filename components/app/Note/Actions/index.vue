@@ -11,6 +11,8 @@ const props = defineProps<{
   cb?: () => void;
 }>();
 
+defineEmits<{ (e: "history"): void }>();
+
 const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
 
@@ -77,10 +79,12 @@ const removeNote = () =>
       :can-open="canOpen"
       :label-id="note.labelId"
       :can-copy="!note.locked"
+      :can-view-history="!!editor && canEdit"
       :can-delete="!(isOwner && note.locked)"
       :delete-text="isOwner ? 'Delete Note' : 'Leave Note'"
       @copy="copy(editor?.getHTML(), true)"
       @delete="runAndClose(removeNote)"
+      @history="$emit('history')"
       @full-screen="navigateTo(`/app/notes/${note.id}`, { external: true })"
       @assign-label="noteStore.assignLabel(note, $event)"
       @toggle-show-preview="noteStore.toggleNoteProp(note, 'preview')"

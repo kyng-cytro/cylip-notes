@@ -78,6 +78,7 @@ const toggleMark = (mark: Mark) => mark.toggle(editor.chain().focus()).run();
 <template>
   <div>
     <BubbleMenu
+      data-floating-menu
       :editor
       :should-show="shouldShow"
       :options="{ placement: 'top', offset: 8 }"

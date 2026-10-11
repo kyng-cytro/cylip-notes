@@ -303,6 +303,25 @@ export const noteLock = sqliteTable("note_locks", {
   lockedAt: integer("locked_at", { mode: "timestamp_ms" }).notNull(),
 });
 
+export const noteVersion = sqliteTable(
+  "note_versions",
+  {
+    id: text("id").notNull().primaryKey(),
+    noteId: text("note_id")
+      .notNull()
+      .references(() => note.id, { onDelete: "cascade" }),
+    title: text("title"),
+    content: text("content", { mode: "json" }).notNull().$type<JSONContent>(),
+    editors: text("editors", { mode: "json" })
+      .notNull()
+      .default([])
+      .$type<string[]>(),
+    sealed: integer("sealed", { mode: "boolean" }).notNull().default(false),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("note_versions_note_id_idx").on(t.noteId, t.updatedAt)],
+);
+
 export const unlockAttempt = sqliteTable("unlock_attempts", {
   key: text("key").notNull().primaryKey(),
   failures: integer("failures").notNull(),

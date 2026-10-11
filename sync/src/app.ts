@@ -68,11 +68,15 @@ export const fetchNoteSeed = async (env: Env, noteId: string) => {
   return seed?.state ?? null;
 };
 
-export const projectNote = (env: Env, noteId: string, state: string) =>
+export const projectNote = (
+  env: Env,
+  noteId: string,
+  body: { state: string; editors: string[] },
+) =>
   callApp<{ audience: string[] }>(
     env,
     toPath(APP_ROUTES.noteProject, { noteId }),
-    { state },
+    body,
   );
 
 export const fetchWorkspaceSeed = (env: Env, userId: string) =>

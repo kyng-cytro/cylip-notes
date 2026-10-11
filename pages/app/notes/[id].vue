@@ -9,10 +9,12 @@ const {
   editor,
   loading,
   locked,
+  historyOpen,
   unlock,
   reset,
   title,
   canEdit,
+  canEditTitle,
   background,
   suggestTitle,
 } = await useNotePage(id);
@@ -42,27 +44,40 @@ const {
           :note="note"
           :editor="editor"
           :cb="() => navigateTo('/app')"
+          @history="historyOpen = true"
         />
       </div>
       <div class="lg:pl-12">
         <AppNoteTitleInput
           large
           v-model="title"
-          :disabled="!canEdit"
+          :disabled="!canEditTitle"
           :suggest="{
             fn: suggestTitle,
-            enabled: canEdit && !title && hasEnoughContent(editor.getText()),
+            enabled:
+              canEditTitle && !title && hasEnoughContent(editor.getText()),
           }"
         />
       </div>
       <div
         class="relative -mx-6 max-h-[calc(100dvh-18rem)] min-h-0 flex-1 overflow-hidden p-6 lg:pl-18"
       >
-        <Editor :editor="editor" />
+        <AppNoteHistoryPreview v-if="historyOpen" :note-id="id" />
+        <div v-show="!historyOpen" class="h-full">
+          <Editor :editor="editor" />
+        </div>
       </div>
       <div class="flex flex-col items-stretch gap-2 px-4 py-2">
-        <EditorToolbar v-if="canEdit" :editor="editor" />
-        <AppNoteLastEdited :note="note" class="self-end" />
+        <AppNoteHistoryBar
+          v-if="historyOpen"
+          :note-id="id"
+          :editor
+          :can-restore="canEdit"
+        />
+        <template v-else>
+          <EditorToolbar v-if="canEdit" :editor="editor" />
+          <AppNoteLastEdited :note="note" class="self-end" />
+        </template>
       </div>
     </div>
   </AppMainContainer>

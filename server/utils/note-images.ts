@@ -44,12 +44,14 @@ const toImagePathname = (src: string) => {
 };
 
 export const findUsedNoteImages = async () => {
-  const notes = await useDrizzle().query.note.findMany({
-    columns: { content: true },
-  });
+  const db = useDrizzle();
+  const [notes, versions] = await Promise.all([
+    db.query.note.findMany({ columns: { content: true } }),
+    db.query.noteVersion.findMany({ columns: { content: true } }),
+  ]);
   return new Set(
-    notes
-      .flatMap((note) => (note.content ? imageSources(note.content) : []))
+    [...notes, ...versions]
+      .flatMap(({ content }) => (content ? imageSources(content) : []))
       .map(toImagePathname)
       .filter((pathname) => pathname !== null),
   );

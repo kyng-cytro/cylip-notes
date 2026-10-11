@@ -28,4 +28,8 @@ export const LIMITS = {
     free: 1,
     premium: 5,
   },
+  versionHistory: {
+    free: 2,
+    premium: 5,
+  },
 };

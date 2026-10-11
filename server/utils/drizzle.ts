@@ -4,6 +4,7 @@ import { db, schema } from "hub:db";
 
 export {
   and,
+  desc,
   eq,
   gte,
   inArray,

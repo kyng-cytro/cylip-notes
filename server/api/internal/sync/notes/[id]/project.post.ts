@@ -3,7 +3,10 @@ import { slugify } from "@/utils/helpers";
 import * as Y from "yjs";
 import { z } from "zod";
 
-const bodySchema = z.object({ state: z.string().min(1) });
+const bodySchema = z.object({
+  state: z.string().min(1),
+  editors: z.array(z.string()).default([]),
+});
 
 const decodeNoteDoc = (state: string) => {
   const doc = new Y.Doc();
@@ -13,7 +16,7 @@ const decodeNoteDoc = (state: string) => {
 
 export default defineSyncEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
-  const { state } = await readValidatedBody(event, bodySchema.parse);
+  const { state, editors } = await readValidatedBody(event, bodySchema.parse);
   const { meta, content } = decodeNoteDoc(state);
   const [note] = await useDrizzle()
     .update(tables.note)
@@ -28,6 +31,7 @@ export default defineSyncEventHandler(async (event) => {
     .where(eq(tables.note.id, id))
     .returning({ id: tables.note.id });
   if (!note) throw createError({ statusCode: 404 });
+  await recordNoteVersion(id, { title: meta.title || null, content }, editors);
   const audience = await getNoteAudience(id);
   const lock = await getNoteLock(id);
   if (lock) {

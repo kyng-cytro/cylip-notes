@@ -52,7 +52,9 @@ export const push = async (
   const writable = ids.filter((id) => canEdit(access.roles[id]));
   const readonly = ids.filter((id) => access.roles[id] === "viewer");
   await Promise.all(
-    writable.map(async (id) => (await noteDoc(env, id)).apply(body.docs[id]!)),
+    writable.map(async (id) =>
+      (await noteDoc(env, id)).apply(body.docs[id]!, access.userId),
+    ),
   );
   if (access.created.length) await reprojectWorkspace(env, access.userId);
   return { ok: writable, readonly, denied: access.denied };

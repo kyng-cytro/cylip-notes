@@ -9,12 +9,22 @@ import type { Env, Identity } from "./env";
 import { readIdentity } from "./identity";
 import { loadState, saveState } from "./storage";
 
+const editorOf = (origin: unknown) =>
+  typeof origin === "string"
+    ? origin
+    : (origin as Connection<Identity> | null)?.state?.userId;
+
 export class NoteDoc extends YServer<Env> {
   static callbackOptions = SAVE_DEBOUNCE.note;
 
   private deleted = false;
+  private editors = new Set<string>();
 
   async onLoad() {
+    this.document.on("update", (_update, origin) => {
+      const editor = editorOf(origin);
+      if (editor) this.editors.add(editor);
+    });
     const stored = loadState(this.ctx.storage);
     if (stored) {
       Y.applyUpdate(this.document, stored);
@@ -30,11 +40,15 @@ export class NoteDoc extends YServer<Env> {
     if (this.deleted) return;
     const state = Y.encodeStateAsUpdate(this.document);
     saveState(this.ctx.storage, state);
-    const { audience } = await projectNote(
-      this.env,
-      this.name,
-      toBase64(state),
-    );
+    const editors = this.editors;
+    this.editors = new Set();
+    const { audience } = await projectNote(this.env, this.name, {
+      state: toBase64(state),
+      editors: [...editors],
+    }).catch((error) => {
+      for (const editor of editors) this.editors.add(editor);
+      throw error;
+    });
     await Promise.allSettled(
       audience.map((userId) => this.notifyWorkspace(userId)),
     );
@@ -61,8 +75,8 @@ export class NoteDoc extends YServer<Env> {
     };
   }
 
-  apply(update: string) {
-    Y.applyUpdate(this.document, fromBase64(update));
+  apply(update: string, userId: string) {
+    Y.applyUpdate(this.document, fromBase64(update), userId);
   }
 
   disconnect(userId: string) {
