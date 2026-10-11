@@ -1,7 +1,10 @@
+import {
+  DOC_KEYS,
+  INVITES_CHANGED,
+  NOTE_CHANGED,
+  NOTE_ROLES,
+} from "@/constants";
 import * as Y from "yjs";
-import { DOC_KEYS, INVITES_CHANGED, NOTE_CHANGED } from "./constants";
-
-export const NOTE_ROLES = ["owner", "editor", "viewer"] as const;
 
 export type NoteRole = (typeof NOTE_ROLES)[number];
 
@@ -26,7 +29,12 @@ export type NoteMeta = {
   ownerId: string;
 };
 
-export type WorkspaceNote = {
+export type NoteLockState = {
+  lockedAt: number | null;
+  meta: NoteMeta | null;
+};
+
+export type WorkspaceNote = Partial<NoteLockState> & {
   role: NoteRole;
   pinned: boolean;
   archived: boolean;
@@ -63,6 +71,7 @@ export type WorkspaceMessage =
 export type PullRequest = {
   docs: Record<string, string>;
   since: number | null;
+  unlocks: Record<string, string>;
 };
 
 export type PullResponse = {
@@ -71,7 +80,10 @@ export type PullResponse = {
   denied: string[];
 };
 
-export type PushRequest = { docs: Record<string, string> };
+export type PushRequest = {
+  docs: Record<string, string>;
+  unlocks: Record<string, string>;
+};
 
 export type PushResponse = {
   ok: string[];

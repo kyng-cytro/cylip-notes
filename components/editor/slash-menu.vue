@@ -47,6 +47,7 @@ defineExpose({ onKeyDown });
 </script>
 <template>
   <div
+    data-floating-menu
     class="bg-popover text-popover-foreground fixed z-[60] w-64 rounded-lg border p-1 shadow-lg"
   >
     <p v-if="!items.length" class="text-muted-foreground px-2 py-1.5 text-sm">

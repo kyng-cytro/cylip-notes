@@ -60,7 +60,7 @@ definePageMeta({
               'Access to all basic features (yes you get dark theme too)',
               '3 images per note',
               'Unlimited custom note labels',
-              '10 version histories per note',
+              '5 version histories per note',
               '1000 AI tokens per month (enough to look busy at work)',
             ]"
             :button="{

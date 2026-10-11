@@ -11,6 +11,8 @@ const props = defineProps<{
   cb?: () => void;
 }>();
 
+defineEmits<{ (e: "history"): void }>();
+
 const noteStore = useNoteStore();
 const { copy } = useCustomClipboard();
 
@@ -31,6 +33,7 @@ const removeNote = () =>
 <template>
   <template v-if="note.trashed">
     <AppNoteActionsButton
+      v-if="!note.locked"
       tooltip="Restore note"
       :icon="Repeat2Icon"
       @button-click="
@@ -58,9 +61,10 @@ const removeNote = () =>
       :reminder-at="note.reminderAt"
       @set-reminder="noteStore.setReminder(note.id, $event)"
     />
-    <AppNoteActionsShare :note="note" />
+    <AppNoteActionsLock v-if="isOwner || note.locked" :note="note" />
+    <AppNoteActionsShare v-if="!note.locked" :note="note" />
     <AppNoteActionsBackgroundOptions
-      v-if="canEdit"
+      v-if="canEdit && !note.locked"
       :background="note.background"
       @set-background="noteStore.setBackground(note, $event)"
     />
@@ -74,9 +78,13 @@ const removeNote = () =>
     <AppNoteActionsDropdown
       :can-open="canOpen"
       :label-id="note.labelId"
+      :can-copy="!note.locked"
+      :can-view-history="!!editor && canEdit"
+      :can-delete="!(isOwner && note.locked)"
       :delete-text="isOwner ? 'Delete Note' : 'Leave Note'"
       @copy="copy(editor?.getHTML(), true)"
       @delete="runAndClose(removeNote)"
+      @history="$emit('history')"
       @full-screen="navigateTo(`/app/notes/${note.id}`, { external: true })"
       @assign-label="noteStore.assignLabel(note, $event)"
       @toggle-show-preview="noteStore.toggleNoteProp(note, 'preview')"

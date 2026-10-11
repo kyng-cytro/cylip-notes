@@ -1,5 +1,6 @@
 import type { LabelOptions } from "@/schemas/label";
 import type { NoteOptions } from "@/schemas/note";
+import type { UserPreferences } from "../../schemas/preferences";
 import type { JSONContent } from "@tiptap/core";
 import { relations } from "drizzle-orm";
 import {
@@ -24,6 +25,10 @@ export const user = sqliteTable("users", {
   accountType: text("account_type", { enum: ["free", "premium"] })
     .notNull()
     .default("free"),
+  preferences: text("preferences", { mode: "json" })
+    .notNull()
+    .default({})
+    .$type<Partial<UserPreferences>>(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -288,6 +293,40 @@ export const noteInvitesRelations = relations(noteInvite, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const noteLock = sqliteTable("note_locks", {
+  noteId: text("note_id")
+    .notNull()
+    .primaryKey()
+    .references(() => note.id, { onDelete: "cascade" }),
+  passwordHash: text("password_hash").notNull(),
+  lockedAt: integer("locked_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const noteVersion = sqliteTable(
+  "note_versions",
+  {
+    id: text("id").notNull().primaryKey(),
+    noteId: text("note_id")
+      .notNull()
+      .references(() => note.id, { onDelete: "cascade" }),
+    title: text("title"),
+    content: text("content", { mode: "json" }).notNull().$type<JSONContent>(),
+    editors: text("editors", { mode: "json" })
+      .notNull()
+      .default([])
+      .$type<string[]>(),
+    sealed: integer("sealed", { mode: "boolean" }).notNull().default(false),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("note_versions_note_id_idx").on(t.noteId, t.updatedAt)],
+);
+
+export const unlockAttempt = sqliteTable("unlock_attempts", {
+  key: text("key").notNull().primaryKey(),
+  failures: integer("failures").notNull(),
+  windowStart: integer("window_start", { mode: "timestamp_ms" }).notNull(),
+});
 
 export const deletedNote = sqliteTable("deleted_notes", {
   id: text("id").notNull().primaryKey(),

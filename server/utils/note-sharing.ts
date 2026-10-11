@@ -1,12 +1,11 @@
-import { UNTITLED_NOTE } from "@/lib/notes";
+import { LIMITS, UNTITLED_NOTE } from "@/constants";
 import type { NoteRole, SharedRole } from "@/lib/sync/protocol";
-import { CONSTANTS } from "@/utils/helpers";
 
 type Sharer = {
   id: string;
   name: string;
   email: string;
-  accountType: keyof typeof CONSTANTS.maxSharedPeople;
+  accountType: keyof typeof LIMITS.maxSharedPeople;
 };
 
 type Recipient = { id: string; email: string };
@@ -76,7 +75,7 @@ const deleteInvite = async (noteId: string, email: string) => {
 
 const assertCanInvite = async (noteId: string, sharer: Sharer) => {
   const db = useDrizzle();
-  const limit = CONSTANTS.maxSharedPeople[sharer.accountType];
+  const limit = LIMITS.maxSharedPeople[sharer.accountType];
   const plan = sharer.accountType === "premium" ? "Premium" : "Free";
   const [members, noteInvites, pendingInvites] = await Promise.all([
     db.$count(tables.noteMember, eq(tables.noteMember.noteId, noteId)),

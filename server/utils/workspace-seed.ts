@@ -1,4 +1,5 @@
 import type {
+  NoteLockState,
   WorkspaceLabel,
   WorkspaceNote,
   WorkspaceSnapshot,
@@ -51,6 +52,7 @@ const loadRows = (userId: string) => {
     db.query.noteMember.findMany({
       where: eq(tables.noteMember.userId, userId),
       orderBy: (m, { desc }) => [desc(m.createdAt)],
+      with: { note: true },
     }),
     db.query.label.findMany({
       where: eq(tables.label.userId, userId),
@@ -62,7 +64,23 @@ const loadRows = (userId: string) => {
 
 type Rows = Awaited<ReturnType<typeof loadRows>>;
 
-const toEntries = ([owned, memberships, , shared]: Rows) => [
+type NoteLocks = Map<string, number>;
+
+const lockState = (
+  note: typeof tables.note.$inferSelect,
+  locks: NoteLocks,
+): NoteLockState => {
+  const lockedAt = locks.get(note.id);
+  return lockedAt ? { lockedAt, meta: toNoteMeta(note) } : NO_LOCK;
+};
+
+const loadLocks = ([owned, memberships]: Rows) =>
+  getNoteLocks([
+    ...owned.map((note) => note.id),
+    ...memberships.map((member) => member.noteId),
+  ]);
+
+const toEntries = ([owned, memberships, , shared]: Rows, locks: NoteLocks) => [
   ...owned.map((note) => ({
     id: note.id,
     role: "owner" as const,
@@ -76,6 +94,7 @@ const toEntries = ([owned, memberships, , shared]: Rows) => [
     preview: note.options?.preview ?? true,
     addedAt: note.createdAt.getTime(),
     shared: shared.has(note.id),
+    ...lockState(note, locks),
   })),
   ...memberships.map((member) => ({
     id: member.noteId,
@@ -90,6 +109,7 @@ const toEntries = ([owned, memberships, , shared]: Rows) => [
     preview: member.preview,
     addedAt: member.createdAt.getTime(),
     shared: true,
+    ...lockState(member.note, locks),
   })),
 ];
 
@@ -141,8 +161,9 @@ export const buildWorkspaceSeed = async (
   userId: string,
 ): Promise<WorkspaceSnapshot> => {
   const rows = await loadRows(userId);
+  const locks = await loadLocks(rows);
   return {
-    notes: toWorkspaceNotes(toEntries(rows)),
+    notes: toWorkspaceNotes(toEntries(rows, locks)),
     labels: toWorkspaceLabels(rows),
   };
 };

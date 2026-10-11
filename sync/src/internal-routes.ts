@@ -1,5 +1,5 @@
-import { HEADERS, WORKER_ROUTES } from "@/lib/sync/constants";
-import type { NoteRole } from "@/lib/sync/protocol";
+import { HEADERS, WORKER_ROUTES } from "@/constants";
+import type { NoteLockState, NoteRole } from "@/lib/sync/protocol";
 import { noteDoc, workspaceDoc } from "./docs";
 import type { Env } from "./env";
 import { status } from "./http";
@@ -36,6 +36,14 @@ const routes = [
     async (env, { userId, noteId }, request) => {
       const { shared } = await request.json<{ shared: boolean }>();
       return (await workspaceDoc(env, userId)).setShared(noteId, shared);
+    },
+  ),
+  route(
+    "POST",
+    WORKER_ROUTES.workspaceNoteLock,
+    async (env, { userId, noteId }, request) => {
+      const lock = await request.json<NoteLockState>();
+      return (await workspaceDoc(env, userId)).setLock(noteId, lock);
     },
   ),
   route("POST", WORKER_ROUTES.workspaceInvites, async (env, { userId }) =>

@@ -1,4 +1,4 @@
-import { APP_ROUTES } from "@/lib/sync/constants";
+import { APP_ROUTES } from "@/constants";
 import type { H3Event } from "h3";
 
 const isSameOrigin = (event: H3Event) => {

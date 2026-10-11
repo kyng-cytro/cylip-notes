@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LIMITS } from "@/constants";
 import type { LabelOptions } from "@/lib/sync/protocol";
 import { toast } from "vue-sonner";
 
@@ -22,8 +23,7 @@ const onSubmit = (values: Record<string, any>) => {
 };
 
 const canCreateLabel = computed(
-  () =>
-    isPremium.value || useNoteStore().labels.length < CONSTANTS.maxFreeLabels,
+  () => isPremium.value || useNoteStore().labels.length < LIMITS.maxFreeLabels,
 );
 </script>
 <template>

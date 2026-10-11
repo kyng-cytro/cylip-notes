@@ -50,6 +50,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.4.0",
+        "diff": "8.0.4",
         "drizzle-orm": "^0.45.3",
         "fractional-indexing": "^4.0.0",
         "highlight.js": "^11.11.2",

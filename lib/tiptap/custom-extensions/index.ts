@@ -5,3 +5,4 @@ export * from "./code-block";
 export * from "./heading";
 export * from "./mark-down-copy";
 export * from "./slash-command";
+export * from "./version-changes";

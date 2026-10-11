@@ -58,7 +58,7 @@ useCodeHighlight(contentRef, content);
       >
         <div
           class="line-clamp-[18] max-h-96 overflow-hidden"
-          v-if="note.preview && content"
+          v-if="note.preview && !note.lockedAt && content"
           v-motion
         >
           <p
@@ -71,8 +71,15 @@ useCodeHighlight(contentRef, content);
     </template>
     <div
       class="mt-3 flex flex-wrap items-center gap-4"
-      v-if="note.label || note.reminderAt || note.public || isSharedNote(note)"
+      v-if="
+        note.label ||
+        note.reminderAt ||
+        note.public ||
+        note.lockedAt ||
+        isSharedNote(note)
+      "
     >
+      <AppNoteLockedBadge v-if="note.lockedAt" />
       <AppNoteActionsShareBadge v-if="note.public" />
       <AppNoteSharedBadge v-if="isSharedNote(note)" :note="note" />
       <AppLabelDisplay v-if="note.label" :name="note.label.name" @click.stop />

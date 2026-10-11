@@ -1,7 +1,6 @@
+import { HEADING_LEVELS } from "@/constants";
 import { textblockTypeInputRule } from "@tiptap/core";
 import BaseHeading from "@tiptap/extension-heading";
-
-export const HEADING_LEVELS = { heading: 3, subheading: 4 } as const;
 
 export const Heading = BaseHeading.extend({
   addInputRules() {

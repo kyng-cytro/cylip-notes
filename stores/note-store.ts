@@ -1,5 +1,5 @@
+import { ALL_NOTES, LIMITS, SHARED_WITH_ME, SYNC_TIMING } from "@/constants";
 import { createId } from "@/lib/id";
-import { SYNC_TIMING } from "@/lib/sync/constants";
 import {
   scopeFilters,
   sortKeyIn,
@@ -8,12 +8,14 @@ import {
 } from "@/lib/notes";
 import { SyncEngine } from "@/lib/sync/engine";
 import { byKey, keyBefore, keyBetween } from "@/lib/sync/ordering";
-import type {
-  Background,
-  LabelOptions,
-  NoteMeta,
-  WorkspaceNote,
+import {
+  canEdit,
+  type Background,
+  type LabelOptions,
+  type NoteMeta,
+  type WorkspaceNote,
 } from "@/lib/sync/protocol";
+import { lockedNoteView } from "@/lib/sync/note-views";
 import { createSearchIndex } from "@/lib/sync/search";
 import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
 import { toast } from "vue-sonner";
@@ -41,7 +43,7 @@ const uploadImage = async (file: Blob) => {
 };
 
 export const useNoteStore = defineStore("notes", () => {
-  const { user, getToken } = useUser();
+  const { user, preferences, getToken } = useUser();
   const { refresh: refreshInvites } = useInvites();
   const engine = shallowRef<SyncEngine | null>(null);
   const starting = shallowRef<Promise<void> | null>(null);
@@ -49,6 +51,7 @@ export const useNoteStore = defineStore("notes", () => {
   const initialized = computed(() => engine.value?.ready.value ?? false);
   const caughtUp = computed(() => engine.value?.caughtUp.value ?? false);
   const status = computed(() => engine.value?.status.value ?? "offline");
+  const blockedNoteIds = computed(() => engine.value?.blocked.value ?? []);
 
   const labels = computed<ClientLabel[]>(() =>
     Object.entries(engine.value?.workspace.value.labels ?? {})
@@ -60,12 +63,16 @@ export const useNoteStore = defineStore("notes", () => {
     const entries = engine.value?.workspace.value.notes ?? {};
     const views = engine.value?.views.value ?? {};
     const labelsById = new Map(labels.value.map((label) => [label.id, label]));
+    const viewOf = (id: string, entry: WorkspaceNote) =>
+      views[id] ?? (entry.meta ? lockedNoteView(id, entry.meta) : undefined);
     return Object.entries(entries)
-      .filter(([id]) => views[id]?.loaded)
-      .map(([id, entry]) => ({
-        ...views[id]!,
+      .map(([id, entry]) => ({ id, entry, view: viewOf(id, entry) }))
+      .filter(({ view }) => view?.loaded)
+      .map(({ id, entry, view }) => ({
+        ...view!,
         ...entry,
         label: (entry.labelId && labelsById.get(entry.labelId)) || null,
+        locked: !engine.value!.canOpen(id),
       }))
       .filter((note) => !note.trashed || note.role === "owner");
   });
@@ -162,10 +169,15 @@ export const useNoteStore = defineStore("notes", () => {
 
   const assignLabel = (note: ClientNote, labelId: string | null) => {
     if (labelId === note.labelId) return;
+    const label = labels.value.find((item) => item.id === labelId);
+    const applyDefaults = label && preferences.value.applyLabelDefaults;
     updateEntry(note.id, {
       labelId,
       labelSortKey: labelId ? keyBefore(firstSortKey(labelId)) : null,
+      ...(applyDefaults && { preview: label.options.preview }),
     });
+    if (applyDefaults && canEdit(note.role))
+      updateMeta(note.id, { background: label.options.background ?? null });
     toast.success("Label updated successfully.");
   };
 
@@ -237,10 +249,10 @@ export const useNoteStore = defineStore("notes", () => {
   const requireLabelAllowance = () => {
     if (
       !useUser().isPremium.value &&
-      labels.value.length >= CONSTANTS.maxFreeLabels
+      labels.value.length >= LIMITS.maxFreeLabels
     ) {
       throw new Error(
-        `Free accounts can have up to ${CONSTANTS.maxFreeLabels} labels.`,
+        `Free accounts can have up to ${LIMITS.maxFreeLabels} labels.`,
       );
     }
   };
@@ -280,6 +292,44 @@ export const useNoteStore = defineStore("notes", () => {
       sortKey: keyBetween(keyOf(beforeId), keyOf(afterId)),
     });
   };
+
+  const unlockNote = async (noteId: string, password: string) => {
+    if (!navigator.onLine) {
+      return requireEngine().unlockOffline(noteId, password);
+    }
+    const unlock = await $fetch(`/api/notes/${noteId}/unlock`, {
+      method: "POST",
+      body: { password },
+    });
+    await requireEngine().unlockOnline(noteId, password, unlock);
+  };
+
+  const lockNote = async (noteId: string, password: string) => {
+    const note = getNoteById(noteId);
+    if (note?.role !== "owner") {
+      throw new Error("Only the owner can change the password.");
+    }
+    const wasLocked = !!note.lockedAt;
+    await requireEngine().syncNow();
+    const unlock = await $fetch(`/api/notes/${noteId}/lock`, {
+      method: "PUT",
+      body: { password },
+    });
+    await requireEngine().unlockOnline(noteId, password, unlock);
+    toast.success(wasLocked ? "Password changed." : "Note locked.");
+  };
+
+  const removeNoteLock = async (noteId: string) => {
+    try {
+      await $fetch(`/api/notes/${noteId}/lock`, { method: "DELETE" });
+      toast.success("Lock removed.");
+    } catch {
+      toast.error("Couldn't remove the lock.");
+    }
+  };
+
+  const unlockToken = (noteId: string) =>
+    engine.value?.unlockToken(noteId) ?? "";
 
   const deleteNoteForever = async (note: ClientNote) => {
     try {
@@ -321,6 +371,7 @@ export const useNoteStore = defineStore("notes", () => {
     initialized,
     caughtUp,
     status,
+    blockedNoteIds,
     notes,
     labels,
     ensureStarted,
@@ -339,6 +390,10 @@ export const useNoteStore = defineStore("notes", () => {
     updateLabel,
     deleteLabel,
     moveLabel,
+    unlockNote,
+    lockNote,
+    removeNoteLock,
+    unlockToken,
     deleteNoteForever,
     clearTrash,
     search,

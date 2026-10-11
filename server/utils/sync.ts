@@ -1,4 +1,4 @@
-import { HEADERS } from "@/lib/sync/constants";
+import { HEADERS } from "@/constants";
 import type { H3Event } from "h3";
 
 export const requireSyncSecret = (event: H3Event) => {

@@ -1,4 +1,4 @@
-import { PARTIES } from "@/lib/sync/constants";
+import { EDITOR_CLASS, LIMITS, PARTIES } from "@/constants";
 import { extensions } from "@/lib/tiptap";
 import {
   AI,
@@ -16,15 +16,12 @@ import { toast } from "vue-sonner";
 import YProvider from "y-partyserver/provider";
 import type * as Y from "yjs";
 
-const EDITOR_CLASS =
-  "-mx-2 px-2 h-full max-w-none prose dark:prose-invert outline-none overflow-y-auto scrollbar-thin text-primary scrollbar-track-transparent scrollbar-thumb-secondary";
-
 const aiProvider = (): AIProvider => {
   const tokens = useUser().user.value?.tokens ?? 0;
   return {
     permissions: {
-      refine: tokens >= CONSTANTS.rates.refine,
-      suggest: tokens >= CONSTANTS.rates.suggest,
+      refine: tokens >= LIMITS.rates.refine,
+      suggest: tokens >= LIMITS.rates.suggest,
     },
     getSuggestion: async (text) =>
       (
@@ -47,7 +44,10 @@ const aiProvider = (): AIProvider => {
 const connectNote = (noteId: string, doc: Y.Doc) =>
   new YProvider(useRuntimeConfig().public.syncUrl, noteId, doc, {
     party: PARTIES.note,
-    params: async () => ({ token: await useUser().getToken() }),
+    params: async () => ({
+      token: await useUser().getToken(),
+      unlock: useNoteStore().unlockToken(noteId),
+    }),
   });
 
 export const useNoteEditor = async (noteId: string, editable: boolean) => {

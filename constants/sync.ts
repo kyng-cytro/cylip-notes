@@ -7,6 +7,7 @@ export const SYNC_TIMING = {
   tokenTimeout: 10_000,
   imageUploadTimeout: 30_000,
   catchUpTimeout: 10_000,
+  lockedCopySaveDelay: 500,
 } as const;
 
 export const SAVE_DEBOUNCE = {
@@ -35,6 +36,7 @@ export const CLOSE_CODES = { accessChanged: 4003, noteDeleted: 4004 } as const;
 export const HEADERS = {
   syncSecret: "x-sync-secret",
   identity: "x-sync-identity",
+  unlock: "x-note-unlock",
 } as const;
 
 export const CHANNELS = {
@@ -45,6 +47,8 @@ export const STORAGE_NAMES = {
   note: (userId: string, noteId: string) => `cylip-note-${userId}-${noteId}`,
   workspace: (userId: string) => `cylip-workspace-${userId}`,
   syncState: (userId: string) => `cylip-sync-${userId}`,
+  unlocks: (userId: string) => `cylip-unlocks-${userId}`,
+  lockedCopies: (userId: string) => `cylip-locked-${userId}`,
 };
 
 export const CLIENT_ROUTES = {
@@ -56,6 +60,7 @@ export const WORKER_ROUTES = {
   prefix: "/internal/",
   workspaceNote: "/internal/workspaces/:userId/notes/:noteId",
   workspaceNoteShared: "/internal/workspaces/:userId/notes/:noteId/shared",
+  workspaceNoteLock: "/internal/workspaces/:userId/notes/:noteId/lock",
   workspaceInvites: "/internal/workspaces/:userId/invites",
   noteConnections: "/internal/notes/:noteId/connections/:userId",
   note: "/internal/notes/:noteId",

@@ -8,12 +8,15 @@ export const useNotePage = async (noteId: string) => {
   await noteStore.ensureStarted();
 
   const note = computed(() => noteStore.getNoteById(noteId));
+  const locked = computed(() => !!note.value?.locked);
   const canEdit = computed(
     () => canEditRole(note.value?.role) && !note.value?.trashed,
   );
   const editor = shallowRef<Editor | null>(null);
+  const history = useNoteHistory(noteId);
+  onScopeDispose(history.close);
   const loading = computed(() => {
-    if (editor.value) return false;
+    if (editor.value || locked.value) return false;
     return !!note.value || !noteStore.caughtUp;
   });
 
@@ -24,20 +27,28 @@ export const useNotePage = async (noteId: string) => {
     if (page.unmounted) return created.destroy();
     editor.value = created;
   };
-  whenever(() => note.value && !editor.value, createEditor, {
+  whenever(() => note.value && !locked.value && !editor.value, createEditor, {
     immediate: true,
   });
+  whenever(locked, () => {
+    history.close();
+    editor.value?.destroy();
+    editor.value = null;
+  });
+
+  const unlock = (password: string) => noteStore.unlockNote(noteId, password);
+  const reset = (password: string) => noteStore.lockNote(noteId, password);
   watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
-  const title = ref(note.value?.title ?? "");
+  const draftTitle = ref(note.value?.title ?? "");
   watch(
     () => note.value?.title,
     (remoteTitle) => {
-      if (remoteTitle !== undefined) title.value = remoteTitle;
+      if (remoteTitle !== undefined) draftTitle.value = remoteTitle;
     },
   );
   watchDebounced(
-    title,
+    draftTitle,
     (value) => {
       if (canEdit.value && value !== note.value?.title) {
         noteStore.updateTitle(noteId, value);
@@ -45,6 +56,15 @@ export const useNotePage = async (noteId: string) => {
     },
     { debounce: 500 },
   );
+
+  const canEditTitle = computed(() => canEdit.value && !history.open.value);
+  const title = computed({
+    get: () =>
+      history.open.value
+        ? (history.selected.value?.title ?? "")
+        : draftTitle.value,
+    set: (value: string) => (draftTitle.value = value),
+  });
 
   const isDark = computed(() => useColorMode().value === "dark");
   const background = computed(() =>
@@ -63,5 +83,18 @@ export const useNotePage = async (noteId: string) => {
     return titles;
   };
 
-  return { note, editor, loading, title, canEdit, background, suggestTitle };
+  return {
+    note,
+    editor,
+    loading,
+    locked,
+    historyOpen: history.open,
+    unlock,
+    reset,
+    title,
+    canEdit,
+    canEditTitle,
+    background,
+    suggestTitle,
+  };
 };

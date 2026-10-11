@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isSharedNote, UNTITLED_NOTE } from "@/lib/notes";
+import { UNTITLED_NOTE } from "@/constants";
+import { isSharedNote } from "@/lib/notes";
 import type { SearchResult } from "@/lib/sync/search";
 
 const { result } = defineProps<{ result: SearchResult }>();

@@ -1,8 +1,4 @@
-import {
-  INVITES_CHANGED,
-  NOTE_CHANGED,
-  SAVE_DEBOUNCE,
-} from "@/lib/sync/constants";
+import { INVITES_CHANGED, NOTE_CHANGED, SAVE_DEBOUNCE } from "@/constants";
 import {
   getNotesMap,
   readWorkspace,
@@ -10,6 +6,7 @@ import {
   writeMap,
   writeWorkspace,
   type WorkspaceMessage,
+  type NoteLockState,
   type NoteRole,
   type WorkspaceNote,
 } from "@/lib/sync/protocol";
@@ -78,6 +75,11 @@ export class WorkspaceDoc extends YServer<Env> {
       shared: true,
     };
     notes.set(noteId, toYMap(entry));
+  }
+
+  setLock(noteId: string, lock: NoteLockState) {
+    const entry = getNotesMap(this.document).get(noteId);
+    if (entry) writeMap(entry, lock);
   }
 
   setShared(noteId: string, shared: boolean) {

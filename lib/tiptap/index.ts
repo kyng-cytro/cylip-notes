@@ -1,9 +1,9 @@
+import { HEADING_LEVELS } from "@/constants";
 import lowlight from "@/lib/lowlight";
 import {
   Callout,
   CodeBlock,
   Heading,
-  HEADING_LEVELS,
   MarkDownCopy,
 } from "@/lib/tiptap/custom-extensions";
 import {
@@ -30,8 +30,6 @@ const placeholderFor = ({ node }: { node: Node }) => {
   if (node.type.name === "detailsSummary") return "Toggle";
   return "Type '/' for commands";
 };
-
-export const HIGHLIGHT_COLOR = "#00ffaa70";
 
 export const extensions = [
   TaskList,

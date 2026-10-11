@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ALL_NOTES, SHARED_WITH_ME } from "@/constants";
 import { Plus } from "lucide-vue-next";
 definePageMeta({
   layout: "app",

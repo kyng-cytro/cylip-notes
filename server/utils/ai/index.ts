@@ -1,9 +1,9 @@
+import { LIMITS } from "@/constants";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { CONSTANTS } from "@/utils/helpers";
 
-type Feature = keyof typeof CONSTANTS.rates;
+type Feature = keyof typeof LIMITS.rates;
 
 type GenerateOptions = {
   prompt: string;
@@ -29,7 +29,7 @@ export const generateList = async (options: GenerateOptions) => {
 };
 
 export const requireTokens = (user: AuthUser, feature: Feature) => {
-  if (user.tokens < CONSTANTS.rates[feature]) {
+  if (user.tokens < LIMITS.rates[feature]) {
     throw createError({
       statusCode: 403,
       message: "You do not have enough tokens to use this feature.",
@@ -40,5 +40,5 @@ export const requireTokens = (user: AuthUser, feature: Feature) => {
 export const chargeTokens = (userId: string, feature: Feature) =>
   useDrizzle()
     .update(tables.user)
-    .set({ tokens: decrement(tables.user.tokens, CONSTANTS.rates[feature]) })
+    .set({ tokens: decrement(tables.user.tokens, LIMITS.rates[feature]) })
     .where(eq(tables.user.id, userId));

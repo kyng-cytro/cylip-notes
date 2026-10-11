@@ -24,3 +24,14 @@ export const addMemberSchema = z.object({
 });
 
 export const updateMemberSchema = z.object({ role: memberRoleSchema });
+
+export const notePasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be at most 128 characters"),
+});
+
+export const noteUnlockSchema = z.object({
+  password: z.string().min(1, "Enter the password").max(128),
+});

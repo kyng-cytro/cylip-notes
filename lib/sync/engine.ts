@@ -1,7 +1,8 @@
-import { SYNC_TIMING } from "./constants";
+import { SYNC_TIMING } from "@/constants";
 import { ref, shallowRef } from "vue";
 import * as Y from "yjs";
 import { uploadInlineImages } from "./inline-images";
+import { LockedNotes, type ServerUnlock } from "./locked-notes";
 import { NoteDocs } from "./note-docs";
 import { readNoteView, type NoteView } from "./note-views";
 import {
@@ -29,11 +30,13 @@ type Options = {
 export class SyncEngine {
   readonly workspace = shallowRef<WorkspaceSnapshot>({ notes: {}, labels: {} });
   readonly views = shallowRef<Record<string, NoteView>>({});
+  readonly blocked = shallowRef<string[]>([]);
   readonly ready = ref(false);
   readonly caughtUp = ref(false);
   readonly status = ref<SyncStatus>("synced");
 
   readonly workspaceDoc: Workspace;
+  readonly locks: LockedNotes;
   private docs: NoteDocs;
   private state: SyncState;
   private api: SyncApi;
@@ -49,10 +52,11 @@ export class SyncEngine {
 
   constructor(private options: Options) {
     this.state = new SyncState(options.userId);
+    this.locks = new LockedNotes(options.userId);
     this.api = new SyncApi(options.syncUrl, options.getToken);
     this.docs = new NoteDocs(options.userId, {
       onLocalChange: (noteId) => this.handleLocalChange(noteId),
-      onChange: (noteId) => this.scheduleViewRefresh(noteId),
+      onChange: (noteId) => this.handleNoteChange(noteId),
     });
     this.workspaceDoc = new Workspace({
       ...options,
@@ -69,10 +73,10 @@ export class SyncEngine {
   async start() {
     await this.workspaceDoc.load();
     this.workspace.value = this.workspaceDoc.snapshot();
-    const ids = Object.keys(this.workspace.value.notes);
-    await Promise.all(ids.map((id) => this.docs.load(id)));
+    const ids = this.loadableNoteIds();
+    await Promise.all(ids.map((id) => this.loadDoc(id)));
     this.views.value = Object.fromEntries(
-      ids.map((id) => [id, readNoteView(id, this.docs.get(id))]),
+      ids.map((id) => [id, readNoteView(id, this.doc(id))]),
     );
     this.ready.value = true;
     this.catchUpTimer = setTimeout(
@@ -97,16 +101,42 @@ export class SyncEngine {
     document.removeEventListener("visibilitychange", this.requestSync);
     await this.workspaceDoc.destroy({ clearData });
     this.docs.close();
-    if (clearData)
-      await Promise.all([this.docs.removeAll(), this.state.clear()]);
+    if (clearData) {
+      await Promise.all([
+        this.docs.removeAll(),
+        this.state.clear(),
+        this.locks.clear(),
+      ]);
+    }
   }
 
   loadNoteDoc(noteId: string) {
-    return this.docs.load(noteId);
+    return this.loadDoc(noteId);
+  }
+
+  canOpen(noteId: string) {
+    if (!this.isLocked(noteId)) return true;
+    if (this.status.value === "offline") return this.hasKey(noteId);
+    return !!this.token(noteId);
+  }
+
+  unlockToken(noteId: string) {
+    return this.token(noteId) ?? "";
+  }
+
+  async unlockOnline(noteId: string, password: string, server: ServerUnlock) {
+    await this.locks.unlockOnline(noteId, password, server);
+    this.handleWorkspaceChange();
+    this.requestSync();
+  }
+
+  async unlockOffline(noteId: string, password: string) {
+    await this.locks.unlockOffline(noteId, password, this.lockedAt(noteId)!);
+    this.handleWorkspaceChange();
   }
 
   updateNoteMeta(noteId: string, values: Partial<NoteMeta>) {
-    const doc = this.docs.get(noteId);
+    const doc = this.doc(noteId);
     doc.transact(() => writeMap(getMeta(doc), values));
     this.flushViews();
   }
@@ -133,6 +163,7 @@ export class SyncEngine {
   };
 
   private async sync() {
+    this.locks.dropExpiredTokens();
     if (this.syncing) {
       this.syncQueued = true;
       return;
@@ -157,20 +188,26 @@ export class SyncEngine {
   }
 
   private async pushChanges() {
-    const pending = await this.notesWithUnsyncedChanges();
+    const unsynced = await this.notesWithUnsyncedChanges();
+    const isBlocked = (id: string) => this.isLocked(id) && !this.token(id);
+    this.blocked.value = unsynced.filter(isBlocked);
+    const pending = unsynced.filter((id) => !isBlocked(id));
     if (!pending.length) return;
     await Promise.all(
       pending.map((id) =>
-        uploadInlineImages(this.docs.get(id), this.options.uploadImage),
+        uploadInlineImages(this.doc(id), this.options.uploadImage),
       ),
     );
     const vectors = new Map(
-      pending.map((id) => [id, Y.encodeStateVector(this.docs.get(id))]),
+      pending.map((id) => [id, Y.encodeStateVector(this.doc(id))]),
     );
     const updates = await Promise.all(
       pending.map(async (id) => [id, await this.diffSinceServer(id)]),
     );
-    const result = await this.api.push({ docs: Object.fromEntries(updates) });
+    const result = await this.api.push({
+      docs: Object.fromEntries(updates),
+      unlocks: this.unlockTokens(),
+    });
     for (const id of [...result.ok, ...result.readonly]) {
       await this.state.setServerVector(id, vectors.get(id)!);
     }
@@ -185,10 +222,11 @@ export class SyncEngine {
     const result = await this.api.pull({
       docs: Object.fromEntries(vectors),
       since: await this.state.getCursor(),
+      unlocks: this.unlockTokens(),
     });
     for (const [id, { update, sv }] of Object.entries(result.docs)) {
       if (!this.docs.has(id)) continue;
-      Y.applyUpdate(this.docs.get(id), fromBase64(update), "remote");
+      Y.applyUpdate(this.doc(id), fromBase64(update), "remote");
       await this.state.setServerVector(id, fromBase64(sv));
     }
     this.dropNotes(result.denied);
@@ -204,9 +242,7 @@ export class SyncEngine {
   }
 
   private async hasUnsyncedChanges(noteId: string) {
-    const local = Y.decodeStateVector(
-      Y.encodeStateVector(this.docs.get(noteId)),
-    );
+    const local = Y.decodeStateVector(Y.encodeStateVector(this.doc(noteId)));
     const stored = await this.state.getServerVector(noteId);
     const server = stored
       ? Y.decodeStateVector(stored)
@@ -218,16 +254,58 @@ export class SyncEngine {
 
   private async diffSinceServer(noteId: string) {
     const serverVector = await this.state.getServerVector(noteId);
-    return toBase64(Y.encodeStateAsUpdate(this.docs.get(noteId), serverVector));
+    return toBase64(Y.encodeStateAsUpdate(this.doc(noteId), serverVector));
   }
 
   private async localVector(noteId: string) {
-    const doc = this.docs.get(noteId);
+    const doc = this.doc(noteId);
     const hasLocalState = doc.store.clients.size > 0;
     const hasServerState = !!(await this.state.getServerVector(noteId));
     return hasLocalState && hasServerState
       ? toBase64(Y.encodeStateVector(doc))
       : "";
+  }
+
+  private doc(noteId: string) {
+    return this.docs.get(noteId, !this.isLocked(noteId));
+  }
+
+  private async loadDoc(noteId: string) {
+    const opening = !this.docs.has(noteId);
+    const doc = await this.docs.load(noteId, !this.isLocked(noteId));
+    if (opening && this.isLocked(noteId)) await this.locks.restore(noteId, doc);
+    return doc;
+  }
+
+  private lockedAt(noteId: string) {
+    return this.workspace.value.notes[noteId]?.lockedAt;
+  }
+
+  private isLocked(noteId: string) {
+    return !!this.lockedAt(noteId);
+  }
+
+  private hasKey(noteId: string) {
+    return this.locks.hasKey(noteId, this.lockedAt(noteId));
+  }
+
+  private token(noteId: string) {
+    return this.locks.token(noteId, this.lockedAt(noteId));
+  }
+
+  private loadableNoteIds() {
+    return Object.keys(this.workspace.value.notes).filter(
+      (id) => !this.isLocked(id) || this.hasKey(id),
+    );
+  }
+
+  private unlockTokens() {
+    const tokens: Record<string, string> = {};
+    for (const id of this.docs.ids()) {
+      const token = this.token(id);
+      if (token) tokens[id] = token;
+    }
+    return tokens;
   }
 
   private dropNotes(noteIds: string[]) {
@@ -236,19 +314,32 @@ export class SyncEngine {
 
   private handleWorkspaceChange() {
     this.workspace.value = this.workspaceDoc.snapshot();
-    const wanted = new Set(Object.keys(this.workspace.value.notes));
+    const wanted = new Set(this.loadableNoteIds());
     const added = [...wanted].filter((id) => !this.docs.has(id));
     const removed = this.docs.ids().filter((id) => !wanted.has(id));
     for (const id of added)
-      this.docs.load(id).then(() => this.scheduleViewRefresh(id));
+      this.loadDoc(id).then(() => this.scheduleViewRefresh(id));
     for (const id of removed) this.forgetNote(id);
+    for (const id of this.docs.ids()) {
+      this.docs.setPersisted(id, !this.isLocked(id));
+      if (this.isLocked(id)) this.locks.scheduleSave(id, this.doc(id));
+    }
+    this.locks.pruneCopies((id) => this.lockedAt(id));
     if (added.length) this.requestSync();
   }
 
   private async forgetNote(noteId: string) {
+    this.locks.cancelSave(noteId);
     await Promise.all([this.docs.remove(noteId), this.state.forget(noteId)]);
     const { [noteId]: _, ...views } = this.views.value;
     this.views.value = views;
+  }
+
+  private handleNoteChange(noteId: string) {
+    this.scheduleViewRefresh(noteId);
+    if (this.isLocked(noteId) && this.docs.has(noteId)) {
+      this.locks.scheduleSave(noteId, this.doc(noteId));
+    }
   }
 
   private handleLocalChange(noteId: string) {
@@ -258,7 +349,7 @@ export class SyncEngine {
 
   private touchUpdatedAt(noteId: string) {
     if (!this.docs.has(noteId)) return;
-    const meta = getMeta(this.docs.get(noteId));
+    const meta = getMeta(this.doc(noteId));
     const now = Date.now();
     if (
       now - ((meta.get("updatedAt") as number) ?? 0) >
@@ -281,7 +372,7 @@ export class SyncEngine {
     clearTimeout(this.viewTimer);
     const fresh = [...this.staleViews]
       .filter((id) => this.docs.has(id))
-      .map((id) => [id, readNoteView(id, this.docs.get(id))]);
+      .map((id) => [id, readNoteView(id, this.doc(id))]);
     this.staleViews.clear();
     this.views.value = { ...this.views.value, ...Object.fromEntries(fresh) };
   }

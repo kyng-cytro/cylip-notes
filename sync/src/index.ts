@@ -1,4 +1,4 @@
-import { CLIENT_ROUTES, WORKER_ROUTES } from "@/lib/sync/constants";
+import { CLIENT_ROUTES, WORKER_ROUTES } from "@/constants";
 import { routePartykitRequest, type Lobby } from "partyserver";
 import { authorize } from "./app";
 import { pull, push } from "./client-routes";
@@ -28,7 +28,8 @@ const authorizeConnection = async (
   request: Request,
   lobby: Lobby<Env>,
 ) => {
-  const token = new URL(request.url).searchParams.get("token");
+  const params = new URL(request.url).searchParams;
+  const token = params.get("token");
   if (!token) return status(401);
   const kind = lobby.className === "NoteDoc" ? "note" : "workspace";
   try {
@@ -36,6 +37,7 @@ const authorizeConnection = async (
       token,
       kind,
       id: lobby.name,
+      unlock: params.get("unlock") ?? undefined,
     });
     if (created) ctx.waitUntil(reprojectWorkspace(env, identity.userId));
     return withIdentity(request, identity);

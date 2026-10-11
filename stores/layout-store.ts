@@ -1,7 +1,4 @@
-export const ALL_NOTES = "all-notes";
-
-export const SHARED_WITH_ME = "shared-with-me";
-
+import { ALL_NOTES } from "@/constants";
 export const useLayoutStore = defineStore(
   "layout",
   () => {

@@ -1,7 +1,7 @@
 @reference "@/assets/css/tailwind.css";
 
 ::selection {
-  @apply bg-secondary text-primary;
+  @apply bg-sky-500/30 text-primary;
 }
 
 .tiptap

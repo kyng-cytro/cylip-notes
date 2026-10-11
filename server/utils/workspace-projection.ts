@@ -1,5 +1,5 @@
+import { LIMITS } from "@/constants";
 import { compareKeys } from "@/lib/sync/ordering";
-import { CONSTANTS } from "@/utils/helpers";
 import { z } from "zod";
 
 const backgroundSchema = z
@@ -59,7 +59,7 @@ const allowedLabels = async (userId: string, labels: Snapshot["labels"]) => {
   const unique = uniqueBySlug(sorted);
   return user?.accountType === "premium"
     ? unique
-    : unique.slice(0, CONSTANTS.maxFreeLabels);
+    : unique.slice(0, LIMITS.maxFreeLabels);
 };
 
 const findAccessibleNotes = async (userId: string, noteIds: string[]) => {

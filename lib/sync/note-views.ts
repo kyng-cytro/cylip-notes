@@ -1,4 +1,4 @@
-import { DOC_KEYS } from "./constants";
+import { DOC_KEYS } from "@/constants";
 import { extensions } from "@/lib/tiptap";
 import { getSchema, type JSONContent } from "@tiptap/core";
 import { yXmlFragmentToProseMirrorRootNode } from "@tiptap/y-tiptap";
@@ -25,3 +25,11 @@ export const readNoteView = (id: string, doc: Y.Doc): NoteView => {
     loaded: doc.store.clients.size > 0,
   };
 };
+
+export const lockedNoteView = (id: string, meta: NoteMeta): NoteView => ({
+  id,
+  ...meta,
+  content: null,
+  text: "",
+  loaded: true,
+});

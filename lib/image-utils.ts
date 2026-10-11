@@ -1,15 +1,15 @@
+import { ALLOWED_IMAGE_EXTENSIONS, LIMITS } from "@/constants";
 import type { Editor } from "@tiptap/core";
 import imageCompression from "browser-image-compression";
 
 type ValidationResult =
   { valid: true; file: File } | { valid: false; message: string };
 
-const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "bmp", "tiff"];
-
 const isImage = (file: File) => {
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
   return (
-    file.type.startsWith("image/") && ALLOWED_EXTENSIONS.includes(extension)
+    file.type.startsWith("image/") &&
+    ALLOWED_IMAGE_EXTENSIONS.includes(extension)
   );
 };
 
@@ -24,9 +24,9 @@ const readAsDataUrl = (file: Blob) =>
 export const toCompressedDataUrl = async (file: File) => {
   const compressed = await imageCompression(
     file,
-    CONSTANTS.imageCompressionOptions,
+    LIMITS.imageCompressionOptions,
   );
-  if (compressed.size > CONSTANTS.imageSizeLimit)
+  if (compressed.size > LIMITS.imageSizeLimit)
     throw new Error("File too large.");
   return readAsDataUrl(compressed);
 };
@@ -42,7 +42,7 @@ export const validateImageFiles = (
   if (!isImage(file))
     return { valid: false, message: "Only image files are allowed." };
   const accountType = useUser().user.value?.accountType ?? "free";
-  const max = CONSTANTS.maxImagePerNote[accountType];
+  const max = LIMITS.maxImagePerNote[accountType];
   if ((editor.$nodes("image")?.length ?? 0) >= max) {
     return {
       valid: false,

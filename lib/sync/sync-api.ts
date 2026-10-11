@@ -1,4 +1,4 @@
-import { CLIENT_ROUTES, SYNC_TIMING } from "./constants";
+import { CLIENT_ROUTES, SYNC_TIMING } from "@/constants";
 import type {
   PullRequest,
   PullResponse,

@@ -1,13 +1,13 @@
+import { CHANNELS, STORAGE_NAMES } from "@/constants";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
-import { CHANNELS, STORAGE_NAMES } from "./constants";
 
 type Listeners = {
   onLocalChange: (noteId: string) => void;
   onChange: (noteId: string) => void;
 };
 
-type Entry = { doc: Y.Doc; persistence: IndexeddbPersistence };
+type Entry = { doc: Y.Doc; persistence: IndexeddbPersistence | null };
 
 type TabMessage = { noteId: string; update: Uint8Array };
 
@@ -36,20 +36,21 @@ export class NoteDocs {
     return this.entries.has(noteId);
   }
 
-  get(noteId: string) {
-    return this.open(noteId).doc;
+  get(noteId: string, persist: boolean) {
+    return this.open(noteId, persist).doc;
   }
 
-  async load(noteId: string) {
-    await this.open(noteId).persistence.whenSynced;
-    return this.get(noteId);
+  async load(noteId: string, persist: boolean) {
+    const { doc, persistence } = this.open(noteId, persist);
+    await persistence?.whenSynced;
+    return doc;
   }
 
   async remove(noteId: string) {
     const entry = this.entries.get(noteId);
     if (!entry) return;
     this.entries.delete(noteId);
-    await entry.persistence.clearData();
+    await entry.persistence?.clearData();
     entry.doc.destroy();
   }
 
@@ -61,16 +62,35 @@ export class NoteDocs {
     this.channel.close();
   }
 
-  private open(noteId: string) {
-    const existing = this.entries.get(noteId);
-    if (existing) return existing;
-    const doc = new Y.Doc();
-    const persistence = new IndexeddbPersistence(
+  async setPersisted(noteId: string, persist: boolean) {
+    const entry = this.entries.get(noteId);
+    if (!entry || !!entry.persistence === persist) return;
+    if (persist) {
+      entry.persistence = this.persist(noteId, entry.doc);
+      return;
+    }
+    const persistence = entry.persistence!;
+    entry.persistence = null;
+    await persistence.clearData();
+  }
+
+  private persist(noteId: string, doc: Y.Doc) {
+    return new IndexeddbPersistence(
       STORAGE_NAMES.note(this.userId, noteId),
       doc,
     );
+  }
+
+  private open(noteId: string, persist: boolean) {
+    const existing = this.entries.get(noteId);
+    if (existing) return existing;
+    const doc = new Y.Doc();
+    const entry: Entry = {
+      doc,
+      persistence: persist ? this.persist(noteId, doc) : null,
+    };
     doc.on("update", (update: Uint8Array, origin: unknown) => {
-      if (origin !== FROM_OTHER_TAB && origin !== persistence) {
+      if (origin !== FROM_OTHER_TAB && origin !== entry.persistence) {
         this.channel.postMessage({ noteId, update } satisfies TabMessage);
       }
     });
@@ -79,7 +99,6 @@ export class NoteDocs {
       if (transaction.local) this.listeners.onLocalChange(noteId);
       this.listeners.onChange(noteId);
     });
-    const entry = { doc, persistence };
     this.entries.set(noteId, entry);
     return entry;
   }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HIGHLIGHT_COLOR } from "@/lib/tiptap";
+import { HIGHLIGHT_COLOR } from "@/constants";
 import type { Editor as BaseEditor, ChainedCommands } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/vue-3";
@@ -78,6 +78,7 @@ const toggleMark = (mark: Mark) => mark.toggle(editor.chain().focus()).run();
 <template>
   <div>
     <BubbleMenu
+      data-floating-menu
       :editor
       :should-show="shouldShow"
       :options="{ placement: 'top', offset: 8 }"
