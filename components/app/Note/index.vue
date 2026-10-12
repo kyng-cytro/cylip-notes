@@ -12,7 +12,7 @@ const contentRef = ref<HTMLElement | null>(null);
 const { layout } = storeToRefs(useLayoutStore());
 const { beforeEnter, enter, leave } = useHeightMotion();
 
-const openModal = () => useModalRouter().push(`/app/notes/${props.note.id}`);
+const openModal = () => noteStore.openNote(props.note.id);
 
 const content = computed(() => contentToHtml(props.note.content));
 

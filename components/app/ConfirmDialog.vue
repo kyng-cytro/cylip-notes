@@ -19,10 +19,12 @@ defineProps<{
 defineEmits<{
   (e: "confirm"): void;
 }>();
+
+const open = defineModel<boolean>("open", { default: false });
 </script>
 <template>
-  <Dialog>
-    <DialogTrigger as-child>
+  <Dialog v-model:open="open">
+    <DialogTrigger v-if="$slots.default" as-child>
       <slot />
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">

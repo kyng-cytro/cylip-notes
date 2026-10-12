@@ -15,6 +15,7 @@ import {
   type NoteMeta,
   type WorkspaceNote,
 } from "@/lib/sync/protocol";
+import { NotePasskeys } from "@/lib/sync/note-passkeys";
 import { lockedNoteView } from "@/lib/sync/note-views";
 import { createSearchIndex } from "@/lib/sync/search";
 import type { ClientLabel, ClientNote, NoteScope } from "@/lib/types";
@@ -46,12 +47,20 @@ export const useNoteStore = defineStore("notes", () => {
   const { user, preferences, getToken } = useUser();
   const { refresh: refreshInvites } = useInvites();
   const engine = shallowRef<SyncEngine | null>(null);
+  const passkeys = shallowRef<NotePasskeys | null>(null);
+  const passkeyFailedIds = shallowRef<string[]>([]);
   const starting = shallowRef<Promise<void> | null>(null);
 
   const initialized = computed(() => engine.value?.ready.value ?? false);
   const caughtUp = computed(() => engine.value?.caughtUp.value ?? false);
   const status = computed(() => engine.value?.status.value ?? "offline");
-  const blockedNoteIds = computed(() => engine.value?.blocked.value ?? []);
+  const blockedNotes = computed(() => engine.value?.blocked.value ?? []);
+  const passkeySupported = computed(
+    () => passkeys.value?.supported.value ?? false,
+  );
+  const passkeyRegistered = computed(
+    () => passkeys.value?.registered.value ?? false,
+  );
 
   const labels = computed<ClientLabel[]>(() =>
     Object.entries(engine.value?.workspace.value.labels ?? {})
@@ -97,6 +106,21 @@ export const useNoteStore = defineStore("notes", () => {
       .filter(Boolean)
       .sort()[0];
 
+  const lockedAtOf = (noteId: string) =>
+    engine.value?.workspace.value.notes[noteId]?.lockedAt;
+
+  const startPasskeys = async () => {
+    const created = markRaw(
+      new NotePasskeys({
+        id: user.value!.id,
+        email: user.value!.email,
+        name: user.value!.name,
+      }),
+    );
+    await created.load(lockedAtOf);
+    passkeys.value = created;
+  };
+
   const startEngine = async (userId: string) => {
     const created = markRaw(
       new SyncEngine({
@@ -109,6 +133,7 @@ export const useNoteStore = defineStore("notes", () => {
     );
     await created.start();
     engine.value = created;
+    await startPasskeys();
   };
 
   const ensureStarted = () => {
@@ -119,7 +144,9 @@ export const useNoteStore = defineStore("notes", () => {
 
   const resetStore = async () => {
     await engine.value?.stop({ clearData: true });
+    await passkeys.value?.clear();
     engine.value = null;
+    passkeys.value = null;
     starting.value = null;
   };
 
@@ -293,16 +320,89 @@ export const useNoteStore = defineStore("notes", () => {
     });
   };
 
-  const unlockNote = async (noteId: string, password: string) => {
+  const unlockWithPassword = async (noteId: string, password: string) => {
     if (!navigator.onLine) {
-      return requireEngine().unlockOffline(noteId, password);
+      await requireEngine().unlockOffline(noteId, password);
+    } else {
+      const unlock = await $fetch(`/api/notes/${noteId}/unlock`, {
+        method: "POST",
+        body: { password },
+      });
+      await requireEngine().unlockOnline(noteId, password, unlock);
     }
-    const unlock = await $fetch(`/api/notes/${noteId}/unlock`, {
-      method: "POST",
-      body: { password },
-    });
-    await requireEngine().unlockOnline(noteId, password, unlock);
+    setPasskeyFailed(noteId, false);
   };
+
+  const setPasskeyFailed = (noteId: string, failed: boolean) => {
+    const others = passkeyFailedIds.value.filter((id) => id !== noteId);
+    passkeyFailedIds.value = failed ? [...others, noteId] : others;
+  };
+
+  const passkeyFailed = (noteId: string) =>
+    passkeyFailedIds.value.includes(noteId);
+
+  const hasSavedPassword = (noteId: string) =>
+    !!passkeys.value?.has(noteId, lockedAtOf(noteId));
+
+  const readyPasskey = async () => {
+    try {
+      await passkeys.value!.unlockKey();
+      return true;
+    } catch (e: any) {
+      toast.error("Couldn't use your passkey.", { description: e.message });
+      return false;
+    }
+  };
+
+  const unlockNote = async (
+    noteId: string,
+    password: string,
+    options = { remember: false },
+  ) => {
+    const remember = options.remember && (await readyPasskey());
+    await unlockWithPassword(noteId, password);
+    if (remember) {
+      await passkeys.value!.remember(noteId, lockedAtOf(noteId)!, password);
+    }
+  };
+
+  const unlockWithPasskey = async (noteIds: string[]) => {
+    const passwords = await passkeys.value!.recall(
+      noteIds.filter(hasSavedPassword),
+    );
+    await Promise.all(
+      [...passwords].map(([noteId, password]) =>
+        unlockWithPassword(noteId, password).catch((e) => {
+          if (e.statusCode === 403) passkeys.value!.forget(noteId);
+          throw e;
+        }),
+      ),
+    );
+  };
+
+  const tryPasskeyUnlock = async (noteId: string) => {
+    if (!getNoteById(noteId)?.locked || !hasSavedPassword(noteId)) return false;
+    try {
+      await unlockWithPasskey([noteId]);
+      return true;
+    } catch {
+      setPasskeyFailed(noteId, true);
+      return false;
+    }
+  };
+
+  const forgetSavedPassword = async (noteId: string) => {
+    await passkeys.value?.forget(noteId);
+    setPasskeyFailed(noteId, false);
+  };
+
+  const openNote = async (noteId: string) => {
+    await tryPasskeyUnlock(noteId);
+    useModalRouter().push(`/app/notes/${noteId}`);
+  };
+
+  const discardLocalChanges = (noteId: string) =>
+    requireEngine().discardLocalChanges(noteId);
 
   const lockNote = async (noteId: string, password: string) => {
     const note = getNoteById(noteId);
@@ -310,12 +410,16 @@ export const useNoteStore = defineStore("notes", () => {
       throw new Error("Only the owner can change the password.");
     }
     const wasLocked = !!note.lockedAt;
+    const remember = hasSavedPassword(noteId) && (await readyPasskey());
     await requireEngine().syncNow();
     const unlock = await $fetch(`/api/notes/${noteId}/lock`, {
       method: "PUT",
       body: { password },
     });
     await requireEngine().unlockOnline(noteId, password, unlock);
+    if (remember) {
+      await passkeys.value!.remember(noteId, unlock.lockedAt, password);
+    }
     toast.success(wasLocked ? "Password changed." : "Note locked.");
   };
 
@@ -371,7 +475,9 @@ export const useNoteStore = defineStore("notes", () => {
     initialized,
     caughtUp,
     status,
-    blockedNoteIds,
+    blockedNotes,
+    passkeySupported,
+    passkeyRegistered,
     notes,
     labels,
     ensureStarted,
@@ -391,6 +497,13 @@ export const useNoteStore = defineStore("notes", () => {
     deleteLabel,
     moveLabel,
     unlockNote,
+    hasSavedPassword,
+    unlockWithPasskey,
+    tryPasskeyUnlock,
+    forgetSavedPassword,
+    passkeyFailed,
+    openNote,
+    discardLocalChanges,
     lockNote,
     removeNoteLock,
     unlockToken,

@@ -42,7 +42,12 @@ const onSubmit = async (
             v-bind="componentField"
           />
         </FormControl>
-        <FormMessage />
+        <div class="flex items-start justify-between gap-2">
+          <FormMessage />
+          <div v-if="$slots.hint" class="ml-auto shrink-0">
+            <slot name="hint" />
+          </div>
+        </div>
       </FormItem>
     </FormField>
     <Button type="submit" class="font-semibold" :loading="isSubmitting">

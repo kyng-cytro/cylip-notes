@@ -36,7 +36,7 @@ export const useNotePage = async (noteId: string) => {
     editor.value = null;
   });
 
-  const unlock = (password: string) => noteStore.unlockNote(noteId, password);
+  const { unlock, passkey, remember } = useNoteUnlock(noteId);
   const reset = (password: string) => noteStore.lockNote(noteId, password);
   watch(canEdit, (editable) => editor.value?.setEditable(editable));
 
@@ -90,6 +90,8 @@ export const useNotePage = async (noteId: string) => {
     locked,
     historyOpen: history.open,
     unlock,
+    passkey,
+    remember,
     reset,
     title,
     canEdit,

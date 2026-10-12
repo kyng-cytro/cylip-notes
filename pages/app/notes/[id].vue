@@ -11,6 +11,8 @@ const {
   locked,
   historyOpen,
   unlock,
+  passkey,
+  remember,
   reset,
   title,
   canEdit,
@@ -27,7 +29,13 @@ const {
     <div v-if="loading" class="mx-auto h-full w-full max-w-3xl py-6">
       <EditorLoading />
     </div>
-    <AppNoteUnlock v-else-if="locked" :unlock :reset />
+    <AppNoteUnlock
+      v-else-if="locked"
+      :unlock
+      :passkey
+      v-model:remember="remember"
+      :reset
+    />
     <AppEmptyPage
       v-else-if="!note || !editor"
       class="col-span-2"
