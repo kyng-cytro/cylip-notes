@@ -10,5 +10,8 @@ export const NOTE_LOCK = {
 export const NOTE_PASSKEY = {
   prfSalt: "cylip-notes/note-unlock/v1",
   challengeLength: 32,
+  userIdLength: 16,
+  maxKnownCredentials: 20,
+  maxCredentialIdLength: 1024,
   timeout: 60_000,
 } as const;
