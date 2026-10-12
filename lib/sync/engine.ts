@@ -1,6 +1,7 @@
 import { SYNC_TIMING } from "@/constants";
 import { ref, shallowRef } from "vue";
 import * as Y from "yjs";
+import { countChanges, type ChangeCount } from "./change-count";
 import { uploadInlineImages } from "./inline-images";
 import { LockedNotes, type ServerUnlock } from "./locked-notes";
 import { NoteDocs } from "./note-docs";
@@ -19,6 +20,8 @@ import { Workspace } from "./workspace";
 
 type SyncStatus = "offline" | "syncing" | "synced";
 
+export type BlockedNote = ChangeCount & { noteId: string };
+
 type Options = {
   userId: string;
   syncUrl: string;
@@ -30,7 +33,7 @@ type Options = {
 export class SyncEngine {
   readonly workspace = shallowRef<WorkspaceSnapshot>({ notes: {}, labels: {} });
   readonly views = shallowRef<Record<string, NoteView>>({});
-  readonly blocked = shallowRef<string[]>([]);
+  readonly blocked = shallowRef<BlockedNote[]>([]);
   readonly ready = ref(false);
   readonly caughtUp = ref(false);
   readonly status = ref<SyncStatus>("synced");
@@ -135,6 +138,15 @@ export class SyncEngine {
     this.handleWorkspaceChange();
   }
 
+  async discardLocalChanges(noteId: string) {
+    await this.locks.forget(noteId);
+    await this.forgetNote(noteId);
+    this.blocked.value = this.blocked.value.filter(
+      (note) => note.noteId !== noteId,
+    );
+    this.handleWorkspaceChange();
+  }
+
   updateNoteMeta(noteId: string, values: Partial<NoteMeta>) {
     const doc = this.doc(noteId);
     doc.transact(() => writeMap(getMeta(doc), values));
@@ -190,7 +202,9 @@ export class SyncEngine {
   private async pushChanges() {
     const unsynced = await this.notesWithUnsyncedChanges();
     const isBlocked = (id: string) => this.isLocked(id) && !this.token(id);
-    this.blocked.value = unsynced.filter(isBlocked);
+    this.blocked.value = await Promise.all(
+      unsynced.filter(isBlocked).map((id) => this.blockedNote(id)),
+    );
     const pending = unsynced.filter((id) => !isBlocked(id));
     if (!pending.length) return;
     await Promise.all(
@@ -250,6 +264,12 @@ export class SyncEngine {
     return [...local].some(
       ([client, clock]) => (server.get(client) ?? 0) < clock,
     );
+  }
+
+  private async blockedNote(noteId: string): Promise<BlockedNote> {
+    const serverVector = await this.state.getServerVector(noteId);
+    const update = Y.encodeStateAsUpdate(this.doc(noteId), serverVector);
+    return { noteId, ...countChanges(update, serverVector) };
   }
 
   private async diffSinceServer(noteId: string) {

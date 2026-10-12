@@ -2,6 +2,7 @@ import { NOTE_LOCK, STORAGE_NAMES, SYNC_TIMING } from "@/constants";
 import {
   clear,
   createStore,
+  del,
   delMany,
   entries,
   get,
@@ -39,7 +40,7 @@ type NoteUnlocks = Record<string, NoteUnlock>;
 
 type LockedCopy = Sealed & { lockedAt: number; salt: Uint8Array<ArrayBuffer> };
 
-type LockedAtOf = (noteId: string) => number | null | undefined;
+export type LockedAtOf = (noteId: string) => number | null | undefined;
 
 const readUnlocks = (storageKey: string): NoteUnlocks => {
   try {
@@ -154,6 +155,13 @@ export class LockedNotes {
       .filter(([noteId, copy]) => lockedAtOf(noteId) !== copy.lockedAt)
       .map(([noteId]) => noteId);
     await delMany(stale, this.copies);
+  }
+
+  async forget(noteId: string) {
+    this.cancelSave(noteId);
+    const { [noteId]: _, ...unlocks } = this.unlocks.value;
+    this.setUnlocks(unlocks);
+    await del(noteId, this.copies);
   }
 
   async clear() {

@@ -21,7 +21,7 @@ const results = computed(() =>
 
 const openNote = (result: SearchResult) => {
   open.value = false;
-  useModalRouter().push(`/app/notes/${result.note.id}`);
+  noteStore.openNote(result.note.id);
 };
 
 onKeyStroke("k", (event) => {

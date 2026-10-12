@@ -1,12 +1,58 @@
 <script setup lang="ts">
-import { LockKeyhole } from "lucide-vue-next";
+import { FingerprintPattern, LockKeyhole } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 
-defineProps<{
+type Step = "passkey" | "password" | "reset";
+
+const props = defineProps<{
   unlock: (password: string) => Promise<void>;
   reset?: (password: string) => Promise<void>;
+  passkey?: {
+    saved: boolean;
+    failed: boolean;
+    unlock: () => Promise<boolean>;
+    forget: () => Promise<void>;
+  };
 }>();
 
-const resetting = ref(false);
+const remember = defineModel<boolean>("remember", { default: false });
+
+const step = ref<Step>(
+  props.passkey?.saved && !props.passkey.failed ? "passkey" : "password",
+);
+const unlockingWithPasskey = ref(false);
+
+const copy = computed(
+  () =>
+    ({
+      passkey: {
+        title: "This note is locked",
+        description: "Use your passkey to open it.",
+      },
+      password: {
+        title: "This note is locked",
+        description: props.passkey?.failed
+          ? "Your passkey didn't work. Enter the password instead."
+          : "Enter the password to open it.",
+      },
+      reset: {
+        title: "Set a new password",
+        description: "The old password will stop working for everyone.",
+      },
+    })[step.value],
+);
+
+const unlockWithPasskey = async () => {
+  unlockingWithPasskey.value = true;
+  const unlocked = await props.passkey!.unlock();
+  unlockingWithPasskey.value = false;
+  if (!unlocked) step.value = "password";
+};
+
+const forgetPasskey = async () => {
+  await props.passkey!.forget();
+  toast.success("Passkey removed for this note.");
+};
 </script>
 
 <template>
@@ -15,38 +61,72 @@ const resetting = ref(false);
   >
     <LockKeyhole class="text-muted-foreground size-10" />
     <div class="space-y-1">
-      <h3 class="text-xl font-bold">
-        {{ resetting ? "Set a new password" : "This note is locked" }}
-      </h3>
-      <p class="text-muted-foreground">
-        {{
-          resetting
-            ? "The old password will stop working for everyone."
-            : "Enter the password to open it."
-        }}
-      </p>
+      <h3 class="text-xl font-bold">{{ copy.title }}</h3>
+      <p class="text-muted-foreground">{{ copy.description }}</p>
     </div>
-    <AppNotePasswordForm
-      v-if="resetting && reset"
-      mode="set"
-      class="w-full text-left"
-      submit-text="Change password"
-      :submit="reset"
-    />
-    <AppNotePasswordForm
-      v-else
-      mode="unlock"
-      class="w-full text-left"
-      submit-text="Unlock"
-      :submit="unlock"
-    />
-    <Button
-      v-if="reset"
-      variant="link"
-      size="sm"
-      @click="resetting = !resetting"
-    >
-      {{ resetting ? "Back to unlock" : "Forgot password?" }}
-    </Button>
+    <template v-if="step === 'passkey'">
+      <Button
+        class="w-full font-semibold"
+        :loading="unlockingWithPasskey"
+        @click="unlockWithPasskey"
+      >
+        <FingerprintPattern class="size-4" />
+        Unlock with passkey
+      </Button>
+      <Button variant="link" size="sm" @click="step = 'password'">
+        Use password instead
+      </Button>
+    </template>
+    <template v-else-if="step === 'password'">
+      <AppNotePasswordForm
+        mode="unlock"
+        class="w-full text-left"
+        submit-text="Unlock"
+        :submit="unlock"
+      >
+        <template v-if="reset" #hint>
+          <Button
+            type="button"
+            variant="link"
+            size="xs"
+            class="text-muted-foreground h-auto p-0 text-xs font-light"
+            @click="step = 'reset'"
+          >
+            Forgot password?
+          </Button>
+        </template>
+      </AppNotePasswordForm>
+      <label
+        v-if="passkey && !passkey.saved"
+        class="flex w-full items-center justify-between gap-4 text-left text-sm"
+      >
+        Unlock with a passkey next time
+        <Switch v-model="remember" />
+      </label>
+      <div v-if="passkey?.saved" class="flex flex-col items-center">
+        <Button variant="link" size="sm" @click="step = 'passkey'">
+          Use passkey instead
+        </Button>
+        <Button
+          variant="link"
+          size="xs"
+          class="text-muted-foreground h-auto text-xs font-light"
+          @click="forgetPasskey"
+        >
+          Stop using passkey for this note
+        </Button>
+      </div>
+    </template>
+    <template v-else-if="reset">
+      <AppNotePasswordForm
+        mode="set"
+        class="w-full text-left"
+        submit-text="Change password"
+        :submit="reset"
+      />
+      <Button variant="link" size="sm" @click="step = 'password'">
+        Back to unlock
+      </Button>
+    </template>
   </div>
 </template>

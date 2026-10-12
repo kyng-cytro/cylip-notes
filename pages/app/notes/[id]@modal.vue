@@ -9,6 +9,8 @@ const {
   locked,
   historyOpen,
   unlock,
+  passkey,
+  remember,
   reset,
   title,
   canEdit,
@@ -104,7 +106,7 @@ useScrollLock(() => (import.meta.client ? document.body : null), true);
           <XCircle class="size-5" />
         </Button>
       </TooltipWrapper>
-      <AppNoteUnlock :unlock :reset />
+      <AppNoteUnlock :unlock :passkey v-model:remember="remember" :reset />
     </Card>
     <Card
       v-else-if="loading"

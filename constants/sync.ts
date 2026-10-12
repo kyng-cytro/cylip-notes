@@ -49,6 +49,7 @@ export const STORAGE_NAMES = {
   syncState: (userId: string) => `cylip-sync-${userId}`,
   unlocks: (userId: string) => `cylip-unlocks-${userId}`,
   lockedCopies: (userId: string) => `cylip-locked-${userId}`,
+  passkeys: (userId: string) => `cylip-passkeys-${userId}`,
 };
 
 export const CLIENT_ROUTES = {
