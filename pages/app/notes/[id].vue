@@ -4,6 +4,7 @@ definePageMeta({
 });
 
 const { id } = useRoute("app-notes-id").params;
+await useNoteStore().ensureStarted();
 const {
   note,
   editor,
@@ -19,7 +20,7 @@ const {
   canEditTitle,
   background,
   suggestTitle,
-} = await useNotePage(id);
+} = useNotePage(id);
 </script>
 <template>
   <AppMainContainer

@@ -2,6 +2,7 @@
 import { XCircle } from "lucide-vue-next";
 
 const { id } = useParallelRoute("modal")!.params as { id: string };
+await useNoteStore().ensureStarted();
 const {
   note,
   editor,
@@ -17,7 +18,7 @@ const {
   canEditTitle,
   background,
   suggestTitle,
-} = await useNotePage(id);
+} = useNotePage(id);
 const viewportBox = useVisualViewportBox();
 const backdrop = useBackdropClose(() => useModalRouter().close());
 useScrollLock(() => (import.meta.client ? document.body : null), true);

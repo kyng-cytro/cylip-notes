@@ -76,8 +76,8 @@ const unlockAll = async () => {
 };
 </script>
 <template>
-  <Popover v-if="blocked" v-model:open="listOpen">
-    <TooltipWrapper :tooltip="tooltip">
+  <TooltipWrapper v-if="blocked" :tooltip="tooltip">
+    <Popover v-model:open="listOpen">
       <PopoverTrigger as-child>
         <Button
           variant="ghost"
@@ -93,48 +93,44 @@ const unlockAll = async () => {
           <span class="sr-only">{{ tooltip }}</span>
         </Button>
       </PopoverTrigger>
-    </TooltipWrapper>
-    <PopoverContent align="end" class="w-80 p-0">
-      <div class="flex items-center justify-between gap-2 border-b p-3">
-        <div>
-          <p class="text-sm font-semibold">Waiting to sync</p>
-          <p class="text-muted-foreground text-xs">
-            Unlock these notes to sync the changes made on this device.
-          </p>
-        </div>
-        <Button
-          v-if="savedNoteIds.length"
-          size="xs"
-          :loading="unlockingAll"
-          @click="unlockAll"
-        >
-          <FingerprintPattern class="size-3.5" />
-          Unlock all
-        </Button>
-      </div>
-      <ul class="max-h-80 divide-y overflow-y-auto">
-        <li
-          v-for="row in rows"
-          :key="row.noteId"
-          class="flex flex-col gap-1 p-3"
-        >
-          <div class="flex items-center justify-between gap-2">
-            <p class="truncate text-sm font-medium">
-              {{ row.note?.title || UNTITLED_NOTE }}
-            </p>
-            <p class="shrink-0 font-mono text-xs">
-              <span class="text-emerald-600">+{{ row.added }}</span>
-              /
-              <span class="text-red-600">−{{ row.removed }}</span>
+      <PopoverContent align="end" class="w-80 p-0">
+        <div class="flex items-center justify-between gap-2 border-b p-3">
+          <div>
+            <p class="text-sm font-semibold">Waiting to sync</p>
+            <p class="text-muted-foreground text-xs">
+              Unlock these notes to sync the changes made on this device.
             </p>
           </div>
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-muted-foreground text-xs">
-              <template v-if="row.note">
-                Edited {{ formatToTimeAgo(row.note.updatedAt) }}
-              </template>
-            </p>
-            <div class="flex gap-1">
+          <Button
+            v-if="savedNoteIds.length"
+            size="xs"
+            :loading="unlockingAll"
+            @click="unlockAll"
+          >
+            <FingerprintPattern class="size-3.5" />
+            Unlock all
+          </Button>
+        </div>
+        <ul class="max-h-80 divide-y overflow-y-auto">
+          <li
+            v-for="row in rows"
+            :key="row.noteId"
+            class="flex items-center justify-between gap-3 px-3 py-2"
+          >
+            <div class="min-w-0 space-y-0.5">
+              <p class="truncate text-sm font-medium">
+                {{ row.note?.title || UNTITLED_NOTE }}
+              </p>
+              <p class="text-muted-foreground truncate text-xs">
+                <template v-if="row.note">
+                  {{ formatToTimeAgo(row.note.updatedAt, { sentence: true }) }}
+                  ·
+                </template>
+                <span class="font-mono text-emerald-600">+{{ row.added }}</span>
+                <span class="font-mono text-red-600"> −{{ row.removed }}</span>
+              </p>
+            </div>
+            <div class="flex shrink-0 gap-1">
               <Button size="xs" variant="ghost" @click="approve(row.noteId)">
                 Approve
               </Button>
@@ -147,11 +143,11 @@ const unlockAll = async () => {
                 Discard
               </Button>
             </div>
-          </div>
-        </li>
-      </ul>
-    </PopoverContent>
-  </Popover>
+          </li>
+        </ul>
+      </PopoverContent>
+    </Popover>
+  </TooltipWrapper>
   <TooltipWrapper v-else :tooltip="tooltip">
     <Button
       variant="ghost"
