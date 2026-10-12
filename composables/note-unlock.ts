@@ -8,9 +8,12 @@ export const useNoteUnlock = (
   const passkey = computed(() => {
     if (!noteStore.passkeySupported) return undefined;
     const id = toValue(noteId);
+    const saved = noteStore.hasSavedPassword(id);
+    const failed = noteStore.passkeyFailed(id);
     return {
-      saved: noteStore.hasSavedPassword(id),
-      failed: noteStore.passkeyFailed(id),
+      saved,
+      failed,
+      canRemember: !saved || failed,
       forget: () => noteStore.forgetSavedPassword(id),
       unlock: async () => {
         const unlocked = await noteStore.tryPasskeyUnlock(id);
@@ -22,7 +25,7 @@ export const useNoteUnlock = (
 
   const unlock = async (password: string) => {
     await noteStore.unlockNote(toValue(noteId), password, {
-      remember: !!passkey.value && !passkey.value.saved && remember.value,
+      remember: !!passkey.value?.canRemember && remember.value,
     });
     onUnlocked();
   };

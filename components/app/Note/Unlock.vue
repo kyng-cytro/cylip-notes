@@ -9,6 +9,7 @@ const props = defineProps<{
   reset?: (password: string) => Promise<void>;
   passkey?: {
     saved: boolean;
+    canRemember: boolean;
     failed: boolean;
     unlock: () => Promise<boolean>;
     forget: () => Promise<void>;
@@ -97,7 +98,7 @@ const forgetPasskey = async () => {
         </template>
       </AppNotePasswordForm>
       <label
-        v-if="passkey && !passkey.saved"
+        v-if="passkey?.canRemember"
         class="flex w-full items-center justify-between gap-4 text-left text-sm"
       >
         Unlock with a passkey next time

@@ -1,4 +1,10 @@
-import { ALL_NOTES, LIMITS, SHARED_WITH_ME, SYNC_TIMING } from "@/constants";
+import {
+  ALL_NOTES,
+  LIMITS,
+  NOTE_PASSKEY,
+  SHARED_WITH_ME,
+  SYNC_TIMING,
+} from "@/constants";
 import { createId } from "@/lib/id";
 import {
   scopeFilters,
@@ -44,7 +50,7 @@ const uploadImage = async (file: Blob) => {
 };
 
 export const useNoteStore = defineStore("notes", () => {
-  const { user, preferences, getToken } = useUser();
+  const { user, preferences, getToken, updatePreferences } = useUser();
   const { refresh: refreshInvites } = useInvites();
   const engine = shallowRef<SyncEngine | null>(null);
   const passkeys = shallowRef<NotePasskeys | null>(null);
@@ -59,7 +65,7 @@ export const useNoteStore = defineStore("notes", () => {
     () => passkeys.value?.supported.value ?? false,
   );
   const passkeyRegistered = computed(
-    () => passkeys.value?.registered.value ?? false,
+    () => preferences.value.notePasskeyIds.length > 0,
   );
 
   const labels = computed<ClientLabel[]>(() =>
@@ -112,9 +118,19 @@ export const useNoteStore = defineStore("notes", () => {
   const startPasskeys = async () => {
     const created = markRaw(
       new NotePasskeys({
-        id: user.value!.id,
-        email: user.value!.email,
-        name: user.value!.name,
+        account: {
+          id: user.value!.id,
+          email: user.value!.email,
+          name: user.value!.name,
+        },
+        knownCredentialIds: () => preferences.value.notePasskeyIds,
+        saveCredentialId: (credentialId) =>
+          updatePreferences({
+            notePasskeyIds: [
+              ...preferences.value.notePasskeyIds,
+              credentialId,
+            ].slice(-NOTE_PASSKEY.maxKnownCredentials),
+          }),
       }),
     );
     await created.load(lockedAtOf);
@@ -346,7 +362,7 @@ export const useNoteStore = defineStore("notes", () => {
 
   const readyPasskey = async () => {
     try {
-      await passkeys.value!.unlockKey();
+      await passkeys.value!.setUp();
       return true;
     } catch (e: any) {
       toast.error("Couldn't use your passkey.", { description: e.message });
@@ -367,9 +383,8 @@ export const useNoteStore = defineStore("notes", () => {
   };
 
   const unlockWithPasskey = async (noteIds: string[]) => {
-    const passwords = await passkeys.value!.recall(
-      noteIds.filter(hasSavedPassword),
-    );
+    const savedIds = noteIds.filter(hasSavedPassword);
+    const passwords = await passkeys.value!.recall(savedIds);
     await Promise.all(
       [...passwords].map(([noteId, password]) =>
         unlockWithPassword(noteId, password).catch((e) => {
@@ -378,6 +393,9 @@ export const useNoteStore = defineStore("notes", () => {
         }),
       ),
     );
+    if (passwords.size < savedIds.length) {
+      throw new Error("Some saved passwords no longer work. Enter them again.");
+    }
   };
 
   const tryPasskeyUnlock = async (noteId: string) => {
