@@ -3,9 +3,8 @@ import { extensions } from "@/lib/tiptap";
 import { renderToMarkdown } from "@tiptap/static-renderer/pm/markdown";
 import type { Editor } from "@tiptap/vue-3";
 
-export const useNotePage = async (noteId: string) => {
+export const useNotePage = (noteId: string) => {
   const noteStore = useNoteStore();
-  await noteStore.ensureStarted();
 
   const note = computed(() => noteStore.getNoteById(noteId));
   const locked = computed(() => !!note.value?.locked);
