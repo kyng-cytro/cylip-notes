@@ -52,6 +52,7 @@ export class SyncEngine {
   private staleViews = new Set<string>();
   private syncing = false;
   private syncQueued = false;
+  private snapshot: WorkspaceSnapshot = { notes: {}, labels: {} };
 
   constructor(private options: Options) {
     this.state = new SyncState(options.userId);
@@ -63,7 +64,7 @@ export class SyncEngine {
     });
     this.workspaceDoc = new Workspace({
       ...options,
-      onChange: () => this.handleWorkspaceChange(),
+      onChange: (local) => this.handleWorkspaceChange(local),
       onConnect: () => this.requestSync(),
       onSynced: () => {
         this.workspaceSynced = true;
@@ -75,7 +76,8 @@ export class SyncEngine {
 
   async start() {
     await this.workspaceDoc.load();
-    this.workspace.value = this.workspaceDoc.snapshot();
+    this.snapshot = this.workspaceDoc.snapshot();
+    this.workspace.value = this.snapshot;
     const ids = this.loadableNoteIds();
     await Promise.all(ids.map((id) => this.loadDoc(id)));
     this.views.value = Object.fromEntries(
@@ -169,10 +171,16 @@ export class SyncEngine {
   };
 
   private markCaughtUp = () => {
+    if (this.caughtUp.value) return;
     clearTimeout(this.catchUpTimer);
-    this.flushViews();
     this.caughtUp.value = true;
+    this.publish();
   };
+
+  private publish() {
+    this.workspace.value = this.snapshot;
+    this.flushViews();
+  }
 
   private async sync() {
     this.locks.dropExpiredTokens();
@@ -298,7 +306,7 @@ export class SyncEngine {
   }
 
   private lockedAt(noteId: string) {
-    return this.workspace.value.notes[noteId]?.lockedAt;
+    return this.snapshot.notes[noteId]?.lockedAt;
   }
 
   private isLocked(noteId: string) {
@@ -314,7 +322,7 @@ export class SyncEngine {
   }
 
   private loadableNoteIds() {
-    return Object.keys(this.workspace.value.notes).filter(
+    return Object.keys(this.snapshot.notes).filter(
       (id) => !this.isLocked(id) || this.hasKey(id),
     );
   }
@@ -332,8 +340,10 @@ export class SyncEngine {
     for (const id of noteIds) this.workspaceDoc.removeNote(id);
   }
 
-  private handleWorkspaceChange() {
-    this.workspace.value = this.workspaceDoc.snapshot();
+  private handleWorkspaceChange(local = true) {
+    this.snapshot = this.workspaceDoc.snapshot();
+    if (this.caughtUp.value) this.workspace.value = this.snapshot;
+    else if (local) this.publish();
     const wanted = new Set(this.loadableNoteIds());
     const added = [...wanted].filter((id) => !this.docs.has(id));
     const removed = this.docs.ids().filter((id) => !wanted.has(id));
@@ -381,6 +391,7 @@ export class SyncEngine {
 
   private scheduleViewRefresh(noteId: string) {
     this.staleViews.add(noteId);
+    if (!this.caughtUp.value) return;
     clearTimeout(this.viewTimer);
     this.viewTimer = setTimeout(
       () => this.flushViews(),

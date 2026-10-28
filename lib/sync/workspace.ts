@@ -22,7 +22,7 @@ type Options = {
   userId: string;
   syncUrl: string;
   getToken: () => Promise<string>;
-  onChange: () => void;
+  onChange: (local: boolean) => void;
   onConnect: () => void;
   onSynced: () => void;
   onNoteChanged: (noteId: string) => void;
@@ -39,8 +39,10 @@ export class Workspace {
       STORAGE_NAMES.workspace(options.userId),
       this.doc,
     );
-    getNotesMap(this.doc).observeDeep(options.onChange);
-    getLabelsMap(this.doc).observeDeep(options.onChange);
+    const notifyChange = (_events: unknown, transaction: Y.Transaction) =>
+      options.onChange(transaction.local);
+    getNotesMap(this.doc).observeDeep(notifyChange);
+    getLabelsMap(this.doc).observeDeep(notifyChange);
   }
 
   load() {
